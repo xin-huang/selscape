@@ -1,0 +1,111 @@
+# Copyright 2025 Xin Huang and Simon Chen
+#
+# GNU General Public License v3.0
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, please see
+#
+#    https://www.gnu.org/licenses/gpl-3.0.en.html
+
+
+include: "rules/common.smk"
+include: "rules/1_download.smk"
+include: "rules/2_preprocess.smk"
+if "anc_genome" in main_config and main_config["anc_genome"]:
+     include: "rules/3_polarization.smk"
+     include: "rules/4.1_positive_selection_selscan.smk"
+     include: "rules/4.2_positive_selection_selscan_xp.smk"
+include: "rules/5_balancing_selection_betascan.smk"
+include: "rules/6_deleterious_dfe_dadi.smk"
+include: "rules/7_deleterious_jdfe_dadi.smk"
+
+
+report: "report/workflow.rst"
+
+
+rule all:
+    input:
+        # selscan
+        expand(
+            "results/selscan/{species}/1pop/{ppl}/{method}_{maf}/{ppl}.normalized.{method}.maf_{maf}.top_{cutoff}.{type}.png",
+            **SELSCAN_KW,
+            type=["scores", "gowinda.enrichment"],
+        ) if "anc_genome" in main_config and main_config["anc_genome"] else [],
+        expand(
+            "results/selscan/{species}/1pop/{ppl}/{method}_{maf}/{ppl}.normalized.{method}.maf_{maf}.top_{cutoff}.{type}.html",
+            **SELSCAN_KW,
+            type=["candidate.genes", "gowinda.enrichment"],
+        ) if "anc_genome" in main_config and main_config["anc_genome"] else [],
+        # selscan xp
+        expand(
+            "results/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.{type}.png",
+            **SELSCAN_XP_KW,
+            type=["scores", "gowinda.enrichment"],
+        ) if "anc_genome" in main_config and main_config["anc_genome"] else [],
+        expand(
+            "results/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.{type}.html",
+            **SELSCAN_XP_KW,
+            type=["candidate.genes", "gowinda.enrichment"],
+        ) if "anc_genome" in main_config and main_config["anc_genome"] else [],
+        # betascan
+        expand(
+            "results/betascan/{species}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.{type}.png",
+            **BETASCAN_KW,
+            type=["scores", "gowinda.enrichment"],
+        ),
+        expand(
+            "results/betascan/{species}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.{type}.html",
+            **BETASCAN_KW,
+            type=["candidate.genes", "gowinda.enrichment"],
+        ),
+        # dadi dfe
+        expand(
+            "results/dadi/{species}/dfe/{ppl}/plots/{ppl}.{ref_genome}.{demog}.fitted.png",
+            **DADI_1D_KW,
+        ),
+        expand(
+            "results/dadi/{species}/dfe/{ppl}/plots/{ppl}.{ref_genome}.{demog}.{dfe}.{type}.png",
+            **DADI_1D_KW,
+            dfe=dadi_config["dfe_1d"],
+            type=["fitted", "fitted.mut.prop"],
+        ),
+        expand(
+            "results/dadi/{species}/dfe/{ppl}/html/{ppl}.{ref_genome}.{demog}.InferDM.top10.bestfits.html",
+            **DADI_1D_KW,
+        ),
+        expand(
+            "results/dadi/{species}/dfe/{ppl}/html/{ppl}.{ref_genome}.{demog}.{dfe}.{type}.html",
+            **DADI_1D_KW,
+            dfe=dadi_config["dfe_1d"],
+            type=["godambe.ci", "InferDFE.top10.bestfits"],
+        ),
+        # dadi jdfe
+        expand(
+            "results/dadi/{species}/jdfe/{pair}/plots/{pair}.{ref_genome}.{demog}.fitted.png",
+            **DADI_2D_KW,
+        ),
+        expand(
+            "results/dadi/{species}/jdfe/{pair}/plots/{pair}.{ref_genome}.{demog}.biv_{dfe}.fitted.png",
+            **DADI_2D_KW,
+            dfe=dadi_config["dfe_2d"].removeprefix("biv_"),
+        ),
+        expand(
+            "results/dadi/{species}/jdfe/{pair}/html/{pair}.{ref_genome}.{demog}.InferDM.top10.bestfits.html",
+            **DADI_2D_KW,
+        ),
+        expand(
+            "results/dadi/{species}/jdfe/{pair}/html/{pair}.{ref_genome}.{demog}.biv_{dfe}.{type}.html",
+            **DADI_2D_KW,
+            dfe=dadi_config["dfe_2d"].removeprefix("biv_"),
+            type=["godambe.ci", "InferDFE.top10.bestfits"],
+        ),

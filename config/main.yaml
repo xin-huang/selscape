@@ -1,0 +1,57 @@
+# Main configuration for species and data paths
+
+species: "Human"
+tax_id: 9606
+
+ref_genome: "hg38"
+anc_genome: 
+  path: "examples/data/Human/ancestral_alleles/homo_sapiens_ancestor_GRCh38"
+  prefix: "homo_sapiens_ancestor_chr"
+
+genome_annotation: "examples/data/Human/annotation/Human.gtf.gz"
+gene2go: "examples/data/Human/annotation/gene2go.gz"
+
+ploidy: 2
+
+# Population definitions
+populations:
+  - YRI
+  - CHS
+
+# Data file configuration
+# Base folder for resources
+data_folder: "examples/data/Human/raw"
+  
+# VCF file naming convention: {file_prefix}chr{chr_name}{file_suffix}
+vcf_prefix: "full_chr"
+vcf_suffix: ".vcf.gz"
+    
+# Sample metadata file
+metadata: "examples/data/Human/metadata/example_metadata.txt"
+  
+# Chromosome range to analyze
+chromosomes:
+  #  - 1
+  #- 2
+  #- 3
+  #- 4
+  #- 5
+  #- 6
+  #- 7
+  #- 8
+  #- 9
+  #- 10
+  #- 11
+  #- 12
+  #- 13
+  #- 14
+  #- 15
+  #- 16
+  #- 17
+  #- 18
+  #- 19
+  #- 20
+  - 21
+  #- 22
+  #- X    
+  #- Y  

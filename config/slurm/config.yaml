@@ -1,0 +1,30 @@
+cluster:
+  mkdir -p logs_slurm/{rule} &&
+  sbatch
+    --nodes={resources.nodes}
+    --cpus-per-task={resources.cpus}
+    --mem={resources.mem_gb}G
+    --time={resources.time}
+    --job-name=smk-{rule}-{wildcards}
+    --output=logs_slurm/{rule}/{rule}-{wildcards}-%j
+    --partition={resources.partition}
+    --no-requeue
+default-resources:
+    - time=720
+    - nodes=1
+    - ntasks=1
+    - mem_gb=4
+    - cpus=1
+    - partition=basic
+restart-times: 3
+max-jobs-per-second: 10
+max-status-checks-per-second: 1
+local-cores: 1
+latency-wait: 180
+jobs: 200
+keep-going: True
+rerun-incomplete: True
+printshellcmds: True
+scheduler: greedy
+use-conda: True
+conda-frontend: conda
