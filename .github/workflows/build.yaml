@@ -1,0 +1,58 @@
+name: Tests
+on:
+  push:
+    branches:
+    - main
+    - dev
+    paths:
+      - "**/Snakefile"
+      - "**/*.smk"
+      - "**/*.py"
+      - "**/*.yaml"
+      - ".github/workflows/*"
+jobs:
+  Testing_dry_run:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Test workflow syntax (dry run)
+      uses: snakemake/snakemake-github-action@v1.25.1
+      with:
+        directory: .test/ci
+        snakefile: workflow/Snakefile
+        args: "--configfile config/main.yaml --use-conda --show-failed-logs -j 2 --dry-run --conda-frontend mamba"
+        stagein: "conda config --set channel_priority strict"
+
+  Testing_human_minimal:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Test workflow (Human chr22 only) - dry run
+      uses: snakemake/snakemake-github-action@v1.25.1
+      with:
+        directory: .test/ci
+        snakefile: workflow/Snakefile
+        args: "--configfile config/main.yaml --use-conda --show-failed-logs -j 2 --dry-run --conda-frontend mamba"
+
+  Testing_selscan_module:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Test Selscan module - dry run
+      uses: snakemake/snakemake-github-action@v1.25.1
+      with:
+        directory: .test/ci
+        snakefile: workflow/Snakefile
+        args: "--configfile config/main.yaml --use-conda --show-failed-logs -j 2 --dry-run --conda-frontend mamba --until merge_selscan_scores"
+
+  Testing_betascan_module:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Test Betascan module - dry run
+      uses: snakemake/snakemake-github-action@v1.25.1
+      with:
+        directory: .test/ci
+        snakefile: workflow/Snakefile
+        args: "--configfile config/main.yaml --use-conda --show-failed-logs -j 2 --dry-run --conda-frontend mamba --until merge_b1_scores"
+

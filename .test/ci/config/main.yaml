@@ -1,0 +1,34 @@
+# Main configuration for species and data paths
+
+species: "Human"
+tax_id: 9606
+
+ref_genome: "hg19"
+anc_genome: 
+  path: "data"
+  prefix: "test.chr"
+
+genome_annotation: "data/test.gtf.gz"
+gene2go: "data/test.gene2go.gz"
+
+ploidy: 2
+
+# Population definitions
+populations:
+  - YRI
+  - CHS
+
+# Data file configuration
+# Base folder for resources
+data_folder: "data"
+  
+# VCF file naming convention: {file_prefix}chr{chr_name}{file_suffix}
+vcf_prefix: "chr"
+vcf_suffix: ".hg19.test.vcf.gz"
+    
+# Sample metadata file
+metadata: "data/test_metadata.txt"
+  
+# Chromosome range to analyze
+chromosomes:
+  - 21

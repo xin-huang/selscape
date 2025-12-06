@@ -1,0 +1,32 @@
+# BetaScan analysis configuration
+
+# Data type
+unfolded: True
+
+# Core allele frequency parameters
+core_frq: 0.15
+
+# Allele frequency filters
+# Minimum allele frequency
+min_af: 0.05
+# Maximum allele frequency  
+max_af: 0.95
+
+# Quality control filters
+# Hardy-Weinberg equilibrium p-value threshold
+hwe_pvalue: 0.001
+
+# Repeat filters
+rmsk: "examples/data/Human/repeats/hg38.rmsk.autosomes.bed" # repeat masker
+seg_dup: "examples/data/Human/repeats/hg38.seg.dups.autosomes.bed" # segment duplications
+sim_rep: "examples/data/Human/repeats/hg38.simple.repeats.autosomes.bed" # simple repeats
+  
+# Statistical thresholds
+# Top proportion for candidate identification
+top_proportion: 0.0005
+
+# Manhattan plot settings
+manhattan_plot_width: 640
+manhattan_plot_height: 240
+manhattan_plot_color1: "#56B4E9"
+manhattan_plot_color2: "#F0E442"

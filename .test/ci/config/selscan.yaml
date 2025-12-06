@@ -1,0 +1,29 @@
+# Selscan analysis configuration
+
+# Data type configuration
+# Use unphased (true) or phased (false) data
+unphased: true
+
+# Selection statistics to compute
+# Within-population statistics
+wp_stats:
+  - ihs   
+  - nsl    
+  
+# Cross-population statistics  
+xp_stats:
+  - xpehh  
+  - xpnsl
+
+# Minor allele frequency thresholds
+maf: 0.05
+
+# Statistical thresholds
+# Top proportion for candidate identification
+top_proportion: 0.0005
+
+# Manhattan plot settings
+manhattan_plot_width: 640
+manhattan_plot_height: 240
+manhattan_plot_color1: "#56B4E9"
+manhattan_plot_color2: "#F0E442"

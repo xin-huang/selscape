@@ -1,0 +1,47 @@
+# DaDi-CLI analysis configuration
+
+unfolded: True
+
+# Demographic models
+demog_1d: two_epoch
+demog_1d_p0: "0.5 5 0.5"
+demog_1d_ub: "10 10 1"
+demog_1d_lb: "10e-5 10e-5 0"
+ 
+demog_2d: split_mig
+demog_2d_p0: "0.5 0.5 0.5 0.5 0.5"
+demog_2d_ub: "10 10 10 10 1"
+demog_2d_lb: "0.01 0.01 0.01 0.01 0.01"
+
+# DFE models
+dfe_1d: lognormal
+dfe_1d_p0: "5 5 0.5"
+dfe_1d_ub: "100 1000 1"
+dfe_1d_lb: "10e-5 10e-5 0"
+
+# Joint DFE models
+dfe_2d: biv_lognormal
+dfe_2d_p0: "1 1 1 1 .5 .5"
+dfe_2d_ub: "100 100 100 100 0.99 1"
+dfe_2d_lb: "0.01 0.01 0.01 0.01 -0.99 0.01"
+
+# Grid sizes
+dm_grid_size: "300 400 500"
+dfe_grid_size: "300 400 500"
+jdfe_grid_size: "300 400 500"
+
+# Gamma points for generating caches
+gamma_pts: 100
+
+# ratio of non-synonymous/synonymous mutation rates
+ratio: 2.31
+  
+# Number of optimization runs
+optimizations: 50
+  
+# Bootstrap parameters
+bootstrap_replicates: 100
+chunk_size: 1000000
+
+# Frequency spectrum flags
+mask_singletons: false

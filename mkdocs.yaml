@@ -1,0 +1,28 @@
+site_name: Selscape
+site_url: "https://xin-huang.github.io/selscape"
+repo_url: "https://github.com/xin-huang/selscape"
+edit_uri: ""
+docs_dir: 'docs'
+
+theme:
+  name: material
+  palette:
+    primary: teal
+    accent: indigo
+
+plugins:
+  - search
+
+markdown_extensions:
+  - extra
+  - tables
+  - fenced_code
+  - admonition
+  - codehilite
+
+nav:
+- Home: 'index.md'
+- User Guide:
+  - Usage: 'userguide/usage.md'
+  - Configuration: 'userguide/configuration.md'
+  - Output: 'userguide/output.md'
