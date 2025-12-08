@@ -20,7 +20,7 @@
 
 vcf_dir = "processed_data"
 folding_flag = ""
-if "anc_genome" in main_config and main_config["anc_genome"] and betascan_config["unfolded"]:
+if "anc_alleles" in main_config and main_config["anc_alleles"] and betascan_config["unfolded"]:
     vcf_dir = "polarized_data"
     folding_flag = "-fold"
 

@@ -21,10 +21,12 @@
 include: "rules/common.smk"
 include: "rules/1_download.smk"
 include: "rules/2_preprocess.smk"
-if "anc_genome" in main_config and main_config["anc_genome"]:
+
+if "anc_alleles" in main_config and main_config["anc_alleles"]:
      include: "rules/3_polarization.smk"
      include: "rules/4.1_positive_selection_selscan.smk"
      include: "rules/4.2_positive_selection_selscan_xp.smk"
+
 include: "rules/5_balancing_selection_betascan.smk"
 include: "rules/6_deleterious_dfe_dadi.smk"
 include: "rules/7_deleterious_jdfe_dadi.smk"

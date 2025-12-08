@@ -1,0 +1,66 @@
+$schema: "http://json-schema.org/draft-06/schema#"
+description: "selscan analysis configuration"
+
+type: object
+additionalProperties: false
+
+properties:
+  unphased:
+    type: boolean
+    default: true
+    description: "Use unphased (true) or phased (false) data"
+
+  wp_stats:
+    type: array
+    items:
+      type: string
+      enum: ["ihs", "nsl"]
+    minItems: 1
+    description: "Within-population statistics to compute"
+
+  xp_stats:
+    type: ["array", "null"]
+    items:
+      type: string
+      enum: ["xpehh", "xpnsl"]
+    description: "Cross-population statistics to compute"
+
+  maf:
+    type: number
+    minimum: 0.0
+    maximum: 0.5
+    default: 0.05
+    description: "Minor allele frequency threshold"
+
+  top_proportion:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    default: 0.0005
+    description: "Top proportion for candidate identification"
+
+  manhattan_plot_width:
+    type: integer
+    minimum: 100
+    default: 640
+
+  manhattan_plot_height:
+    type: integer
+    minimum: 100
+    default: 240
+
+  manhattan_plot_color1:
+    type: string
+    pattern: "^#[0-9A-Fa-f]{6}$"
+    default: "#56B4E9"
+
+  manhattan_plot_color2:
+    type: string
+    pattern: "^#[0-9A-Fa-f]{6}$"
+    default: "#F0E442"
+
+required:
+  - unphased
+  - wp_stats
+  - maf
+  - top_proportion

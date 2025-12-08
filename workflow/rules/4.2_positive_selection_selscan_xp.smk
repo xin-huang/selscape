@@ -18,7 +18,10 @@
 #    https://www.gnu.org/licenses/gpl-3.0.en.html
 
 
-phasing_flag = "--unphased" if selscan_config["unphased"] else ""
+phasing_flag = ""
+
+if selscan_config["unphased"] or main_config["ploidy"] > 2:
+    phasing_flag = "--unphased"
 
 
 rule extract_pair_snps:

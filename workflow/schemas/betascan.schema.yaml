@@ -1,0 +1,86 @@
+$schema: "http://json-schema.org/draft-06/schema#"
+description: "BetaScan analysis configuration"
+
+type: object
+additionalProperties: false
+
+properties:
+  unfolded:
+    type: boolean
+    default: True
+    description: "Use polarized/unfolded allele frequency spectrum"
+
+  core_frq:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    default: 0.15
+    description: "Core allele frequency parameter"
+
+  min_af:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    default: 0.05
+    description: "Minimum allele frequency"
+
+  max_af:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    default: 0.95
+    description: "Maximum allele frequency"
+
+  hwe_pvalue:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    default: 0.001
+    description: "Hardy-Weinberg equilibrium p-value threshold"
+
+  rmsk:
+    type: ["string", "null"]
+    description: "Path to repeat masker BED file"
+
+  seg_dup:
+    type: ["string", "null"]
+    description: "Path to segmental duplications BED file"
+
+  sim_rep:
+    type: ["string", "null"]
+    description: "Path to simple repeats BED file"
+
+  top_proportion:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    default: 0.0005
+    description: "Top proportion for candidate identification"
+
+  manhattan_plot_width:
+    type: integer
+    minimum: 100
+    default: 640
+
+  manhattan_plot_height:
+    type: integer
+    minimum: 100
+    default: 240
+
+  manhattan_plot_color1:
+    type: string
+    pattern: "^#[0-9A-Fa-f]{6}$"
+    default: "#56B4E9"
+
+  manhattan_plot_color2:
+    type: string
+    pattern: "^#[0-9A-Fa-f]{6}$"
+    default: "#F0E442"
+
+required:
+  - unfolded
+  - core_frq
+  - min_af
+  - max_af
+  - hwe_pvalue
+  - top_proportion

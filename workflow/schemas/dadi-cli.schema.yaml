@@ -1,0 +1,134 @@
+$schema: "http://json-schema.org/draft-06/schema#"
+description: "dadi-cli analysis configuration"
+
+type: object
+additionalProperties: false
+
+properties:
+  unfolded:
+    type: boolean
+    default: True
+    decription: "Use polarized/unfolded allele frequency spectrum"
+
+  demog_1d:
+    type: string
+    description: "1D demographic model name"
+
+  demog_1d_p0:
+    type: string
+    description: "Initial parameters for 1D demographic model"
+
+  demog_1d_ub:
+    type: string
+    description: "Upper bounds for 1D demographic model parameters"
+
+  demog_1d_lb:
+    type: string
+    description: "Lower bounds for 1D demographic model parameters"
+
+  demog_2d:
+    type: string
+    description: "2D demographic model name"
+
+  demog_2d_p0:
+    type: string
+    description: "Initial parameters for 2D demographic model"
+
+  demog_2d_ub:
+    type: string
+    description: "Upper bounds for 2D demographic model parameters"
+
+  demog_2d_lb:
+    type: string
+    description: "Lower bounds for 2D demographic model parameters"
+
+  dfe_1d:
+    type: string
+    description: "1D DFE model name"
+
+  dfe_1d_p0:
+    type: string
+    description: "Initial parameters for 1D DFE model"
+
+  dfe_1d_ub:
+    type: string
+    description: "Upper bounds for 1D DFE model parameters"
+
+  dfe_1d_lb:
+    type: string
+    description: "Lower bounds for 1D DFE model parameters"
+
+  dfe_2d:
+    type: string
+    description: "2D DFE model name"
+
+  dfe_2d_p0:
+    type: string
+    description: "Initial parameters for 2D DFE model"
+
+  dfe_2d_ub:
+    type: string
+    description: "Upper bounds for 2D DFE model parameters"
+
+  dfe_2d_lb:
+    type: string
+    description: "Lower bounds for 2D DFE model parameters"
+
+  dm_grid_size:
+    type: string
+    pattern: "^[0-9]+ [0-9]+ [0-9]+$"
+    description: "Grid sizes for demographic inference"
+
+  dfe_grid_size:
+    type: string
+    pattern: "^[0-9]+ [0-9]+ [0-9]+$"
+    description: "Grid sizes for DFE inference"
+
+  jdfe_grid_size:
+    type: string
+    pattern: "^[0-9]+ [0-9]+ [0-9]+$"
+    description: "Grid sizes for joint DFE inference"
+
+  gamma_pts:
+    type: integer
+    minimum: 10
+    default: 100
+    description: "Number of gamma points for cache generation"
+
+  ratio:
+    type: number
+    minimum: 0.0
+    default: 2.31
+    description: "Ratio of non-synonymous to synonymous mutation rates"
+
+  optimizations:
+    type: integer
+    minimum: 1
+    default: 50
+    description: "Number of optimization runs"
+
+  bootstrap_replicates:
+    type: integer
+    minimum: 1
+    default: 100
+    description: "Number of bootstrap replicates"
+
+  chunk_size:
+    type: integer
+    minimum: 1000
+    default: 1000000
+    description: "Chunk size for bootstrapping"
+
+  mask_singletons:
+    type: boolean
+    default: false
+    description: "Whether to mask singleton variants"
+
+required:
+  - unfolded
+  - demog_1d
+  - demog_2d
+  - dfe_1d
+  - dfe_2d
+  - ratio
+  - optimizations

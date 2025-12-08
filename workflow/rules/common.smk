@@ -22,37 +22,28 @@ import yaml
 import os
 import sys
 from itertools import combinations
-
+from snakemake.utils import validate
 
 # CONFIGURATION LOADING
 
-
-def load_configs():
-    """Load all configuration files and return as dict."""
-    configs = {}
-
-    with open("config/main.yaml", "r") as f:
-        configs["main"] = yaml.safe_load(f)
-
-    with open("config/selscan.yaml", "r") as f:
-        configs["selscan"] = yaml.safe_load(f)
-
-    with open("config/betascan.yaml", "r") as f:
-        configs["betascan"] = yaml.safe_load(f)
-
-    with open("config/dadi-cli.yaml", "r") as f:
-        configs["dadi"] = yaml.safe_load(f)
-
-    return configs
-
+main_config = config
 
 # Load configs
-configs = load_configs()
-main_config = configs["main"]
-selscan_config = configs["selscan"]
-betascan_config = configs["betascan"]
-dadi_config = configs["dadi"]
 
+with open(main_config["selscan_config"], "r") as f:
+    selscan_config = yaml.safe_load(f)
+
+with open(main_config["betascan_config"], "r") as f:
+    betascan_config = yaml.safe_load(f)
+
+with open(main_config["dadi_config"], "r") as f:
+    dadi_config = yaml.safe_load(f)
+
+# Config Validation
+validate(main_config, schema="../schemas/config.schema.yaml")
+validate(selscan_config, schema="../schemas/selscan.schema.yaml")
+validate(betascan_config, schema="../schemas/betascan.schema.yaml")
+validate(dadi_config, schema="../schemas/dadi-cli.schema.yaml")
 
 SELSCAN_KW = dict(
     species=main_config["species"],
@@ -98,7 +89,7 @@ selscan_method_names = {"ihs": "iHS", "nsl": "nSL", "xpehh": "XP-EHH", "xpnsl": 
 
 def get_anc_allele_bed(wildcards):
     """Get ancestral allele bed files."""
-    return f"{main_config['anc_genome']['path']}/{main_config['anc_genome']['prefix']}{wildcards.i}.bed.gz"
+    return f"{main_config['anc_alleles']['path']}/{main_config['anc_alleles']['prefix']}{wildcards.i}.bed.gz"
 
 
 def get_vcf_input_path(wildcards):
@@ -185,3 +176,5 @@ def fitted_jdfe_labels(wildcards, type: str = "Model Fit") -> dict[str, str]:
         "DFE Model": f"biv_{wildcards.dfe}",
         "Type": type,
     }
+
+

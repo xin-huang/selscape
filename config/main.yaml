@@ -4,7 +4,7 @@ species: "Human"
 tax_id: 9606
 
 ref_genome: "hg38"
-anc_genome: 
+anc_alleles: 
   path: "examples/data/Human/ancestral_alleles/homo_sapiens_ancestor_GRCh38"
   prefix: "homo_sapiens_ancestor_chr"
 
@@ -31,7 +31,7 @@ metadata: "examples/data/Human/metadata/example_metadata.txt"
   
 # Chromosome range to analyze
 chromosomes:
-  #  - 1
+  #- 1
   #- 2
   #- 3
   #- 4
@@ -54,4 +54,8 @@ chromosomes:
   - 21
   #- 22
   #- X    
-  #- Y  
+  #- Y 
+
+selscan_config: "config/selscan.yaml"
+betascan_config: "config/betascan.yaml"
+dadi_config: "config/dadi-cli.yaml"

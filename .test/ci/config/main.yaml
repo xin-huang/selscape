@@ -4,12 +4,12 @@ species: "Human"
 tax_id: 9606
 
 ref_genome: "hg19"
-anc_genome: 
-  path: "data"
+anc_alleles: 
+  path: ".test/ci/data"
   prefix: "test.chr"
 
-genome_annotation: "data/test.gtf.gz"
-gene2go: "data/test.gene2go.gz"
+genome_annotation: ".test/ci/data/test.gtf.gz"
+gene2go: ".test/ci/data/test.gene2go.gz"
 
 ploidy: 2
 
@@ -20,15 +20,19 @@ populations:
 
 # Data file configuration
 # Base folder for resources
-data_folder: "data"
+data_folder: ".test/ci/data"
   
 # VCF file naming convention: {file_prefix}chr{chr_name}{file_suffix}
 vcf_prefix: "chr"
 vcf_suffix: ".hg19.test.vcf.gz"
     
 # Sample metadata file
-metadata: "data/test_metadata.txt"
+metadata: ".test/ci/data/test_metadata.txt"
   
 # Chromosome range to analyze
 chromosomes:
   - 21
+
+selscan_config: ".test/ci/config/selscan.yaml"
+betascan_config: ".test/ci/config/betascan.yaml"
+dadi_config: ".test/ci/config/dadi-cli.yaml"

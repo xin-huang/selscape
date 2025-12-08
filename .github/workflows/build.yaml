@@ -18,9 +18,9 @@ jobs:
     - name: Test workflow syntax (dry run)
       uses: snakemake/snakemake-github-action@v1.25.1
       with:
-        directory: .test/ci
+        directory: .
         snakefile: workflow/Snakefile
-        args: "--configfile config/main.yaml --use-conda --show-failed-logs -j 2 --dry-run --conda-frontend mamba"
+        args: "--configfile .test/ci/config/main.yaml --use-conda --show-failed-logs -j 2 --dry-run --conda-frontend conda"
         stagein: "conda config --set channel_priority strict"
 
   Testing_human_minimal:
@@ -30,9 +30,9 @@ jobs:
     - name: Test workflow (Human chr22 only) - dry run
       uses: snakemake/snakemake-github-action@v1.25.1
       with:
-        directory: .test/ci
+        directory: .
         snakefile: workflow/Snakefile
-        args: "--configfile config/main.yaml --use-conda --show-failed-logs -j 2 --dry-run --conda-frontend mamba"
+        args: "--configfile .test/ci/config/main.yaml --use-conda --show-failed-logs -j 2 --dry-run --conda-frontend conda"
 
   Testing_selscan_module:
     runs-on: ubuntu-latest
@@ -41,9 +41,9 @@ jobs:
     - name: Test Selscan module - dry run
       uses: snakemake/snakemake-github-action@v1.25.1
       with:
-        directory: .test/ci
+        directory: .
         snakefile: workflow/Snakefile
-        args: "--configfile config/main.yaml --use-conda --show-failed-logs -j 2 --dry-run --conda-frontend mamba --until merge_selscan_scores"
+        args: "--configfile .test/ci/config/main.yaml --use-conda --show-failed-logs -j 2 --dry-run --conda-frontend conda --until merge_selscan_scores"
 
   Testing_betascan_module:
     runs-on: ubuntu-latest
@@ -52,7 +52,7 @@ jobs:
     - name: Test Betascan module - dry run
       uses: snakemake/snakemake-github-action@v1.25.1
       with:
-        directory: .test/ci
+        directory: .
         snakefile: workflow/Snakefile
-        args: "--configfile config/main.yaml --use-conda --show-failed-logs -j 2 --dry-run --conda-frontend mamba --until merge_b1_scores"
+        args: "--configfile .test/ci/config/main.yaml --use-conda --show-failed-logs -j 2 --dry-run --conda-frontend conda --until merge_b1_scores"
 
