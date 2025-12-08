@@ -21,7 +21,7 @@
 import numpy as np
 
 example_pops = ["YRI", "CHS"]
-example_chrs = ["21"]
+example_chrs = ["20","21"]
 
 
 # Separate rule for just creating examples

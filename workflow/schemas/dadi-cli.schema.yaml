@@ -26,22 +26,6 @@ properties:
     type: string
     description: "Lower bounds for 1D demographic model parameters"
 
-  demog_2d:
-    type: string
-    description: "2D demographic model name"
-
-  demog_2d_p0:
-    type: string
-    description: "Initial parameters for 2D demographic model"
-
-  demog_2d_ub:
-    type: string
-    description: "Upper bounds for 2D demographic model parameters"
-
-  demog_2d_lb:
-    type: string
-    description: "Lower bounds for 2D demographic model parameters"
-
   dfe_1d:
     type: string
     description: "1D DFE model name"
@@ -58,22 +42,6 @@ properties:
     type: string
     description: "Lower bounds for 1D DFE model parameters"
 
-  dfe_2d:
-    type: string
-    description: "2D DFE model name"
-
-  dfe_2d_p0:
-    type: string
-    description: "Initial parameters for 2D DFE model"
-
-  dfe_2d_ub:
-    type: string
-    description: "Upper bounds for 2D DFE model parameters"
-
-  dfe_2d_lb:
-    type: string
-    description: "Lower bounds for 2D DFE model parameters"
-
   dm_grid_size:
     type: string
     pattern: "^[0-9]+ [0-9]+ [0-9]+$"
@@ -83,11 +51,6 @@ properties:
     type: string
     pattern: "^[0-9]+ [0-9]+ [0-9]+$"
     description: "Grid sizes for DFE inference"
-
-  jdfe_grid_size:
-    type: string
-    pattern: "^[0-9]+ [0-9]+ [0-9]+$"
-    description: "Grid sizes for joint DFE inference"
 
   gamma_pts:
     type: integer
@@ -127,8 +90,6 @@ properties:
 required:
   - unfolded
   - demog_1d
-  - demog_2d
   - dfe_1d
-  - dfe_2d
   - ratio
   - optimizations

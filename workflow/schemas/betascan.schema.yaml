@@ -31,25 +31,6 @@ properties:
     default: 0.95
     description: "Maximum allele frequency"
 
-  hwe_pvalue:
-    type: number
-    minimum: 0.0
-    maximum: 1.0
-    default: 0.001
-    description: "Hardy-Weinberg equilibrium p-value threshold"
-
-  rmsk:
-    type: ["string", "null"]
-    description: "Path to repeat masker BED file"
-
-  seg_dup:
-    type: ["string", "null"]
-    description: "Path to segmental duplications BED file"
-
-  sim_rep:
-    type: ["string", "null"]
-    description: "Path to simple repeats BED file"
-
   top_proportion:
     type: number
     minimum: 0.0
@@ -82,5 +63,4 @@ required:
   - core_frq
   - min_af
   - max_af
-  - hwe_pvalue
   - top_proportion

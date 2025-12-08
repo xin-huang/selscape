@@ -35,6 +35,12 @@ color1 <- snakemake@params[["color1"]]
 color2 <- snakemake@params[["color2"]]
 output_plot <- snakemake@output[["plot"]]
 
+sort_order <- if (!is.null(snakemake@params[["sort_order"]])) {
+  tolower(snakemake@params[["sort_order"]])
+} else {
+  "desc"
+}
+
 data <- read.table(input_file, header = TRUE)
 
 score_used_col <- if (use_absolute) {
@@ -45,17 +51,38 @@ score_used_col <- if (use_absolute) {
   score_column
 }
 
-data_sorted <- data[order(-data[[score_used_col]]), ]
+data_sorted <- if (sort_order == "asc") {
+  data[order(data[[score_used_col]]), ]
+} else {
+  data[order(-data[[score_used_col]]), ]
+}
 
 top_n <- as.integer(nrow(data) * cutoff)
 if (top_n < 1) stop("cutoff too small; no candidates selected.")
 top_candidates <- data_sorted[1:top_n, ]
 write.table(top_candidates, file = output_table, quote = FALSE, sep = "\t", row.names = FALSE)
 
-threshold <- min(top_candidates[[score_used_col]])
+threshold <- if (sort_order == "asc") {
+  max(top_candidates[[score_used_col]])
+} else {
+  min(top_candidates[[score_used_col]])
+}
+
+ylab_text <- if (!is.null(snakemake@params[["ylab"]])) {
+  snakemake@params[["ylab"]]
+} else if (use_absolute) {
+  paste0("|", score_column, "|")
+} else {
+  score_column
+}
+
+y <- data[[score_used_col]]
+ymin <- min(y, 0, na.rm = TRUE)
+ymax <- max(y, 0, na.rm = TRUE)
 
 png(output_plot, width = plot_width, height = plot_height, units = "px")
 manhattan(data, p = score_used_col, logp = FALSE, genomewideline = threshold,
           suggestiveline = FALSE, col = c(color1, color2),
-          ylab = if (use_absolute) paste0("|", score_column, "|") else score_column)
+          ylab = ylab_text, ylim = c(ymin, ymax))
+
 dev.off()

@@ -6,4 +6,5 @@ logs
 logs_slurm
 resources*
 results*
+report.html
 *__pycache__*

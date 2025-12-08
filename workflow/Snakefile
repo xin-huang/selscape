@@ -22,14 +22,19 @@ include: "rules/common.smk"
 include: "rules/1_download.smk"
 include: "rules/2_preprocess.smk"
 
-if "anc_alleles" in main_config and main_config["anc_alleles"]:
-     include: "rules/3_polarization.smk"
-     include: "rules/4.1_positive_selection_selscan.smk"
-     include: "rules/4.2_positive_selection_selscan_xp.smk"
 
-include: "rules/5_balancing_selection_betascan.smk"
+if "anc_alleles" in main_config and main_config["anc_alleles"]:
+
+    include: "rules/3_polarization.smk"
+    include: "rules/4.1_positive_selection_selscan.smk"
+    include: "rules/4.2_positive_selection_selscan_xp.smk"
+
+
+include: "rules/4.3_positive_selection_scikit-allel.smk"
+include: "rules/4.4_positive_selection_scikit-allel_xp.smk"
+include: "rules/5.1_balancing_selection_betascan.smk"
+include: "rules/5.2_balancing_selection_scikit-allel.smk"
 include: "rules/6_deleterious_dfe_dadi.smk"
-include: "rules/7_deleterious_jdfe_dadi.smk"
 
 
 report: "report/workflow.rst"
@@ -39,34 +44,42 @@ rule all:
     input:
         # selscan
         expand(
-            "results/selscan/{species}/1pop/{ppl}/{method}_{maf}/{ppl}.normalized.{method}.maf_{maf}.top_{cutoff}.{type}.png",
+            "results/positive_selection/selscan/{species}/1pop/{ppl}/{method}_{maf}/{ppl}.normalized.{method}.maf_{maf}.top_{cutoff}.{type}.png",
             **SELSCAN_KW,
             type=["scores", "gowinda.enrichment"],
-        ) if "anc_genome" in main_config and main_config["anc_genome"] else [],
+        )
+        if "anc_alleles" in main_config and main_config["anc_alleles"]
+        else [],
         expand(
-            "results/selscan/{species}/1pop/{ppl}/{method}_{maf}/{ppl}.normalized.{method}.maf_{maf}.top_{cutoff}.{type}.html",
+            "results/positive_selection/selscan/{species}/1pop/{ppl}/{method}_{maf}/{ppl}.normalized.{method}.maf_{maf}.top_{cutoff}.{type}.html",
             **SELSCAN_KW,
             type=["candidate.genes", "gowinda.enrichment"],
-        ) if "anc_genome" in main_config and main_config["anc_genome"] else [],
+        )
+        if "anc_alleles" in main_config and main_config["anc_alleles"]
+        else [],
         # selscan xp
         expand(
-            "results/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.{type}.png",
+            "results/positive_selection/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.{type}.png",
             **SELSCAN_XP_KW,
             type=["scores", "gowinda.enrichment"],
-        ) if "anc_genome" in main_config and main_config["anc_genome"] else [],
+        )
+        if "anc_alleles" in main_config and main_config["anc_alleles"]
+        else [],
         expand(
-            "results/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.{type}.html",
+            "results/positive_selection/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.{type}.html",
             **SELSCAN_XP_KW,
             type=["candidate.genes", "gowinda.enrichment"],
-        ) if "anc_genome" in main_config and main_config["anc_genome"] else [],
+        )
+        if "anc_alleles" in main_config and main_config["anc_alleles"]
+        else [],
         # betascan
         expand(
-            "results/betascan/{species}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.{type}.png",
+            "results/balancing_selection/betascan/{species}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.{type}.png",
             **BETASCAN_KW,
             type=["scores", "gowinda.enrichment"],
         ),
         expand(
-            "results/betascan/{species}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.{type}.html",
+            "results/balancing_selection/betascan/{species}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.{type}.html",
             **BETASCAN_KW,
             type=["candidate.genes", "gowinda.enrichment"],
         ),
@@ -91,23 +104,56 @@ rule all:
             dfe=dadi_config["dfe_1d"],
             type=["godambe.ci", "InferDFE.top10.bestfits"],
         ),
-        # dadi jdfe
+        # moving tajima d
         expand(
-            "results/dadi/{species}/jdfe/{pair}/plots/{pair}.{ref_genome}.{demog}.fitted.png",
-            **DADI_2D_KW,
+            "results/positive_selection/scikit-allel/{species}/1pop/{ppl}/{method}/{window}_{step}/{ppl}.{method}.top_{cutoff}.{type}.png",
+            **TAJIMAD_MOVING_KW,
+            type=["scores", "gowinda.enrichment"],
         ),
         expand(
-            "results/dadi/{species}/jdfe/{pair}/plots/{pair}.{ref_genome}.{demog}.biv_{dfe}.fitted.png",
-            **DADI_2D_KW,
-            dfe=dadi_config["dfe_2d"].removeprefix("biv_"),
+            "results/positive_selection/scikit-allel/{species}/1pop/{ppl}/{method}/{window}_{step}/{ppl}.{method}.top_{cutoff}.{type}.html",
+            **TAJIMAD_MOVING_KW,
+            type=["candidate.genes", "gowinda.enrichment"],
         ),
         expand(
-            "results/dadi/{species}/jdfe/{pair}/html/{pair}.{ref_genome}.{demog}.InferDM.top10.bestfits.html",
-            **DADI_2D_KW,
+            "results/balancing_selection/scikit-allel/{species}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.top_{cutoff}.{type}.png",
+            **TAJIMAD_MOVING_KW,
+            type=["scores", "gowinda.enrichment"],
         ),
         expand(
-            "results/dadi/{species}/jdfe/{pair}/html/{pair}.{ref_genome}.{demog}.biv_{dfe}.{type}.html",
-            **DADI_2D_KW,
-            dfe=dadi_config["dfe_2d"].removeprefix("biv_"),
-            type=["godambe.ci", "InferDFE.top10.bestfits"],
+            "results/balancing_selection/scikit-allel/{species}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.top_{cutoff}.{type}.html",
+            **TAJIMAD_MOVING_KW,
+            type=["candidate.genes", "gowinda.enrichment"],
+        ),
+        # windowed tajima d
+        expand(
+            "results/positive_selection/scikit-allel/{species}/1pop/{ppl}/{method}/{window}_{step}/{ppl}.{method}.top_{cutoff}.{type}.png",
+            **TAJIMAD_WINDOWED_KW,
+            type=["scores", "gowinda.enrichment"],
+        ),
+        expand(
+            "results/positive_selection/scikit-allel/{species}/1pop/{ppl}/{method}/{window}_{step}/{ppl}.{method}.top_{cutoff}.{type}.html",
+            **TAJIMAD_WINDOWED_KW,
+            type=["candidate.genes", "gowinda.enrichment"],
+        ),
+        expand(
+            "results/balancing_selection/scikit-allel/{species}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.top_{cutoff}.{type}.png",
+            **TAJIMAD_WINDOWED_KW,
+            type=["scores", "gowinda.enrichment"],
+        ),
+        expand(
+            "results/balancing_selection/scikit-allel/{species}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.top_{cutoff}.{type}.html",
+            **TAJIMAD_WINDOWED_KW,
+            type=["candidate.genes", "gowinda.enrichment"],
+        ),
+        # delta moving tajima d
+        expand(
+            "results/positive_selection/scikit-allel/{species}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.{type}.png",
+            **DELTA_TAJIMAD_KW,
+            type=["scores", "gowinda.enrichment"],
+        ),
+        expand(
+            "results/positive_selection/scikit-allel/{species}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.{type}.html",
+            **DELTA_TAJIMAD_KW,
+            type=["candidate.genes", "gowinda.enrichment"],
         ),

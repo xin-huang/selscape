@@ -30,7 +30,7 @@ rule polarize_1pop:
     log:
         "logs/polarization/polarize_1pop.{species}.{ppl}.chr{i}.log",
     conda:
-        "../envs/selscape-env.yaml",
+        "../envs/selscape-env.yaml"
     script:
         "../scripts/polarize_snps.py"
 
@@ -47,7 +47,7 @@ rule polarize_2pop:
     log:
         "logs/polarization/polarize_2pop.{species}.{pair}.chr{i}.log",
     conda:
-        "../envs/selscape-env.yaml",
+        "../envs/selscape-env.yaml"
     script:
         "../scripts/polarize_snps.py"
 
@@ -64,7 +64,7 @@ rule polarize_1pop_exonic_data:
     log:
         "logs/polarization/polarize_1pop_exonic_data.{species}.{ppl}.chr{i}.{mut_type}.{ref_genome}.log",
     conda:
-        "../envs/selscape-env.yaml",
+        "../envs/selscape-env.yaml"
     script:
         "../scripts/polarize_snps.py"
 
@@ -81,7 +81,7 @@ rule polarize_2pop_exonic_data:
     log:
         "logs/polarization/polarize_2pop_exonic_data.{species}.{pair}.chr{i}.{mut_type}.{ref_genome}.log",
     conda:
-        "../envs/selscape-env.yaml",
+        "../envs/selscape-env.yaml"
     script:
         "../scripts/polarize_snps.py"
 
@@ -99,7 +99,7 @@ rule concat_polarized_1pop_exonic_data:
     log:
         "logs/polarization/concat_polarized_1pop_exonic_data.{species}.{ppl}.{mut_type}.{ref_genome}.log",
     conda:
-        "../envs/selscape-env.yaml",
+        "../envs/selscape-env.yaml"
     shell:
         """
         ( bcftools concat {input.vcfs} | bgzip -c > {output.vcf} ) 2> {log}
@@ -120,9 +120,72 @@ rule concat_polarized_2pop_exonic_data:
     log:
         "logs/polarization/concat_polarized_2pop_exonic_data.{species}.{pair}.{mut_type}.{ref_genome}.log",
     conda:
-        "../envs/selscape-env.yaml",
+        "../envs/selscape-env.yaml"
     shell:
         """
         ( bcftools concat {input.vcfs} | bgzip -c > {output.vcf} ) 2> {log}
         tabix -p vcf {output.vcf} 2>> {log}
+        """
+
+rule test_hwe_polarized:
+    input:
+        vcf=rules.polarize_1pop.output.vcf,
+    output:
+        hwe_outliers=temp(
+            "results/polarized_data/{species}/1pop/{ppl}/{ppl}.chr{i}.biallelic.snps.hwe.outliers"
+        ),
+    params:
+        output_prefix="results/polarized_data/{species}/1pop/{ppl}/{ppl}.chr{i}.biallelic.snps",
+        hwe_threshold=main_config["hwe_pvalue"],
+    log:
+        "logs/polarization/test_hwe_polarized.{species}.{ppl}.chr{i}.log",
+    conda:
+        "../envs/selscape-env.yaml"
+    shell:
+        """
+        plink --vcf {input.vcf} --hardy --out {params.output_prefix} --set-missing-var-ids @:# 2> {log}
+        ( awk '$7>$8' {params.output_prefix}.hwe | \
+        sed '1d' | \
+        awk -v threshold={params.hwe_threshold} '$9<threshold{{print $2}}' | \
+        awk -F ":" '{{print $1"\\t"$2}}' > {output.hwe_outliers} ) 2>> {log}
+        """
+
+
+rule remove_repeats_polarized:
+    input:
+        vcf=rules.polarize_1pop.output.vcf,
+        hwe_outliers=rules.test_hwe_polarized.output.hwe_outliers,
+    output:
+        vcf=temp("results/polarized_data/{species}/1pop/{ppl}/{ppl}.chr{i}.biallelic.snps.repeats.removed.vcf.gz"),
+        idx=temp("results/polarized_data/{species}/1pop/{ppl}/{ppl}.chr{i}.biallelic.snps.repeats.removed.vcf.gz.tbi"),
+    params:
+        rmsk=main_config["rmsk"] if "rmsk" in main_config else "",
+        seg_dup=main_config["seg_dup"] if "seg_dup" in main_config else "",
+        sim_rep=main_config["sim_rep"] if "sim_rep" in main_config else "",
+    log:
+        "logs/polarization/remove_repeats_polarized.{species}.{ppl}.chr{i}.log",
+    conda:
+        "../envs/selscape-env.yaml"
+    shell:
+        """
+        set -e
+        exec 2> {log}
+
+        cmd="bcftools view {input.vcf}"
+        if [ -n "{params.rmsk}" ] && [ -s "{params.rmsk}" ]; then
+            cmd="$cmd | bcftools view -T ^{params.rmsk}"
+        fi
+        if [ -n "{params.sim_rep}" ] && [ -s "{params.sim_rep}" ]; then
+            cmd="$cmd | bcftools view -T ^{params.sim_rep}"
+        fi
+        if [ -n "{params.seg_dup}" ] && [ -s "{params.seg_dup}" ]; then
+            cmd="$cmd | bcftools view -T ^{params.seg_dup}"
+        fi
+        if [ -s "{input.hwe_outliers}" ]; then
+            cmd="$cmd | bcftools view -T ^{input.hwe_outliers}"
+        fi
+        cmd="$cmd | bgzip -c > {output.vcf}"
+        eval "$cmd"
+
+        tabix -p vcf {output.vcf}
         """

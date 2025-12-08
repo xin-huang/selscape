@@ -39,11 +39,16 @@ with open(main_config["betascan_config"], "r") as f:
 with open(main_config["dadi_config"], "r") as f:
     dadi_config = yaml.safe_load(f)
 
+with open(main_config["scikit_allel_config"], "r") as f:
+    scikit_allel_config = yaml.safe_load(f)
+
 # Config Validation
 validate(main_config, schema="../schemas/config.schema.yaml")
 validate(selscan_config, schema="../schemas/selscan.schema.yaml")
 validate(betascan_config, schema="../schemas/betascan.schema.yaml")
 validate(dadi_config, schema="../schemas/dadi-cli.schema.yaml")
+validate(scikit_allel_config, schema="../schemas/scikit-allel.schema.yaml")
+
 
 SELSCAN_KW = dict(
     species=main_config["species"],
@@ -76,16 +81,42 @@ DADI_1D_KW = dict(
     demog=dadi_config["demog_1d"],
 )
 
-DADI_2D_KW = dict(
+TAJIMAD_MOVING_KW = dict(
     species=main_config["species"],
-    pair=["_".join(pair) for pair in combinations(main_config["populations"], 2)],
-    ref_genome=main_config["ref_genome"],
-    demog=dadi_config["demog_2d"],
+    ppl=main_config["populations"],
+    method="moving_tajima_d",
+    window=scikit_allel_config["moving_window_sizes"],
+    step=scikit_allel_config["moving_step_size_ratios"],
+    cutoff=scikit_allel_config["top_proportion"],
 )
 
-selscan_method_names = {"ihs": "iHS", "nsl": "nSL", "xpehh": "XP-EHH", "xpnsl": "XP-nSL"}
+TAJIMAD_WINDOWED_KW = dict(
+    species=main_config["species"],
+    ppl=main_config["populations"],
+    method="windowed_tajima_d",
+    window=scikit_allel_config["windowed_window_sizes"],
+    step=scikit_allel_config["windowed_step_size_ratios"],
+    cutoff=scikit_allel_config["top_proportion"],
+)
+
+DELTA_TAJIMAD_KW = dict(
+    species=main_config["species"],
+    pair=["_".join(pair) for pair in combinations(main_config["populations"], 2)],
+    method="delta_moving_tajima_d",
+    window=scikit_allel_config["delta_moving_window_sizes"],
+    step=scikit_allel_config["delta_moving_step_size_ratios"],
+    cutoff=scikit_allel_config["top_proportion"],
+)
+
+selscan_method_names = {
+    "ihs": "iHS",
+    "nsl": "nSL",
+    "xpehh": "XP-EHH",
+    "xpnsl": "XP-nSL",
+}
 
 # HELPER FUNCTIONS
+
 
 def get_anc_allele_bed(wildcards):
     """Get ancestral allele bed files."""
@@ -110,7 +141,6 @@ def _vs_pair(wildcards) -> str:
 def selscan_labels(wildcards, type: str = "Manhattan Plot") -> dict[str, str]:
     """Labels for within-population selscan Manhattan plot."""
     return {
-        "Method": selscan_method_names[wildcards.method],
         "Population": wildcards.ppl,
         "Minor Allele Frequency": wildcards.maf,
         "Threshold": _top_pct(wildcards),
@@ -121,7 +151,6 @@ def selscan_labels(wildcards, type: str = "Manhattan Plot") -> dict[str, str]:
 def selscan_xp_labels(wildcards, type: str = "Manhattan Plot") -> dict[str, str]:
     """Labels for cross-population selscan Manhattan plot."""
     return {
-        "Method": selscan_method_names[wildcards.method],
         "Populations": _vs_pair(wildcards),
         "Minor Allele Frequency": wildcards.maf,
         "Threshold": _top_pct(wildcards),
@@ -132,9 +161,38 @@ def selscan_xp_labels(wildcards, type: str = "Manhattan Plot") -> dict[str, str]
 def betascan_labels(wildcards, type: str = "Manhattan Plot") -> dict[str, str]:
     """Labels for betascan plots (Manhattan or Enrichment), includes core frequency."""
     return {
-        "Method": "B1",
         "Population": wildcards.ppl,
         "Core Frequency": str(wildcards.core_frq),
+        "Threshold": _top_pct(wildcards),
+        "Type": type,
+    }
+
+
+def tajima_d_labels(wildcards, type: str = "Plot") -> dict[str, str]:
+    """Labels for Tajima's D plots (both windowed and moving)."""
+    method_name = (
+        "Moving Tajima's D"
+        if wildcards.method.startswith("moving")
+        else "Windowed Tajima's D"
+    )
+    window_unit = " SNPs" if wildcards.method.startswith("moving") else " bp"
+    step_size = int(float(wildcards.step) * int(wildcards.window))
+    return {
+        "Population": wildcards.ppl,
+        "Window": f"{wildcards.window}{window_unit}",
+        "Step": f"{step_size}{window_unit}",
+        "Threshold": _top_pct(wildcards),
+        "Type": type,
+    }
+
+
+def delta_tajima_d_labels(wildcards, type: str = "Plot") -> dict[str, str]:
+    """Labels for delta Tajima's D plots (cross-population)."""
+    step_size = int(float(wildcards.step) * int(wildcards.window))
+    return {
+        "Populations": _vs_pair(wildcards),
+        "Window": f"{wildcards.window} SNPs",
+        "Step": f"{step_size} SNPs",
         "Threshold": _top_pct(wildcards),
         "Type": type,
     }
@@ -157,24 +215,3 @@ def fitted_dfe_labels(wildcards, type: str = "Model Fit") -> dict[str, str]:
         "DFE Model": wildcards.dfe,
         "Type": type,
     }
-
-
-def fitted_2pop_dm_labels(wildcards, type: str = "Model Fit") -> dict[str, str]:
-    """Labels for 2-population demographic model fit plots."""
-    return {
-        "Populations": _vs_pair(wildcards),
-        "Demographic Model": wildcards.demog,
-        "Type": type,
-    }
-
-
-def fitted_jdfe_labels(wildcards, type: str = "Model Fit") -> dict[str, str]:
-    """Labels for 2-population joint DFE model fit plots."""
-    return {
-        "Populations": _vs_pair(wildcards),
-        "Demographic Model": wildcards.demog,
-        "DFE Model": f"biv_{wildcards.dfe}",
-        "Type": type,
-    }
-
-
