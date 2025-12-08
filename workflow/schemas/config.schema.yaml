@@ -1,0 +1,100 @@
+$schema: "http://json-schema.org/draft-06/schema#"
+description: "Main configuration for selscape pipeline"
+
+type: object
+additionalProperties: false
+
+properties:
+  species:
+    type: string
+    description: "Species name"
+
+  tax_id:
+    type: integer
+    description: "NCBI taxonomy ID"
+
+  ref_genome:
+    type: string
+    description: "Reference genome build (e.g., hg38)"
+
+  anc_alleles:
+    type: ["object", "null"]
+    properties:
+      path:
+        type: string
+        description: "Base folder for ancestral allele information"
+      prefix:
+        type: string
+        description: "Ancestral allele information filename prefix"
+    description: "Ancestral allele information for polarization"
+
+  genome_annotation:
+    type: string
+    description: "Path to genome annotation GTF file"
+
+  gene2go:
+    type: string
+    description: "Path to gene2go mapping file"
+
+  ploidy:
+    type: integer
+    description: "Organism ploidy"
+
+  populations:
+    type: array
+    items:
+      type: string
+    minItems: 1
+    description: "List of population IDs to analyze"
+
+  data_folder:
+    type: string
+    description: "Base folder for input VCF files"
+
+  vcf_prefix:
+    type: string
+    description: "VCF filename prefix"
+
+  vcf_suffix:
+    type: string
+    description: "VCF filename suffix"
+
+  metadata:
+    type: string
+    description: "Path to sample metadata file"
+
+  chromosomes:
+    type: array
+    items:
+      oneOf:
+        - type: integer
+        - type: string
+    minItems: 1
+    description: "List of chromosomes to analyze"
+
+  betascan_config:
+    type: string
+    description: "Path to BetaScan configuration file"
+
+  selscan_config:
+    type: string
+    description: "Path to selscan configuration file"
+
+  dadi_config:
+    type: string
+    description: "Path to dadi-cli configuration file"
+
+required:
+  - species
+  - tax_id
+  - ref_genome
+  - ploidy
+  - populations
+  - data_folder
+  - vcf_prefix
+  - vcf_suffix
+  - metadata
+  - chromosomes
+  - betascan_config
+  - selscan_config
+  - dadi_config

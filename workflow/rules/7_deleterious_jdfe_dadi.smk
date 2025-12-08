@@ -23,7 +23,7 @@ ruleorder: plot_fitted_jdfe > plot_fitted_2pop_dm
 
 vcf_dir = "processed_data"
 polarization_flag = ""
-if "anc_genome" in main_config and main_config["anc_genome"] and dadi_config["unfolded"]:
+if "anc_alleles" in main_config and main_config["anc_alleles"] and dadi_config["unfolded"]:
     vcf_dir = "polarized_data"
     polarization_flag = "--polarized"
 mask_singletons_flag = "--mask-singletons" if dadi_config["mask_singletons"] else ""

@@ -16,11 +16,6 @@ max_af: 0.95
 # Hardy-Weinberg equilibrium p-value threshold
 hwe_pvalue: 0.001
 
-# Repeat filters
-rmsk: "examples/data/Human/repeats/hg38.rmsk.autosomes.bed" # repeat masker
-seg_dup: "examples/data/Human/repeats/hg38.seg.dups.autosomes.bed" # segment duplications
-sim_rep: "examples/data/Human/repeats/hg38.simple.repeats.autosomes.bed" # simple repeats
-  
 # Statistical thresholds
 # Top proportion for candidate identification
 top_proportion: 0.0005
