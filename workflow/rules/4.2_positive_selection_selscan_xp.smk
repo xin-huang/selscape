@@ -29,15 +29,25 @@ rule extract_pair_snps:
         vcf=rules.polarize_2pop.output.vcf,
         pair_info=rules.create_pair_info.output.pair_info,
     output:
-        vcf1=temp("results/polarized_data/{species}/2pop/{pair}/pop1.chr{i}.biallelic.snps.vcf.gz"),
-        vcf2=temp("results/polarized_data/{species}/2pop/{pair}/pop2.chr{i}.biallelic.snps.vcf.gz"),
-        idx1=temp("results/polarized_data/{species}/2pop/{pair}/pop1.chr{i}.biallelic.snps.vcf.gz.tbi"),
-        idx2=temp("results/polarized_data/{species}/2pop/{pair}/pop2.chr{i}.biallelic.snps.vcf.gz.tbi"),
-        map=temp("results/polarized_data/{species}/2pop/{pair}/chr{i}.biallelic.snps.map"),
+        vcf1=temp(
+            "results/polarized_data/{species}/2pop/{pair}/pop1.chr{i}.biallelic.snps.vcf.gz"
+        ),
+        vcf2=temp(
+            "results/polarized_data/{species}/2pop/{pair}/pop2.chr{i}.biallelic.snps.vcf.gz"
+        ),
+        idx1=temp(
+            "results/polarized_data/{species}/2pop/{pair}/pop1.chr{i}.biallelic.snps.vcf.gz.tbi"
+        ),
+        idx2=temp(
+            "results/polarized_data/{species}/2pop/{pair}/pop2.chr{i}.biallelic.snps.vcf.gz.tbi"
+        ),
+        map=temp(
+            "results/polarized_data/{species}/2pop/{pair}/chr{i}.biallelic.snps.map"
+        ),
     log:
         "logs/positive_selection/extract_pair_snps.{species}.{pair}.chr{i}.log",
     conda:
-        "../envs/selscape-env.yaml",
+        "../envs/selscape-env.yaml"
     shell:
         """
         pair="{wildcards.pair}"
@@ -59,17 +69,24 @@ rule estimate_selscan_xp_scores:
         vcf2=rules.extract_pair_snps.output.vcf2,
         map=rules.extract_pair_snps.output.map,
     output:
-        out=temp("results/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.chr{i}.{method}.out"),
-        formatted_out=temp("results/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.chr{i}.{method}.formatted.out"),
+        out=temp(
+            "results/positive_selection/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.chr{i}.{method}.out"
+        ),
+        formatted_out=temp(
+            "results/positive_selection/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.chr{i}.{method}.formatted.out"
+        ),
+        log=temp(
+            "results/positive_selection/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.chr{i}.{method}.log"
+        ),
     params:
-        output_prefix="results/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.chr{i}",
+        output_prefix="results/positive_selection/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.chr{i}",
         phasing_flag=f"{phasing_flag}",
     resources:
         cpus=8,
     log:
         "logs/positive_selection/estimate_selscan_xp_scores.{species}.{pair}.{method}.{maf}.chr{i}.log",
     conda:
-        "../envs/selscape-env.yaml",
+        "../envs/selscape-env.yaml"
     shell:
         """
         {input.selscan} --vcf {input.vcf1} --vcf-ref {input.vcf2} --map {input.map} --{wildcards.method} --out {params.output_prefix} --threads {resources.cpus} --maf {wildcards.maf} {params.phasing_flag} 2> {log}
@@ -82,21 +99,25 @@ rule normalize_selscan_xp_scores:
     input:
         norm=rules.download_selscan.output.norm,
         scores=expand(
-            "results/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.chr{i}.{method}.formatted.out",
+            "results/positive_selection/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.chr{i}.{method}.formatted.out",
             i=main_config["chromosomes"],
             allow_missing=True,
         ),
     output:
-        scores=expand(
-            "results/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.chr{i}.{method}.formatted.out.norm",
-            i=main_config["chromosomes"],
-            allow_missing=True,
+        scores=temp(
+            expand(
+                "results/positive_selection/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.chr{i}.{method}.formatted.out.norm",
+                i=main_config["chromosomes"],
+                allow_missing=True,
+            )
         ),
-        log=temp("results/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.{method}.log"),
+        log=temp(
+            "results/positive_selection/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.{method}.log"
+        ),
     log:
         "logs/positive_selection/normalize_selscan_xp_scores.{species}.{pair}.{method}.{maf}.log",
     conda:
-        "../envs/selscape-env.yaml",
+        "../envs/selscape-env.yaml"
     shell:
         """
         {input.norm} --files {input.scores} --log {output.log} --{wildcards.method} 2> {log}
@@ -107,11 +128,11 @@ rule merge_selscan_xp_scores:
     input:
         scores=rules.normalize_selscan_xp_scores.output.scores,
     output:
-        merged_scores="results/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.scores",
+        merged_scores="results/positive_selection/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.scores",
     log:
         "logs/positive_selection/merge_selscan_xp_scores.{species}.{pair}.{method}.{maf}.log",
     conda:
-        "../envs/selscape-env.yaml",
+        "../envs/selscape-env.yaml"
     shell:
         """
         ( cat {input.scores} | grep -v id | awk '{{print $1":"$2"\\t"$1"\\t"$2"\\t"$9}}' | sed '1iSNP\\tCHR\\tBP\\tnormalized_{wildcards.method}' > {output.merged_scores} ) 2> {log}
@@ -122,11 +143,11 @@ rule plot_selscan_xp:
     input:
         scores=rules.merge_selscan_xp_scores.output.merged_scores,
     output:
-        candidates="results/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.candidates.scores",
+        candidates="results/positive_selection/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.candidates.scores",
         plot=report(
-            "results/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.scores.png",
+            "results/positive_selection/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.scores.png",
             category="Positive Selection",
-            subcategory="Cross Population",
+            subcategory="{method}",
             labels=selscan_xp_labels,
         ),
     params:
@@ -142,14 +163,14 @@ rule plot_selscan_xp:
     log:
         "logs/positive_selection/plot_selscan_xp.{species}.{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.log",
     conda:
-        "../envs/selscape-env.yaml",
+        "../envs/selscape-env.yaml"
     script:
         "../scripts/manhattan.R"
 
 
 rule annotate_selscan_xp_candidates:
     input:
-        outliers="results/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.candidates.scores",
+        outliers="results/positive_selection/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.candidates.scores",
         annotation=expand(
             "results/annotated_data/{species}/all/chr{i}.biallelic.snps.{ref_genome}_multianno.txt",
             i=main_config["chromosomes"],
@@ -157,13 +178,13 @@ rule annotate_selscan_xp_candidates:
             allow_missing=True,
         ),
     output:
-        annotated_candidates="results/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.annotated.candidates",
+        annotated_candidates="results/positive_selection/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.annotated.candidates",
     resources:
         mem_gb=32,
     log:
         "logs/positive_selection/annotate_selscan_xp_candidates.{species}.{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.log",
     conda:
-        "../envs/selscape-env.yaml",
+        "../envs/selscape-env.yaml"
     script:
         "../scripts/get_annotated_candidates.py"
 
@@ -172,11 +193,11 @@ rule get_selscan_xp_candidate_genes:
     input:
         selscan_xp_candidates=rules.annotate_selscan_xp_candidates.output.annotated_candidates,
     output:
-        selscan_xp_genes="results/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.candidate.genes",
+        selscan_xp_genes="results/positive_selection/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.candidate.genes",
     log:
         "logs/positive_selection/get_selscan_xp_candidate_genes.{species}.{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.log",
     conda:
-        "../envs/selscape-env.yaml",
+        "../envs/selscape-env.yaml"
     shell:
         """
         ( sed '1d' {input.selscan_xp_candidates} | grep -v ";" | awk '{{print $7}}' | sort | uniq > {output.selscan_xp_genes} ) 2> {log} || true
@@ -186,18 +207,18 @@ rule get_selscan_xp_candidate_genes:
 
 rule selscan_xp_candidate_genes_table_html:
     input:
-        tsv="results/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.candidate.genes",
+        tsv="results/positive_selection/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.candidate.genes",
     output:
         html=report(
-            "results/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.candidate.genes.html",
+            "results/positive_selection/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.candidate.genes.html",
             category="Positive Selection",
-            subcategory="Cross Population",
+            subcategory="{method}",
             labels=lambda wildcards: selscan_xp_labels(wildcards, type="Gene List"),
         ),
     log:
         "logs/positive_selection/selscan_xp_candidate_genes_table_html.{species}.{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.log",
     conda:
-        "../envs/selscape-env.yaml",
+        "../envs/selscape-env.yaml"
     script:
         "../scripts/tsv2html.R"
 
@@ -214,16 +235,16 @@ rule enrichment_selscan_xp_gowinda:
             allow_missing=True,
         ),
     output:
-        candidate_snps="results/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.candidate.snps.tsv",
-        total_snps="results/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.total.snps.tsv",
-        enrichment="results/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.gowinda.enrichment.tsv",
+        candidate_snps="results/positive_selection/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.candidate.snps.tsv",
+        total_snps="results/positive_selection/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.total.snps.tsv",
+        enrichment="results/positive_selection/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.gowinda.enrichment.tsv",
     resources:
         mem_gb=32,
         cpus=8,
     log:
         "logs/positive_selection/enrichment_selscan_xp_gowinda.{species}.{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.log",
     conda:
-        "../envs/selscape-env.yaml",
+        "../envs/selscape-env.yaml"
     shell:
         """
         sed '1d' {input.candidates} | awk '{{print "chr"$1"\\t"$2}}' > {output.candidate_snps} 2> {log}
@@ -251,18 +272,20 @@ rule enrichment_selscan_xp_gowinda:
 
 rule selscan_xp_enrichment_results_table_html:
     input:
-        tsv="results/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.gowinda.enrichment.tsv",
+        tsv="results/positive_selection/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.gowinda.enrichment.tsv",
     output:
         html=report(
-            "results/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.gowinda.enrichment.html",
+            "results/positive_selection/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.gowinda.enrichment.html",
             category="Positive Selection",
-            subcategory="Cross Population",
-            labels=lambda wildcards: selscan_xp_labels(wildcards, type="Enrichment Table"),
+            subcategory="{method}",
+            labels=lambda wildcards: selscan_xp_labels(
+                wildcards, type="Enrichment Table"
+            ),
         ),
     log:
         "logs/positive_selection/selscan_xp_enrichment_results_table_html.{species}.{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.log",
     conda:
-        "../envs/selscape-env.yaml",
+        "../envs/selscape-env.yaml"
     script:
         "../scripts/tsv2html.R"
 
@@ -272,15 +295,17 @@ rule plot_gowinda_enrichment_selscan_xp:
         enrichment=rules.enrichment_selscan_xp_gowinda.output.enrichment,
     output:
         count_plot=report(
-            "results/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.gowinda.enrichment.png",
+            "results/positive_selection/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.gowinda.enrichment.png",
             category="Positive Selection",
-            subcategory="Cross Population",
-            labels=lambda wildcards: selscan_xp_labels(wildcards, type="Enrichment Plot"),
+            subcategory="{method}",
+            labels=lambda wildcards: selscan_xp_labels(
+                wildcards, type="Enrichment Plot"
+            ),
         ),
         qscore_plot=report(
-            "results/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.gowinda.qscore.png",
+            "results/positive_selection/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.gowinda.qscore.png",
             category="Positive Selection",
-            subcategory="Cross Population",
+            subcategory="{method}",
             labels=lambda wildcards: selscan_xp_labels(wildcards, type="Q-Score Plot"),
         ),
     resources:
@@ -288,6 +313,6 @@ rule plot_gowinda_enrichment_selscan_xp:
     log:
         "logs/positive_selection/plot_gowinda_enrichment_selscan_xp.{species}.{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.log",
     conda:
-        "../envs/selscape-env.yaml",
+        "../envs/selscape-env.yaml"
     script:
         "../scripts/plot_gowinda_enrichment.py"

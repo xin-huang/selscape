@@ -34,21 +34,21 @@ with open(output_file, "w"):
 
 outlier_df = pd.read_csv(outlier_file, sep="\t")
 
-value_col_name = outlier_df.columns[3]
+#value_col_name = outlier_df.columns[3]
 
 multianno_dict = {
     os.path.basename(f).split("chr")[1].split(".")[0]: f for f in annotation_files
 }
 
 candidate_positions = set()
-position_to_value = {}
+#position_to_value = {}
 
 for _, row in outlier_df.iterrows():
     chrom = str(row["CHR"]).removeprefix("chr")
     pos = int(row["BP"])
-    value = row[value_col_name]
+    #value = row[value_col_name]
     candidate_positions.add((chrom, pos))
-    position_to_value[(chrom, pos)] = value
+    #position_to_value[(chrom, pos)] = value
 
 filtered_variants = []
 
@@ -76,9 +76,9 @@ for chrom in set(chrom for chrom, _ in candidate_positions):
 
     if not variants_in_region.empty:
         variants_in_region = variants_in_region.iloc[:, :11].copy()
-        variants_in_region[value_col_name] = variants_in_region["Start"].apply(
-            lambda pos: position_to_value.get((chrom, pos), None)
-        )
+        #variants_in_region[value_col_name] = variants_in_region["Start"].apply(
+        #    lambda pos: position_to_value.get((chrom, pos), None)
+        #)
         filtered_variants.append(variants_in_region)
 
 if filtered_variants:

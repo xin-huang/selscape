@@ -26,7 +26,7 @@ rule download_ref_genome:
     log:
         "logs/download/download_ref_genome.{ref_genome}.log",
     conda:
-        "../envs/selscape-env.yaml",
+        "../envs/selscape-env.yaml"
     shell:
         """
         wget -c https://hgdownload.soe.ucsc.edu/goldenpath/{wildcards.ref_genome}/bigZips/{wildcards.ref_genome}.fa.gz -O {params.dir}/{wildcards.ref_genome}.fa.gz > {log} 2>&1
@@ -42,7 +42,7 @@ rule download_repeats:
     log:
         "logs/download/download_repeats.{ref_genome}.log",
     conda:
-        "../envs/selscape-env.yaml",
+        "../envs/selscape-env.yaml"
     shell:
         """
         for repeat_type in rmsk genomicSuperDups simpleRepeat; do
@@ -65,7 +65,7 @@ rule download_selscan:
     log:
         "logs/download/download_selscan.log",
     conda:
-        "../envs/selscape-env.yaml",
+        "../envs/selscape-env.yaml"
     shell:
         """
         rm -rf selscan-2.0.3* >> {log} 2>&1
@@ -83,7 +83,7 @@ rule download_betascan:
     log:
         "logs/download/download_betascan.log",
     conda:
-        "../envs/selscape-env.yaml",
+        "../envs/selscape-env.yaml"
     shell:
         """
         git clone https://github.com/ksiewert/BetaScan > {log} 2>&1
@@ -102,7 +102,7 @@ rule download_annovar_db:
     log:
         "logs/download/download_annovar_db.{ref_genome}.log",
     conda:
-        "../envs/selscape-env.yaml",
+        "../envs/selscape-env.yaml"
     shell:
         """
         resources/tools/annovar/annotate_variation.pl -buildver {wildcards.ref_genome} -downdb refGene {params.db_dir} > {log} 2>&1
@@ -117,7 +117,7 @@ rule download_gowinda:
     log:
         "logs/download/download_gowinda.log",
     conda:
-        "../envs/selscape-env.yaml",
+        "../envs/selscape-env.yaml"
     shell:
         """
         wget -c https://sourceforge.net/projects/gowinda/files/Gowinda-1.12.jar/download -O {output.gowinda} > {log} 2>&1

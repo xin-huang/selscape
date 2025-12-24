@@ -20,9 +20,14 @@
 
 ruleorder: plot_fitted_dfe > plot_fitted_1pop_dm
 
+
 vcf_dir = "processed_data"
 polarization_flag = ""
-if "anc_alleles" in main_config and main_config["anc_alleles"] and dadi_config["unfolded"]:
+if (
+    "anc_alleles" in main_config
+    and main_config["anc_alleles"]
+    and dadi_config["unfolded"]
+):
     vcf_dir = "polarized_data"
     polarization_flag = "--polarized"
 mask_singletons_flag = "--mask-singletons" if dadi_config["mask_singletons"] else ""
@@ -36,7 +41,7 @@ rule create_pop_info:
     log:
         "logs/deleterious_dfe/create_pop_info.{species}.{ppl}.log",
     conda:
-        "../envs/selscape-env.yaml",
+        "../envs/selscape-env.yaml"
     shell:
         """
         grep -w {wildcards.ppl} {input.metadata} > {output.pop_info} 2> {log}
@@ -57,7 +62,7 @@ rule generate_1pop_fs:
     log:
         "logs/deleterious_dfe/generate_1pop_fs.{species}.{ppl}.{ref_genome}.log",
     conda:
-        "../envs/selscape-env.yaml",
+        "../envs/selscape-env.yaml"
     shell:
         """
         dadi-cli GenerateFs --vcf {input.syn_vcf} --pop-ids {wildcards.ppl} --pop-info {input.pop_info} --projections $(awk 'END {{print NR * 2}}' {input.pop_info}) --output {output.syn_fs} {params.polarized_flag} {params.mask_singletons_flag} 2> {log}
@@ -83,7 +88,7 @@ rule infer_1pop_dm_warm_up:
     log:
         "logs/deleterious_dfe/infer_1pop_dm_warm_up.{species}.{ppl}.{ref_genome}.{demog}.log",
     conda:
-        "../envs/selscape-env.yaml",
+        "../envs/selscape-env.yaml"
     shell:
         """
         dadi-cli InferDM --fs {input.fs} --model {wildcards.demog} --p0 {params.p0} --ubounds {params.ubounds} --lbounds {params.lbounds} --grids {params.grid_size} --output-prefix {params.output_prefix} --cpus {resources.cpus} --optimizations {params.optimizations} 2> {log}
@@ -108,7 +113,7 @@ rule infer_1pop_dm_fine_tune:
     log:
         "logs/deleterious_dfe/infer_1pop_dm_fine_tune.{species}.{ppl}.{ref_genome}.{demog}.log",
     conda:
-        "../envs/selscape-env.yaml",
+        "../envs/selscape-env.yaml"
     shell:
         """
         dadi-cli InferDM --fs {input.fs} --model {wildcards.demog} --bestfit-p0-file {input.p0} --ubounds {params.ubounds} --lbounds {params.lbounds} --grids {params.grid_size} --output-prefix {params.output_prefix} --cpus {resources.cpus}  --force-convergence {params.optimizations} 2> {log}
@@ -123,7 +128,7 @@ rule get_1pop_dm_top_10_bestfits:
     log:
         "logs/deleterious_dfe/get_1pop_dm_top_10_bestfits.{species}.{ppl}.{ref_genome}.{demog}.log",
     conda:
-        "../envs/selscape-env.yaml",
+        "../envs/selscape-env.yaml"
     shell:
         """
         awk '
@@ -142,12 +147,14 @@ rule convert_1pop_dm_top_10_bestfits_html:
             "results/dadi/{species}/dfe/{ppl}/html/{ppl}.{ref_genome}.{demog}.InferDM.top10.bestfits.html",
             category="Distribution of Fitness Effects",
             subcategory="Single Population",
-            labels=lambda wildcards: fitted_1pop_dm_labels(wildcards, type="Bestfit Table"),
+            labels=lambda wildcards: fitted_1pop_dm_labels(
+                wildcards, type="Bestfit Table"
+            ),
         ),
     log:
         "logs/deleterious_dfe/convert_1pop_dm_top_10_bestfits_html.{species}.{ppl}.{ref_genome}.{demog}.log",
     conda:
-        "../envs/selscape-env.yaml",
+        "../envs/selscape-env.yaml"
     script:
         "../scripts/tsv2html.R"
 
@@ -167,7 +174,7 @@ rule generate_1d_cache:
     log:
         "logs/deleterious_dfe/generate_1d_cache.{species}.{ppl}.{ref_genome}.{demog}.log",
     conda:
-        "../envs/selscape-env.yaml",
+        "../envs/selscape-env.yaml"
     shell:
         """
         dadi-cli GenerateCache --model {wildcards.demog}_sel --demo-popt {input.bestfit} --sample-size $(awk 'END {{print NR * 2}}' {input.pop_info}) --grids {params.grid_size} --gamma-pts {params.gamma_pts} --output {output.cache} --cpus {resources.cpus} --cache-type cache1d 2> {log}
@@ -194,7 +201,7 @@ rule infer_dfe_warm_up:
     log:
         "logs/deleterious_dfe/infer_dfe_warm_up.{species}.{ppl}.{ref_genome}.{demog}.{dfe}.log",
     conda:
-        "../envs/selscape-env.yaml",
+        "../envs/selscape-env.yaml"
     shell:
         """
         dadi-cli InferDFE --fs {input.fs} --cache1d {input.cache} --demo-popt {input.dm_bestfit} --output-prefix {params.output_prefix} --pdf1d {wildcards.dfe} --p0 {params.p0} --ubounds {params.ubounds} --lbounds {params.lbounds} --ratio {params.ratio} --cpus {resources.cpus} --optimizations {params.optimizations} 2> {log}
@@ -221,7 +228,7 @@ rule infer_dfe_fine_tune:
     log:
         "logs/deleterious_dfe/infer_dfe_fine_tune.{species}.{ppl}.{ref_genome}.{demog}.{dfe}.log",
     conda:
-        "../envs/selscape-env.yaml",
+        "../envs/selscape-env.yaml"
     shell:
         """
         dadi-cli InferDFE --fs {input.fs} --cache1d {input.cache} --demo-popt {input.dm_bestfit} --output-prefix {params.output_prefix} --pdf1d {wildcards.dfe} --bestfit-p0-file {input.p0} --ubounds {params.ubounds} --lbounds {params.lbounds} --ratio {params.ratio} --cpus {resources.cpus} --force-convergence {params.optimizations} 2> {log}
@@ -236,7 +243,7 @@ rule get_1pop_dfe_top_10_bestfits:
     log:
         "logs/deleterious_dfe/get_1pop_dfe_top_10_bestfits.{species}.{ppl}.{ref_genome}.{demog}.{dfe}.log",
     conda:
-        "../envs/selscape-env.yaml",
+        "../envs/selscape-env.yaml"
     shell:
         """
         awk '
@@ -255,12 +262,14 @@ rule convert_1pop_dfe_top_10_bestfits_html:
             "results/dadi/{species}/dfe/{ppl}/html/{ppl}.{ref_genome}.{demog}.{dfe}.InferDFE.top10.bestfits.html",
             category="Distribution of Fitness Effects",
             subcategory="Single Population",
-            labels=lambda wildcards: fitted_dfe_labels(wildcards, type="Bestfit Table"),
+            labels=lambda wildcards: fitted_dfe_labels(
+                wildcards, type="Bestfit Table"
+            ),
         ),
     log:
         "logs/deleterious_dfe/convert_1pop_dfe_top_10_bestfits_html.{species}.{ppl}.{ref_genome}.{demog}.{dfe}.log",
     conda:
-        "../envs/selscape-env.yaml",
+        "../envs/selscape-env.yaml"
     script:
         "../scripts/tsv2html.R"
 
@@ -287,7 +296,7 @@ rule dfe_godambe_ci:
     log:
         "logs/deleterious_dfe/dfe_godambe_ci.{species}.{ppl}.{ref_genome}.{demog}.{dfe}.log",
     conda:
-        "../envs/selscape-env.yaml",
+        "../envs/selscape-env.yaml"
     shell:
         """
         ( [ -d {params.syn_dir} ] || mkdir -p {params.syn_dir} ) 2> {log}
@@ -307,7 +316,7 @@ rule parse_dfe_godambe_ci_table:
     log:
         "logs/deleterious_dfe/parse_dfe_godambe_ci_table.{species}.{ppl}.{ref_genome}.{demog}.{dfe}.log",
     conda:
-        "../envs/selscape-env.yaml",
+        "../envs/selscape-env.yaml"
     shell:
         """
         awk -F "\\t" -v OFS="\\t" '/^# Log\(likelihood\)/ {{
@@ -342,12 +351,14 @@ rule dfe_godambe_ci_table_html:
             "results/dadi/{species}/dfe/{ppl}/html/{ppl}.{ref_genome}.{demog}.{dfe}.godambe.ci.html",
             category="Distribution of Fitness Effects",
             subcategory="Single Population",
-            labels=lambda wildcards: fitted_dfe_labels(wildcards, type="Estimated 95% Uncerts"),
+            labels=lambda wildcards: fitted_dfe_labels(
+                wildcards, type="Estimated 95% Uncerts"
+            ),
         ),
     log:
         "logs/reports/dfe_ci_table_html.{species}.{ppl}.{ref_genome}.{demog}.{dfe}.log",
     conda:
-        "../envs/selscape-env.yaml",
+        "../envs/selscape-env.yaml"
     script:
         "../scripts/tsv2html.R"
 
@@ -369,7 +380,7 @@ rule plot_fitted_1pop_dm:
     log:
         "logs/deleterious_dfe/plot_fitted_dm.{species}.{ppl}.{ref_genome}.{demog}.log",
     conda:
-        "../envs/selscape-env.yaml",
+        "../envs/selscape-env.yaml"
     shell:
         """
         dadi-cli Plot --fs {input.fs} --demo-popt {input.dm_popt} --model {wildcards.demog} --projections $(awk 'END {{print NR * {params.ploidy}}}' {input.pop_info}) --output {output.fs_plot} 2> {log}
@@ -394,7 +405,7 @@ rule plot_fitted_dfe:
     log:
         "logs/deleterious_dfe/plot_fitted_dfe.{species}.{ppl}.{ref_genome}.{demog}.{dfe}.log",
     conda:
-        "../envs/selscape-env.yaml",
+        "../envs/selscape-env.yaml"
     shell:
         """
         dadi-cli Plot --fs {input.fs} --cache1d {input.cache} --dfe-popt {input.dfe_popt} --pdf1d {wildcards.dfe} --projections $(awk 'END {{print NR * {params.ploidy}}}' {input.pop_info}) --output {output.fs_plot} 2> {log}
@@ -409,11 +420,13 @@ rule plot_mutation_proportions:
             "results/dadi/{species}/dfe/{ppl}/plots/{ppl}.{ref_genome}.{demog}.{dfe}.fitted.mut.prop.png",
             category="Distribution of Fitness Effects",
             subcategory="Single Population",
-            labels=lambda wildcards: fitted_dfe_labels(wildcards, type="Proportion Plot"),
+            labels=lambda wildcards: fitted_dfe_labels(
+                wildcards, type="Proportion Plot"
+            ),
         ),
     log:
         "logs/deleterious_dfe/plot_mutation_proportion.{species}.{ppl}.{ref_genome}.{demog}.{dfe}.log",
     conda:
-        "../envs/selscape-env.yaml",
+        "../envs/selscape-env.yaml"
     script:
         "../scripts/plot_mutation_prop.py"

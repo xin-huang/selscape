@@ -1,0 +1,12 @@
+usage:
+  mandatory-flags:
+    desc: >
+      Selscape requires configuration files for analysis parameters.
+      Modify config/*.yaml files to specify species, populations, 
+      chromosomes, and tool parameters before running.
+    flags: --configfile config/main.yaml
+  software-stack-deployment:
+    conda: true
+    apptainer: true
+    apptainer+conda: true
+    report: true

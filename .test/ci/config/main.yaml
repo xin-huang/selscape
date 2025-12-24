@@ -11,6 +11,10 @@ anc_alleles:
 genome_annotation: ".test/ci/data/test.gtf.gz"
 gene2go: ".test/ci/data/test.gene2go.gz"
 
+# Quality control filters
+# Hardy-Weinberg equilibrium p-value threshold for balancing selection
+hwe_pvalue: 0.001
+
 ploidy: 2
 
 # Population definitions
@@ -36,3 +40,4 @@ chromosomes:
 selscan_config: ".test/ci/config/selscan.yaml"
 betascan_config: ".test/ci/config/betascan.yaml"
 dadi_config: ".test/ci/config/dadi-cli.yaml"
+scikit_allel_config: ".test/ci/config/scikit-allel.yaml"

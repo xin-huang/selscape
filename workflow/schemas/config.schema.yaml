@@ -36,6 +36,25 @@ properties:
     type: string
     description: "Path to gene2go mapping file"
 
+  hwe_pvalue:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    default: 0.001
+    description: "Hardy-Weinberg equilibrium p-value threshold"
+
+  rmsk:
+    type: ["string", "null"]
+    description: "Path to repeat masker BED file"
+
+  seg_dup:
+    type: ["string", "null"]
+    description: "Path to segmental duplications BED file"
+
+  sim_rep:
+    type: ["string", "null"]
+    description: "Path to simple repeats BED file"
+
   ploidy:
     type: integer
     description: "Organism ploidy"
@@ -84,10 +103,15 @@ properties:
     type: string
     description: "Path to dadi-cli configuration file"
 
+  scikit_allel_config:
+    type: string
+    description: "Path to scikit-allel configuration file"
+
 required:
   - species
   - tax_id
   - ref_genome
+  - hwe_pvalue
   - ploidy
   - populations
   - data_folder
@@ -98,3 +122,4 @@ required:
   - betascan_config
   - selscan_config
   - dadi_config
+  - scikit_allel_config

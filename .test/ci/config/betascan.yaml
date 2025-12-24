@@ -12,10 +12,6 @@ min_af: 0.05
 # Maximum allele frequency  
 max_af: 0.95
 
-# Quality control filters
-# Hardy-Weinberg equilibrium p-value threshold
-hwe_pvalue: 0.001
-
 # Statistical thresholds
 # Top proportion for candidate identification
 top_proportion: 0.0005

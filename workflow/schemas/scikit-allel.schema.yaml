@@ -1,0 +1,100 @@
+$schema: "http://json-schema.org/draft-06/schema#"
+description: "Tajima's D analysis configuration"
+
+type: object
+additionalProperties: false
+
+properties:
+  wp_stats:
+    type: array
+    items:
+      type: string
+      enum: ["moving_tajima_d", "windowed_tajima_d"]
+    minItems: 1
+    description: "Within-population statistics to compute"
+
+  xp_stats:
+    type: ["array", "null"]
+    items:
+      type: string
+      enum: ["delta_moving_tajima_d"]
+    description: "Cross-population statistics to compute"
+
+
+  windowed_window_sizes:
+    type: array
+    items:
+      type: integer
+    description: "Window sizes in base pairs for windowed approach"
+
+  windowed_step_size_ratios:
+    type: array
+    items:
+      type: number
+      minimum: 0.0
+      maximum: 1.0
+    description: "Step size as fraction of window for windowed approach"
+
+  moving_window_sizes:
+    type: array
+    items:
+      type: integer
+    description: "Window sizes in SNPs for moving approach"
+
+  moving_step_size_ratios:
+    type: array
+    items:
+      type: number
+      minimum: 0.0
+      maximum: 1.0
+    description: "Step size as fraction of window for moving approach"
+
+  delta_moving_window_sizes:
+    type: array
+    items:
+      type: integer
+    description: "Window sizes in SNPs for cross population moving approach"
+
+  delta_moving_step_size_ratios:
+    type: array
+    items:
+      type: number
+      minimum: 0.0
+      maximum: 1.0
+    description: "Step size as fraction of window for cross population moving approach"
+
+  top_proportion:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    default: 0.0005
+    description: "Top proportion for candidate identification"
+
+  manhattan_plot_width:
+    type: integer
+    minimum: 100
+    default: 640
+
+  manhattan_plot_height:
+    type: integer
+    minimum: 100
+    default: 240
+
+  manhattan_plot_color1:
+    type: string
+    pattern: "^#[0-9A-Fa-f]{6}$"
+    default: "#56B4E9"
+
+  manhattan_plot_color2:
+    type: string
+    pattern: "^#[0-9A-Fa-f]{6}$"
+    default: "#F0E442"
+
+required:
+  - windowed_window_sizes
+  - windowed_step_size_ratios
+  - moving_window_sizes
+  - moving_step_size_ratios
+  - delta_moving_window_sizes
+  - delta_moving_step_size_ratios
+  - top_proportion
