@@ -28,37 +28,37 @@ from matplotlib.patches import Patch
 log_fh = open(snakemake.log[0], "w")
 sys.stderr = log_fh
 
+plot_title = snakemake.params['title']
+
 # Read Gowinda enrichment results
 try:
-    enrichment_data = pd.read_csv(
+    data = pd.read_csv(
         snakemake.input['enrichment'],
         sep='\t',
         header=0,
     )
 except pd.errors.EmptyDataError:
-    enrichment_data = pd.DataFrame()
+    data = pd.DataFrame()
 
-if enrichment_data.empty:
-    plt.figure()
-    plt.title("No data available")
+if data.empty:
+    fig, ax = plt.subplots(figsize=(8, 4))
+    ax.text(0.5, 0.5, 'No results', ha='center', va='center', fontsize=16, color='#666')
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.axis('off')
     plt.savefig(snakemake.output['count_plot'], dpi=300, bbox_inches='tight')
     plt.savefig(snakemake.output['qscore_plot'], dpi=300, bbox_inches='tight')
     plt.close()
     sys.exit(0)
 
-
-# Take top 20 terms by p_adjusted 
-plot_data = enrichment_data.sort_values('p_adjusted').head(20).copy()
-
-# Calculate qscore
+# Prepare plot data
+plot_data = data.sort_values('p_adjusted').head(20).copy()
 plot_data['qscore'] = -np.log10(plot_data['p_adjusted'])
-
-# Shorten descriptions
 plot_data['short_description'] = plot_data['description'].apply(
     lambda x: x[:47] + "..." if len(x) > 50 else x
 )
 
-# Create individual colors for each bar based on p_adjusted
+#  Color mapping based on p-value
 def get_color(p_val):
     if p_val < 0.001:
         return '#0000FF'  # Blue
@@ -79,62 +79,35 @@ legend_elements = [
     Patch(facecolor='#808080', label='>= 0.05')
 ]
 
-# ==== PLOT 1: COUNT PLOT ====
-# Sort by genes_found for plotting 
-count_data = plot_data.sort_values('genes_found', ascending=True).copy()
+# Function to create enrichment plot
+def create_plot(data_sorted, value_col, xlabel, output_file):
+    fig, ax = plt.subplots(figsize=(12, max(8, len(data_sorted) * 0.4)))
+    ax.barh(range(len(data_sorted)), data_sorted[value_col], color=data_sorted['color'])
+    ax.set_yticks(range(len(data_sorted)))
+    ax.set_yticklabels(data_sorted['short_description'], fontsize=9)
+    ax.set_xlabel(xlabel, fontsize=11)
+    plt.suptitle(f'{plot_title} (Top {len(data_sorted)} terms)',
+                fontsize=14, fontweight='bold', x=0.45)
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.grid(axis='x', alpha=0.3)
+    ax.legend(handles=legend_elements, title='p.adjust', loc='lower right')
+    plt.tight_layout()
+    plt.savefig(output_file, dpi=300, bbox_inches='tight')
+    plt.close()
 
-# Create the plot
-fig, ax = plt.subplots(figsize=(12, max(8, len(count_data) * 0.4)))
+# Create count plot
+create_plot(
+    plot_data.sort_values('genes_found', ascending=True),
+    'genes_found',
+    'Count',
+    snakemake.output['count_plot']
+)
 
-# Create horizontal bar plot using genes_found (count)
-bars = ax.barh(range(len(count_data)), count_data['genes_found'], color=count_data['color'])
-
-# Customize the plot
-ax.set_yticks(range(len(count_data)))
-ax.set_yticklabels(count_data['short_description'], fontsize=9)
-ax.set_xlabel('Count', fontsize=11)
-
-# Center the title better
-plt.suptitle(f'GO Enrichment Analysis (Gowinda) - Top {len(count_data)} terms',
-            fontsize=14, fontweight='bold', x=0.45)
-
-# Remove spines and grid
-ax.spines['top'].set_visible(False)
-ax.spines['right'].set_visible(False)
-ax.grid(axis='x', alpha=0.3)
-
-ax.legend(handles=legend_elements, title='p.adjust', loc='lower right')
-
-plt.tight_layout()
-plt.savefig(snakemake.output['count_plot'], dpi=300, bbox_inches='tight')
-plt.close()
-
-# ==== PLOT 2: QSCORE PLOT ====
-# Sort by qscore for plotting
-qscore_data = plot_data.sort_values('qscore', ascending=True).copy()
-
-# Create the plot
-fig, ax = plt.subplots(figsize=(12, max(8, len(qscore_data) * 0.4)))
-
-# Create horizontal bar plot using qscore
-bars = ax.barh(range(len(qscore_data)), qscore_data['qscore'], color=qscore_data['color'])
-
-# Customize the plot
-ax.set_yticks(range(len(qscore_data)))
-ax.set_yticklabels(qscore_data['short_description'], fontsize=9)
-ax.set_xlabel('qscore (-log10(p.adjusted))', fontsize=11)
-
-# Center the title
-plt.suptitle(f'GO Enrichment Analysis (Gowinda) - Top {len(qscore_data)} terms',
-            fontsize=14, fontweight='bold', x=0.45)
-
-# Remove spines and grid
-ax.spines['top'].set_visible(False)
-ax.spines['right'].set_visible(False)
-ax.grid(axis='x', alpha=0.3)
-
-ax.legend(handles=legend_elements, title='p.adjust', loc='lower right')
-
-plt.tight_layout()
-plt.savefig(snakemake.output['qscore_plot'], dpi=300, bbox_inches='tight')
-plt.close()
+# Create qscore plot
+create_plot(
+    plot_data.sort_values('qscore', ascending=True),
+    'qscore',
+    'qscore (-log10(p.adjusted))',
+    snakemake.output['qscore_plot']
+)

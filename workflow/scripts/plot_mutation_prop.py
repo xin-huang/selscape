@@ -27,6 +27,7 @@ log_fh = open(snakemake.log[0], "w")
 sys.stderr = log_fh
 
 input_file = snakemake.input.dfe_popt
+plot_title = snakemake.params.title
 
 with open(input_file, "r") as f:
     lines = f.readlines()
@@ -38,7 +39,14 @@ for i, line in enumerate(lines):
         break
 
 if start_idx is None:
-    raise ValueError("Converged results not found in the file!")
+    fig, ax = plt.subplots(figsize=(5, 4))
+    ax.text(0.5, 0.5, 'No results', ha='center', va='center', fontsize=16, color='#666')
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.axis('off')
+    plt.savefig(snakemake.output.plot, dpi=300, bbox_inches='tight')
+    plt.close()
+    sys.exit(0)
 
 for line in lines[start_idx:]:
     if line.strip() == "" or line.strip().startswith("#"):
@@ -60,7 +68,7 @@ plt.xticks(
     ["<1", "1–10", "10–100", ">100"],
 )
 plt.grid(alpha=0.3)
-
+plt.title(plot_title, fontsize=12, fontweight='bold')
 plt.tight_layout()
 plt.savefig(snakemake.output.plot, bbox_inches="tight")
 plt.close()

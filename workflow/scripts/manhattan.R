@@ -18,7 +18,6 @@
 #    https://www.gnu.org/licenses/gpl-3.0.en.html
 
 
-
 suppressMessages(library(qqman))
 
 logfile <- file(snakemake@log[[1]], open = "wt")
@@ -34,6 +33,7 @@ output_table <- snakemake@output[["candidates"]]
 color1 <- snakemake@params[["color1"]]
 color2 <- snakemake@params[["color2"]]
 output_plot <- snakemake@output[["plot"]]
+plot_title <- snakemake@params[["title"]]
 
 sort_order <- if (!is.null(snakemake@params[["sort_order"]])) {
   tolower(snakemake@params[["sort_order"]])
@@ -41,7 +41,20 @@ sort_order <- if (!is.null(snakemake@params[["sort_order"]])) {
   "desc"
 }
 
+create_no_results <- function() {
+  write.table(data.frame(), file = output_table, quote = FALSE, sep = "\t", row.names = FALSE, col.names = FALSE)
+  png(output_plot, width = plot_width, height = plot_height, units = "px")
+  plot.new()
+  text(0.5, 0.5, "No results", cex = 2, col = "#666666")
+  dev.off()
+  quit(save = "no", status = 0)
+}
+
 data <- read.table(input_file, header = TRUE)
+
+if (nrow(data) == 0) {
+  create_no_results()
+}
 
 score_used_col <- if (use_absolute) {
   abs_col <- paste0("abs_", score_column)
@@ -58,7 +71,11 @@ data_sorted <- if (sort_order == "asc") {
 }
 
 top_n <- as.integer(nrow(data) * cutoff)
-if (top_n < 1) stop("cutoff too small; no candidates selected.")
+
+if (top_n < 1) {
+  create_no_results()
+}
+
 top_candidates <- data_sorted[1:top_n, ]
 write.table(top_candidates, file = output_table, quote = FALSE, sep = "\t", row.names = FALSE)
 
@@ -80,9 +97,11 @@ y <- data[[score_used_col]]
 ymin <- min(y, 0, na.rm = TRUE)
 ymax <- max(y, 0, na.rm = TRUE)
 
+
 png(output_plot, width = plot_width, height = plot_height, units = "px")
 manhattan(data, p = score_used_col, logp = FALSE, genomewideline = threshold,
           suggestiveline = FALSE, col = c(color1, color2),
+          main = plot_title,
           ylab = ylab_text, ylim = c(ymin, ymax))
 
 dev.off()

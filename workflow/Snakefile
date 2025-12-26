@@ -85,14 +85,18 @@ rule all:
         ),
         # dadi dfe
         expand(
-            "results/dadi/{species}/dfe/{ppl}/plots/{ppl}.{ref_genome}.{demog}.fitted.png",
+            "results/dadi/{species}/dfe/{ppl}/html/{ppl}.{ref_genome}.{demog}.dm.fitted.html",
             **DADI_1D_KW,
         ),
         expand(
-            "results/dadi/{species}/dfe/{ppl}/plots/{ppl}.{ref_genome}.{demog}.{dfe}.{type}.png",
+            "results/dadi/{species}/dfe/{ppl}/html/{ppl}.{ref_genome}.{demog}.{dfe}.dfe.fitted.html",
             **DADI_1D_KW,
             dfe=dadi_config["dfe_1d"],
-            type=["fitted", "fitted.mut.prop"],
+        ),
+        expand(
+            "results/dadi/{species}/dfe/{ppl}/plots/{ppl}.{ref_genome}.{demog}.{dfe}.fitted.mut.prop.png",
+            **DADI_1D_KW,
+            dfe=dadi_config["dfe_1d"],
         ),
         expand(
             "results/dadi/{species}/dfe/{ppl}/html/{ppl}.{ref_genome}.{demog}.InferDM.top10.bestfits.html",
