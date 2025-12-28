@@ -128,6 +128,7 @@ rule plot_selscan:
             labels=selscan_labels,
         ),
     params:
+        title=lambda w: f"{w.ppl} (MAF={w.maf}, Top {float(w.cutoff)*100:.2f}%)",
         score_column="normalized_{method}",
         use_absolute="TRUE",
         cutoff="{cutoff}",
@@ -192,6 +193,8 @@ rule selscan_candidate_genes_table_html:
             subcategory="{method}",
             labels=lambda wildcards: selscan_labels(wildcards, type="Gene List"),
         ),
+    params:
+        title=lambda w: f"{w.ppl} {w.method.upper()} (MAF={w.maf}, Top {float(w.cutoff)*100:.2f}%) CANDIDATE GENES",
     log:
         "logs/positive_selection/selscan_candidate_genes_table_html.{species}.{ppl}.normalized.{method}.maf_{maf}.top_{cutoff}.log",
     conda:
@@ -259,6 +262,8 @@ rule selscan_enrichment_results_table_html:
                 wildcards, type="Enrichment Table"
             ),
         ),
+    params:
+        title=lambda w: f"{w.ppl} {w.method.upper()} (MAF={w.maf}, Top {float(w.cutoff)*100:.2f}%) ENRICHMENT",
     log:
         "logs/positive_selection/selscan_enrichment_results_table_html.{species}.{ppl}.normalized.{method}.maf_{maf}.top_{cutoff}.log",
     conda:
@@ -283,6 +288,8 @@ rule plot_gowinda_enrichment_selscan:
             subcategory="{method}",
             labels=lambda wildcards: selscan_labels(wildcards, type="Q-Score Plot"),
         ),
+    params:
+        title=lambda w: f"{w.ppl} {w.method.upper()} ENRICHMENT (MAF={w.maf}, Top {float(w.cutoff)*100:.2f}%)",
     resources:
         mem_gb=8,
     log:

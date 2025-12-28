@@ -95,6 +95,7 @@ rule plot_delta_tajima_d:
         ),
         candidates="results/positive_selection/scikit-allel/{species}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.candidates.scores",
     params:
+        title=lambda w: f"{w.pair} (Window={w.window}SNPs, Step={int(float(w.step) * int(w.window))}SNPs, Top {float(w.cutoff)*100:.2f}%)",
         score_column="delta_tajima_d",
         cutoff="{cutoff}",
         use_absolute="TRUE",
@@ -186,8 +187,10 @@ rule delta_tajima_d_candidate_genes_table_html:
                 wildcards, type="Gene List"
             ),
         ),
+    params:
+        title=lambda w: f"{w.pair} (Window={w.window}SNPs, Step={int(float(w.step) * int(w.window))}SNPs, Top {float(w.cutoff)*100:.2f}%) CANDIDATE GENES",
     log:
-        "logs/positive_selection/delta_tajima_d_candidate_genes_table_html.{species}.{pair}.{method}.{window}_{step}.top_{cutoff}.log",
+        "logs/positive_selection/delta_tajima_d_candidate_genes_table_html.{species}.{pair}.{method}.{window}_{step}.top_{cutoff}.log", 
     conda:
         "../envs/selscape-env.yaml"
     script:
@@ -254,6 +257,8 @@ rule delta_tajima_d_enrichment_results_table_html:
                 wildcards, type="Enrichment Table"
             ),
         ),
+    params:
+        title=lambda w: f"{w.pair} (Window={w.window}SNPs, Step={int(float(w.step) * int(w.window))}SNPs, Top {float(w.cutoff)*100:.2f}%) DELTA MOVING TAJIMA D ENRICHMENT",
     log:
         "logs/positive_selection/delta_tajima_d_enrichment_results_table_html.{species}.{pair}.{method}.{window}_{step}.top_{cutoff}.log",
     conda:
@@ -282,6 +287,8 @@ rule plot_gowinda_enrichment_delta_tajima_d:
                 wildcards, type="Q-Score Plot"
             ),
         ),
+    params:
+        title=lambda w: f"{w.pair} {w.method.upper().replace('_', ' ')} ENRICHMENT (Window={w.window}{' SNPs' if w.method == 'moving_tajima_d' else ' bp'}, Step={int(float(w.step) * int(w.window))}{' SNPs' if w.method == 'moving_tajima_d' else ' bp'}, Top {float(w.cutoff)*100:.2f}%)",
     resources:
         mem_gb=8,
     log:

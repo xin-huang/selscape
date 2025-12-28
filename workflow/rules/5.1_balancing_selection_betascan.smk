@@ -186,6 +186,8 @@ rule betascan_candidate_genes_table_html:
             subcategory="B1",
             labels=lambda wildcards: betascan_labels(wildcards, type="Gene List"),
         ),
+    params:
+        title=lambda w: f"{w.ppl} B1 (Core Freq={w.core_frq}, Top {float(w.cutoff)*100:.2f}%) CANDIDATE GENES",
     log:
         "logs/balancing_selection/betascan_candidate_genes_table_html.{species}.{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.log",
     conda:
@@ -206,6 +208,8 @@ rule betascan_enrichment_results_table_html:
                 wildcards, type="Enrichment Table"
             ),
         ),
+    params:
+        title=lambda w: f"{w.ppl} B1 (Core Freq={w.core_frq}, Top {float(w.cutoff)*100:.2f}%) ENRICHMENT",
     log:
         "logs/balancing_selection/betascan_enrichment_results_table_html.{species}.{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.log",
     conda:
@@ -226,6 +230,7 @@ rule plot_betascan:
             labels=betascan_labels,
         ),
     params:
+        title=lambda w: f"{w.ppl} (Core Freq={w.core_frq}, Top {float(w.cutoff)*100:.2f}%)",
         score_column="B1",
         use_absolute="FALSE",
         cutoff="{cutoff}",
@@ -261,6 +266,8 @@ rule plot_gowinda_enrichment_betascan:
             subcategory="B1",
             labels=lambda wildcards: betascan_labels(wildcards, type="Q-Score Plot"),
         ),
+    params:
+        title=lambda w: f"{w.ppl} B1 ENRICHMENT (Core Freq={w.core_frq}, Top {float(w.cutoff)*100:.2f}%)",
     resources:
         mem_gb=8,
     log:

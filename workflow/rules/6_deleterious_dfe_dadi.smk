@@ -151,6 +151,8 @@ rule convert_1pop_dm_top_10_bestfits_html:
                 wildcards, type="Bestfit Table"
             ),
         ),
+    params:
+        title=lambda w: f"{w.ppl} {w.demog.upper().replace('_', ' ')} DEMOGRAPHIC MODEL (Top 10 Bestfits, {dadi_config['optimizations']} optimizations)",
     log:
         "logs/deleterious_dfe/convert_1pop_dm_top_10_bestfits_html.{species}.{ppl}.{ref_genome}.{demog}.log",
     conda:
@@ -266,6 +268,8 @@ rule convert_1pop_dfe_top_10_bestfits_html:
                 wildcards, type="Bestfit Table"
             ),
         ),
+    params:
+        title=lambda w: f"{w.ppl} {w.dfe.upper().replace('_', ' ')} DFE ({w.demog.upper().replace('_', ' ')}) MODEL (Top 10 Bestfits, {dadi_config['optimizations']} optimizations)",
     log:
         "logs/deleterious_dfe/convert_1pop_dfe_top_10_bestfits_html.{species}.{ppl}.{ref_genome}.{demog}.{dfe}.log",
     conda:
@@ -355,6 +359,8 @@ rule dfe_godambe_ci_table_html:
                 wildcards, type="Estimated 95% Uncerts"
             ),
         ),
+    params:
+        title=lambda w: f"{w.ppl} {w.dfe.upper().replace('_', ' ')} DFE ({w.demog.upper().replace('_', ' ')}) GODAMBE 95% CI ({dadi_config['bootstrap_replicates']} bootstrap replicates, chunk size={dadi_config['chunk_size']} bp)"
     log:
         "logs/reports/dfe_ci_table_html.{species}.{ppl}.{ref_genome}.{demog}.{dfe}.log",
     conda:
@@ -369,12 +375,7 @@ rule plot_fitted_1pop_dm:
         dm_popt=rules.infer_1pop_dm_fine_tune.output.bestfit,
         pop_info=rules.create_pop_info.output.pop_info,
     output:
-        fs_plot=report(
-            "results/dadi/{species}/dfe/{ppl}/plots/{ppl}.{ref_genome}.{demog}.fitted.png",
-            category="Distribution of Fitness Effects",
-            subcategory="Single Population",
-            labels=fitted_1pop_dm_labels,
-        ),
+        fs_plot="results/dadi/{species}/dfe/{ppl}/plots/{ppl}.{ref_genome}.{demog}.fitted.png",
     params:
         ploidy=main_config["ploidy"],
     log:
@@ -394,12 +395,7 @@ rule plot_fitted_dfe:
         cache=rules.generate_1d_cache.output.cache,
         pop_info=rules.create_pop_info.output.pop_info,
     output:
-        fs_plot=report(
-            "results/dadi/{species}/dfe/{ppl}/plots/{ppl}.{ref_genome}.{demog}.{dfe}.fitted.png",
-            category="Distribution of Fitness Effects",
-            subcategory="Single Population",
-            labels=fitted_dfe_labels,
-        ),
+        fs_plot="results/dadi/{species}/dfe/{ppl}/plots/{ppl}.{ref_genome}.{demog}.{dfe}.fitted.png",
     params:
         ploidy=main_config["ploidy"],
     log:
@@ -424,9 +420,50 @@ rule plot_mutation_proportions:
                 wildcards, type="Proportion Plot"
             ),
         ),
+    params:
+        title=lambda w: f"{w.ppl} {w.dfe.upper().replace('_', ' ')} DFE ({w.demog.upper().replace('_', ' ')}) MUTATION PROPORTIONS",
     log:
         "logs/deleterious_dfe/plot_mutation_proportion.{species}.{ppl}.{ref_genome}.{demog}.{dfe}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
         "../scripts/plot_mutation_prop.py"
+
+rule wrap_fitted_1pop_dm_html:
+    input:
+        plot=rules.plot_fitted_1pop_dm.output.fs_plot,
+    output:
+        html=report(
+            "results/dadi/{species}/dfe/{ppl}/html/{ppl}.{ref_genome}.{demog}.dm.fitted.html",
+            category="Distribution of Fitness Effects",
+            subcategory="Single Population",
+            labels=lambda wildcards: fitted_1pop_dm_labels(wildcards, type="Model Fit Plot"),
+        ),
+    params:
+        title=lambda w: f"{w.ppl} {w.demog.upper().replace('_', ' ')} DEMOGRAPHIC MODEL FIT",
+    log:
+        "logs/deleterious_dfe/wrap_fitted_1pop_dm_html.{species}.{ppl}.{ref_genome}.{demog}.log",
+    conda:
+        "../envs/selscape-env.yaml"
+    script:
+        "../scripts/plot2html.py"
+
+
+rule wrap_fitted_dfe_html:
+    input:
+        plot=rules.plot_fitted_dfe.output.fs_plot,
+    output:
+        html=report(
+            "results/dadi/{species}/dfe/{ppl}/html/{ppl}.{ref_genome}.{demog}.{dfe}.dfe.fitted.html",
+            category="Distribution of Fitness Effects",
+            subcategory="Single Population",
+            labels=lambda wildcards: fitted_dfe_labels(wildcards, type="Model Fit Plot"),
+        ),
+    params:
+        title=lambda w: f"{w.ppl} {w.dfe.upper().replace('_', ' ')} DFE ({w.demog.upper().replace('_', ' ')}) MODEL FIT",
+    log:
+        "logs/deleterious_dfe/wrap_fitted_dfe_html.{species}.{ppl}.{ref_genome}.{demog}.{dfe}.log",
+    conda:
+        "../envs/selscape-env.yaml"
+    script:
+        "../scripts/plot2html.py"
