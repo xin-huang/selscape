@@ -259,9 +259,8 @@ rule selscan_enrichment_results_table_html:
             category="Positive Selection",
             subcategory="{method}",
             labels=lambda wildcards: selscan_labels(
-                wildcards, type="Enrichment Table"
+                wildcards, type="Enrichment Table"),
             ),
-        ),
     params:
         title=lambda w: f"{w.ppl} {w.method.upper()} (MAF={w.maf}, Top {float(w.cutoff)*100:.2f}%) ENRICHMENT",
     log:
@@ -276,18 +275,12 @@ rule plot_gowinda_enrichment_selscan:
     input:
         enrichment=rules.enrichment_selscan_gowinda.output.enrichment,
     output:
-        count_plot=report(
+        plot=report(
             "results/positive_selection/selscan/{species}/1pop/{ppl}/{method}_{maf}/{ppl}.normalized.{method}.maf_{maf}.top_{cutoff}.gowinda.enrichment.png",
             category="Positive Selection",
             subcategory="{method}",
             labels=lambda wildcards: selscan_labels(wildcards, type="Enrichment Plot"),
-        ),
-        qscore_plot=report(
-            "results/positive_selection/selscan/{species}/1pop/{ppl}/{method}_{maf}/{ppl}.normalized.{method}.maf_{maf}.top_{cutoff}.gowinda.qscore.png",
-            category="Positive Selection",
-            subcategory="{method}",
-            labels=lambda wildcards: selscan_labels(wildcards, type="Q-Score Plot"),
-        ),
+            ),
     params:
         title=lambda w: f"{w.ppl} {w.method.upper()} ENRICHMENT (MAF={w.maf}, Top {float(w.cutoff)*100:.2f}%)",
     resources:

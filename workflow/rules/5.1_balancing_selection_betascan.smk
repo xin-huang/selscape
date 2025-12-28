@@ -252,19 +252,11 @@ rule plot_gowinda_enrichment_betascan:
     input:
         enrichment=rules.enrichment_betascan_gowinda.output.enrichment,
     output:
-        count_plot=report(
+        plot=report(
             "results/balancing_selection/betascan/{species}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.gowinda.enrichment.png",
             category="Balancing Selection",
             subcategory="B1",
-            labels=lambda wildcards: betascan_labels(
-                wildcards, type="Enrichment Plot"
-            ),
-        ),
-        qscore_plot=report(
-            "results/balancing_selection/betascan/{species}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.gowinda.qscore.png",
-            category="Balancing Selection",
-            subcategory="B1",
-            labels=lambda wildcards: betascan_labels(wildcards, type="Q-Score Plot"),
+            labels=lambda wildcards: betascan_labels(wildcards, type="Enrichment Plot"),
         ),
     params:
         title=lambda w: f"{w.ppl} B1 ENRICHMENT (Core Freq={w.core_frq}, Top {float(w.cutoff)*100:.2f}%)",

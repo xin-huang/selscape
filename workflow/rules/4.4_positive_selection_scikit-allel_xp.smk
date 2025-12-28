@@ -18,6 +18,28 @@
 #    https://www.gnu.org/licenses/gpl-3.0.en.html
 
 
+def _add_delta_tajima_d_title(wildcards, input):
+    window = int(wildcards.window)
+    step = int(float(wildcards.step) * window)
+    cutoff_pct = float(wildcards.cutoff) * 100
+
+    if hasattr(input, "scores"):
+        return " ".join([
+            f"{wildcards.pair}",
+            f"(Window={window} SNPs,",
+            f"Step={step} SNPs,",
+            f"Top {cutoff_pct:.2f}%)",
+        ])
+
+    return " ".join([
+        f"{wildcards.pair}",
+        f"Delta Tajima's D",
+        f"(Window={window} SNPs,",
+        f"Step={step} SNPs,",
+        f"Top {cutoff_pct:.2f}%)",
+    ])
+
+
 rule calc_delta_tajima_d:
     input:
         vcf=rules.polarize_2pop.output.vcf,
@@ -95,7 +117,7 @@ rule plot_delta_tajima_d:
         ),
         candidates="results/positive_selection/scikit-allel/{species}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.candidates.scores",
     params:
-        title=lambda w: f"{w.pair} (Window={w.window}SNPs, Step={int(float(w.step) * int(w.window))}SNPs, Top {float(w.cutoff)*100:.2f}%)",
+        title=_add_delta_tajima_d_title,
         score_column="delta_tajima_d",
         cutoff="{cutoff}",
         use_absolute="TRUE",
@@ -188,7 +210,7 @@ rule delta_tajima_d_candidate_genes_table_html:
             ),
         ),
     params:
-        title=lambda w: f"{w.pair} (Window={w.window}SNPs, Step={int(float(w.step) * int(w.window))}SNPs, Top {float(w.cutoff)*100:.2f}%) CANDIDATE GENES",
+        title=_add_delta_tajima_d_title,
     log:
         "logs/positive_selection/delta_tajima_d_candidate_genes_table_html.{species}.{pair}.{method}.{window}_{step}.top_{cutoff}.log", 
     conda:
@@ -258,7 +280,7 @@ rule delta_tajima_d_enrichment_results_table_html:
             ),
         ),
     params:
-        title=lambda w: f"{w.pair} (Window={w.window}SNPs, Step={int(float(w.step) * int(w.window))}SNPs, Top {float(w.cutoff)*100:.2f}%) DELTA MOVING TAJIMA D ENRICHMENT",
+        title=_add_delta_tajima_d_title,
     log:
         "logs/positive_selection/delta_tajima_d_enrichment_results_table_html.{species}.{pair}.{method}.{window}_{step}.top_{cutoff}.log",
     conda:
@@ -271,24 +293,14 @@ rule plot_gowinda_enrichment_delta_tajima_d:
     input:
         enrichment=rules.enrichment_delta_tajima_d_gowinda.output.enrichment,
     output:
-        count_plot=report(
+        plot=report(
             "results/positive_selection/scikit-allel/{species}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.gowinda.enrichment.png",
             category="Positive Selection",
             subcategory="{method}",
-            labels=lambda wildcards: delta_tajima_d_labels(
-                wildcards, type="Enrichment Plot"
-            ),
-        ),
-        qscore_plot=report(
-            "results/positive_selection/scikit-allel/{species}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.gowinda.qscore.png",
-            category="Positive Selection",
-            subcategory="{method}",
-            labels=lambda wildcards: delta_tajima_d_labels(
-                wildcards, type="Q-Score Plot"
-            ),
+            labels=lambda wildcards: delta_tajima_d_labels(wildcards, type="Enrichment Plot"),
         ),
     params:
-        title=lambda w: f"{w.pair} {w.method.upper().replace('_', ' ')} ENRICHMENT (Window={w.window}{' SNPs' if w.method == 'moving_tajima_d' else ' bp'}, Step={int(float(w.step) * int(w.window))}{' SNPs' if w.method == 'moving_tajima_d' else ' bp'}, Top {float(w.cutoff)*100:.2f}%)",
+        title=_add_delta_tajima_d_title,
     resources:
         mem_gb=8,
     log:
