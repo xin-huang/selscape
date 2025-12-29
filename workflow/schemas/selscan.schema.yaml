@@ -37,7 +37,7 @@ properties:
     minimum: 0.0
     maximum: 1.0
     default: 0.0005
-    description: "Top proportion for candidate identification"
+    description: "Top proportion for outlier identification"
 
   manhattan_plot_width:
     type: integer

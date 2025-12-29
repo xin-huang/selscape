@@ -37,7 +37,7 @@ include: "rules/5.2_balancing_selection_scikit-allel.smk"
 include: "rules/6_deleterious_dfe_dadi.smk"
 
 
-report: "report/workflow.rst"
+#report: "report/workflow.rst"
 
 
 rule all:
