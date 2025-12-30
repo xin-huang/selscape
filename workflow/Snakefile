@@ -150,7 +150,7 @@ rule all:
             **TAJIMAD_WINDOWED_KW,
             type=["candidate.genes", "gowinda.enrichment"],
         ),
-        # delta moving tajima d
+        # delta tajima d
         expand(
             "results/positive_selection/scikit-allel/{species}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.{type}.png",
             **DELTA_TAJIMAD_KW,

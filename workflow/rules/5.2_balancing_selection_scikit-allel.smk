@@ -23,7 +23,7 @@ rule calc_tajima_d_balancing:
         vcf=rules.remove_repeats.output.vcf,
     output:
         scores=temp(
-            "results/balancing_selection/scikit-allel/{species}/1pop/{ppl}/{method}/{window}_{step}/chr{i}.{method}.scores.txt"
+            "results/balancing_selection/scikit-allel/{species}/{method}/{ppl}/{window}_{step}/chr{i}.{method}.scores.txt"
         ),
     params:
         window_size="{window}",
@@ -183,7 +183,7 @@ rule tajima_d_balancing_candidate_genes_table_html:
             labels=lambda wildcards: tajima_d_labels(wildcards, type="Gene List"),
         ),
     params:
-        title=lambda w: f"{w.ppl} {w.method.upper().replace('_', ' ')} (Window={w.window}{' SNPs' if w.method == 'moving_tajima_d' else ' bp'}, Step={int(float(w.step) * int(w.window))}{' SNPs' if w.method == 'moving_tajima_d' else ' bp'}, Top {float(w.cutoff)*100:.2f}%) CANDIDATE GENES ",
+        title=lambda w: f"{w.ppl} {format_method_name(w.method)} (Window={w.window}{' SNPs' if w.method == 'moving_tajima_d' else ' bp'}, Step={int(float(w.step) * int(w.window))}{' SNPs' if w.method == 'moving_tajima_d' else ' bp'}, Top {float(w.cutoff)*100:.2f}%) CANDIDATE GENES ",
     log:
         "logs/balancing_selection/tajima_d_balancing_candidate_genes_table_html.{species}.{ppl}.{method}.{window}_{step}.top_{cutoff}.log",
     conda:
@@ -252,7 +252,7 @@ rule tajima_d_balancing_enrichment_results_table_html:
             ),
         ),
     params:
-        title=lambda w: f"{w.ppl} {w.method.upper().replace('_', ' ')} (Window={w.window}{' SNPs' if w.method == 'moving_tajima_d' else ' bp'}, Step={int(float(w.step) * int(w.window))}{' SNPs' if w.method == 'moving_tajima_d' else ' bp'}, Top {float(w.cutoff)*100:.2f}%) ENRICHMENT",
+        title=lambda w: f"{w.ppl} {format_method_name(w.method)} (Window={w.window}{' SNPs' if w.method == 'moving_tajima_d' else ' bp'}, Step={int(float(w.step) * int(w.window))}{' SNPs' if w.method == 'moving_tajima_d' else ' bp'}, Top {float(w.cutoff)*100:.2f}%) ENRICHMENT",
     log:
         "logs/balancing_selection/tajima_d_balancing_enrichment_results_table_html.{species}.{ppl}.{method}.{window}_{step}.top_{cutoff}.log",
     conda:
@@ -265,22 +265,14 @@ rule plot_gowinda_enrichment_tajima_d_balancing:
     input:
         enrichment=rules.enrichment_tajima_d_balancing_gowinda.output.enrichment,
     output:
-        count_plot=report(
+        plot=report(
             "results/balancing_selection/scikit-allel/{species}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.top_{cutoff}.gowinda.enrichment.png",
             category="Balancing Selection",
             subcategory="{method}",
-            labels=lambda wildcards: tajima_d_labels(
-                wildcards, type="Enrichment Plot"
-            ),
-        ),
-        qscore_plot=report(
-            "results/balancing_selection/scikit-allel/{species}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.top_{cutoff}.gowinda.qscore.png",
-            category="Balancing Selection",
-            subcategory="{method}",
-            labels=lambda wildcards: tajima_d_labels(wildcards, type="Q-Score Plot"),
+            labels=lambda wildcards: tajima_d_labels(wildcards, type="Enrichment Plot"),
         ),
     params:
-        title=lambda w: f"{w.ppl} {w.method.upper().replace('_', ' ')} ENRICHMENT (Window={w.window}{' SNPs' if w.method == 'moving_tajima_d' else ' bp'}, Step={int(float(w.step) * int(w.window))}{' SNPs' if w.method == 'moving_tajima_d' else ' bp'}, Top {float(w.cutoff)*100:.2f}%)",
+        title=lambda w: f"{w.ppl} {format_method_name(w.method)} ENRICHMENT (Window={w.window}{' SNPs' if w.method == 'moving_tajima_d' else ' bp'}, Step={int(float(w.step) * int(w.window))}{' SNPs' if w.method == 'moving_tajima_d' else ' bp'}, Top {float(w.cutoff)*100:.2f}%)",
     resources:
         mem_gb=8,
     log:

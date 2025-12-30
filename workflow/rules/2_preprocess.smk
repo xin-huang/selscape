@@ -22,8 +22,8 @@ rule extract_biallelic_snps:
     input:
         vcf=get_vcf_input_path,
     output:
-        vcf="results/processed_data/{species}/all/chr{i}.biallelic.snps.vcf.gz",
-        idx="results/processed_data/{species}/all/chr{i}.biallelic.snps.vcf.gz.tbi",
+        vcf=temp("results/processed_data/{species}/all/chr{i}.biallelic.snps.vcf.gz"),
+        idx=temp("results/processed_data/{species}/all/chr{i}.biallelic.snps.vcf.gz.tbi"),
     log:
         "logs/preprocess/extract_biallelic_snps.{species}.chr{i}.log",
     conda:
@@ -59,7 +59,7 @@ rule annotate_biallelic_snps:
         vcf=rules.extract_biallelic_snps.output.vcf,
         ref_gene=rules.download_annovar_db.output.ref_gene,
     output:
-        avinput="results/annotated_data/{species}/all/chr{i}.biallelic.snps.{ref_genome}.avinput",
+        avinput=temp("results/annotated_data/{species}/all/chr{i}.biallelic.snps.{ref_genome}.avinput"),
         txt="results/annotated_data/{species}/all/chr{i}.biallelic.snps.{ref_genome}_multianno.txt",
     resources:
         cpus=8,
@@ -91,8 +91,8 @@ rule extract_pop_data:
         vcf=rules.extract_biallelic_snps.output.vcf,
         metadata=main_config["metadata"],
     output:
-        vcf="results/processed_data/{species}/1pop/{ppl}/{ppl}.chr{i}.biallelic.snps.vcf.gz",
-        idx="results/processed_data/{species}/1pop/{ppl}/{ppl}.chr{i}.biallelic.snps.vcf.gz.tbi",
+        vcf=temp("results/processed_data/{species}/1pop/{ppl}/{ppl}.chr{i}.biallelic.snps.vcf.gz"),
+        idx=temp("results/processed_data/{species}/1pop/{ppl}/{ppl}.chr{i}.biallelic.snps.vcf.gz.tbi"),
     log:
         "logs/preprocess/extract_pop_data.{species}.{ppl}.chr{i}.log",
     conda:
@@ -112,8 +112,8 @@ rule extract_pair_data:
         vcf=rules.extract_biallelic_snps.output.vcf,
         samples=rules.create_pair_info.output.pair_info,
     output:
-        vcf="results/processed_data/{species}/2pop/{pair}/{pair}.chr{i}.biallelic.snps.vcf.gz",
-        idx="results/processed_data/{species}/2pop/{pair}/{pair}.chr{i}.biallelic.snps.vcf.gz.tbi",
+        vcf=temp("results/processed_data/{species}/2pop/{pair}/{pair}.chr{i}.biallelic.snps.vcf.gz"),
+        idx=temp("results/processed_data/{species}/2pop/{pair}/{pair}.chr{i}.biallelic.snps.vcf.gz.tbi"),
     log:
         "logs/preprocess/extract_pair_data.{species}.{pair}.chr{i}.log",
     conda:
@@ -133,8 +133,8 @@ rule extract_1pop_exonic_data:
         vcf=rules.extract_pop_data.output.vcf,
         anno=rules.annotate_biallelic_snps.output.txt,
     output:
-        vcf="results/processed_data/{species}/1pop/{ppl}/{ppl}.chr{i}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz",
-        idx="results/processed_data/{species}/1pop/{ppl}/{ppl}.chr{i}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz.tbi",
+        vcf=temp("results/processed_data/{species}/1pop/{ppl}/{ppl}.chr{i}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz"),
+        idx=temp("results/processed_data/{species}/1pop/{ppl}/{ppl}.chr{i}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz.tbi"),
     params:
         condition=lambda wildcards: (
             "$9~/^synonymous/"
@@ -181,8 +181,8 @@ rule extract_2pop_exonic_data:
         vcf=rules.extract_pair_data.output.vcf,
         anno=rules.annotate_biallelic_snps.output.txt,
     output:
-        vcf="results/processed_data/{species}/2pop/{pair}/{pair}.chr{i}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz",
-        idx="results/processed_data/{species}/2pop/{pair}/{pair}.chr{i}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz.tbi",
+        vcf=temp("results/processed_data/{species}/2pop/{pair}/{pair}.chr{i}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz"),
+        idx=temp("results/processed_data/{species}/2pop/{pair}/{pair}.chr{i}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz.tbi"),
     params:
         condition=lambda wildcards: (
             "$9~/^synonymous/"

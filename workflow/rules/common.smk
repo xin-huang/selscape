@@ -102,7 +102,7 @@ TAJIMAD_WINDOWED_KW = dict(
 DELTA_TAJIMAD_KW = dict(
     species=main_config["species"],
     pair=["_".join(pair) for pair in combinations(main_config["populations"], 2)],
-    method="delta_moving_tajima_d",
+    method="delta_tajima_d",
     window=scikit_allel_config["delta_moving_window_sizes"],
     step=scikit_allel_config["delta_moving_step_size_ratios"],
     cutoff=scikit_allel_config["top_proportion"],
@@ -137,6 +137,9 @@ def _vs_pair(wildcards) -> str:
     """Return 'A vs B' string from wildcards.pair formatted as 'A_B'."""
     return " vs ".join(wildcards.pair.split("_"))
 
+def format_method_name(method):
+    """Format method name for display in titles."""
+    return method.replace('tajima_d', "Tajima's D").replace('_', ' ').upper()
 
 def selscan_labels(wildcards, type: str = "Manhattan Plot") -> dict[str, str]:
     """Labels for within-population selscan Manhattan plot."""
@@ -215,3 +218,4 @@ def fitted_dfe_labels(wildcards, type: str = "Model Fit") -> dict[str, str]:
         "DFE Model": wildcards.dfe,
         "Type": type,
     }
+

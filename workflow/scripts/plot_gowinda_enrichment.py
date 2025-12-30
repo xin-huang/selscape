@@ -23,7 +23,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
-
+from matplotlib.ticker import MaxNLocator
 
 log_fh = open(snakemake.log[0], "w")
 sys.stderr = log_fh
@@ -46,68 +46,55 @@ if data.empty:
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     ax.axis('off')
-    plt.savefig(snakemake.output['count_plot'], dpi=300, bbox_inches='tight')
-    plt.savefig(snakemake.output['qscore_plot'], dpi=300, bbox_inches='tight')
+    plt.savefig(snakemake.output['plot'], dpi=300, bbox_inches='tight')
     plt.close()
     sys.exit(0)
 
-# Prepare plot data
-plot_data = data.sort_values('p_adjusted').head(20).copy()
-plot_data['qscore'] = -np.log10(plot_data['p_adjusted'])
+# Sort by p_adjusted (ascending), then by genes_found (descending)
+plot_data = data.sort_values(['p_adjusted', 'genes_found'], ascending=[True, False]).head(20).copy()
+
 plot_data['short_description'] = plot_data['description'].apply(
     lambda x: x[:47] + "..." if len(x) > 50 else x
 )
 
-#  Color mapping based on p-value
+# Color mapping
 def get_color(p_val):
     if p_val < 0.001:
-        return '#0000FF'  # Blue
+        return '#FF0000'  # Red
     elif p_val < 0.01:
         return '#800080'  # Purple
     elif p_val < 0.05:
-        return '#FF0000'  # Red
+        return '#0000FF'  # Blue
     else:
         return '#808080'  # Gray
 
 plot_data['color'] = plot_data['p_adjusted'].apply(get_color)
 
-# Create custom legend
+# custom legend
 legend_elements = [
-    Patch(facecolor='#0000FF', label='< 0.001'),
+    Patch(facecolor='#FF0000', label='< 0.001'),
     Patch(facecolor='#800080', label='< 0.01'),
-    Patch(facecolor='#FF0000', label='< 0.05'),
-    Patch(facecolor='#808080', label='>= 0.05')
+    Patch(facecolor='#0000FF', label='< 0.05'),
+    Patch(facecolor='#808080', label='≥ 0.05')
 ]
 
-# Function to create enrichment plot
-def create_plot(data_sorted, value_col, xlabel, output_file):
-    fig, ax = plt.subplots(figsize=(12, max(8, len(data_sorted) * 0.4)))
-    ax.barh(range(len(data_sorted)), data_sorted[value_col], color=data_sorted['color'])
-    ax.set_yticks(range(len(data_sorted)))
-    ax.set_yticklabels(data_sorted['short_description'], fontsize=9)
-    ax.set_xlabel(xlabel, fontsize=11)
-    plt.suptitle(f'{plot_title} (Top {len(data_sorted)} terms)',
-                fontsize=14, fontweight='bold', x=0.45)
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
-    ax.grid(axis='x', alpha=0.3)
-    ax.legend(handles=legend_elements, title='p.adjust', loc='lower right')
-    plt.tight_layout()
-    plt.savefig(output_file, dpi=300, bbox_inches='tight')
-    plt.close()
+# Create plot
+fig, ax = plt.subplots(figsize=(12, max(8, len(plot_data) * 0.4)))
 
-# Create count plot
-create_plot(
-    plot_data.sort_values('genes_found', ascending=True),
-    'genes_found',
-    'Count',
-    snakemake.output['count_plot']
-)
+plot_data_display = plot_data[::-1]
 
-# Create qscore plot
-create_plot(
-    plot_data.sort_values('qscore', ascending=True),
-    'qscore',
-    'qscore (-log10(p.adjusted))',
-    snakemake.output['qscore_plot']
-)
+ax.barh(range(len(plot_data_display)), plot_data_display['genes_found'], color=plot_data_display['color'])
+ax.set_yticks(range(len(plot_data_display)))
+ax.set_yticklabels(plot_data_display['short_description'], fontsize=9)
+ax.set_xlabel('Count', fontsize=11)
+ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+ax.set_title(f'{plot_title} (Top {len(plot_data)} terms)', fontsize=14, fontweight='bold')
+ax.spines['top'].set_visible(False)
+ax.spines['right'].set_visible(False)
+ax.grid(axis='x', alpha=0.3)
+ax.legend(handles=legend_elements, title='FDR adjusted p-value', loc='lower right')
+
+
+plt.tight_layout()
+plt.savefig(snakemake.output['plot'], dpi=300, bbox_inches='tight')
+plt.close()

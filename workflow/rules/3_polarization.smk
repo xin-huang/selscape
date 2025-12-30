@@ -23,8 +23,8 @@ rule polarize_1pop:
         vcf=rules.extract_pop_data.output.vcf,
         anc_alleles=get_anc_allele_bed,
     output:
-        vcf="results/polarized_data/{species}/1pop/{ppl}/{ppl}.chr{i}.biallelic.snps.vcf.gz",
-        idx="results/polarized_data/{species}/1pop/{ppl}/{ppl}.chr{i}.biallelic.snps.vcf.gz.tbi",
+        vcf=temp("results/polarized_data/{species}/1pop/{ppl}/{ppl}.chr{i}.biallelic.snps.vcf.gz"),
+        idx=temp("results/polarized_data/{species}/1pop/{ppl}/{ppl}.chr{i}.biallelic.snps.vcf.gz.tbi"),
     resources:
         mem_gb=32,
     log:
@@ -40,8 +40,8 @@ rule polarize_2pop:
         vcf=rules.extract_pair_data.output.vcf,
         anc_alleles=get_anc_allele_bed,
     output:
-        vcf="results/polarized_data/{species}/2pop/{pair}/{pair}.chr{i}.biallelic.snps.vcf.gz",
-        idx="results/polarized_data/{species}/2pop/{pair}/{pair}.chr{i}.biallelic.snps.vcf.gz.tbi",
+        vcf=temp("results/polarized_data/{species}/2pop/{pair}/{pair}.chr{i}.biallelic.snps.vcf.gz"),
+        idx=temp("results/polarized_data/{species}/2pop/{pair}/{pair}.chr{i}.biallelic.snps.vcf.gz.tbi"),
     resources:
         mem_gb=32,
     log:
@@ -57,8 +57,8 @@ rule polarize_1pop_exonic_data:
         vcf=rules.extract_1pop_exonic_data.output.vcf,
         anc_alleles=get_anc_allele_bed,
     output:
-        vcf="results/polarized_data/{species}/1pop/{ppl}/{ppl}.chr{i}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz",
-        idx="results/polarized_data/{species}/1pop/{ppl}/{ppl}.chr{i}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz.tbi",
+        vcf=temp("results/polarized_data/{species}/1pop/{ppl}/{ppl}.chr{i}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz"),
+        idx=temp("results/polarized_data/{species}/1pop/{ppl}/{ppl}.chr{i}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz.tbi"),
     resources:
         mem_gb=32,
     log:
@@ -74,8 +74,8 @@ rule polarize_2pop_exonic_data:
         vcf=rules.extract_2pop_exonic_data.output.vcf,
         anc_alleles=get_anc_allele_bed,
     output:
-        vcf="results/polarized_data/{species}/2pop/{pair}/{pair}.chr{i}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz",
-        idx="results/polarized_data/{species}/2pop/{pair}/{pair}.chr{i}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz.tbi",
+        vcf=temp("results/polarized_data/{species}/2pop/{pair}/{pair}.chr{i}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz"),
+        idx=temp("results/polarized_data/{species}/2pop/{pair}/{pair}.chr{i}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz.tbi"),
     resources:
         mem_gb=32,
     log:
