@@ -22,7 +22,7 @@
     
     
       
-        <title>Configuration - Selscape</title>
+        <title>Configuration - selscape</title>
       
     
     
@@ -88,7 +88,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Selscape" class="md-header__button md-logo" aria-label="Selscape" data-md-component="logo">
+    <a href="../.." title="selscape" class="md-header__button md-logo" aria-label="selscape" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -102,7 +102,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Selscape
+            selscape
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -195,13 +195,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Selscape" class="md-nav__button md-logo" aria-label="Selscape" data-md-component="logo">
+    <a href="../.." title="selscape" class="md-nav__button md-logo" aria-label="selscape" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    Selscape
+    selscape
   </label>
   
     <div class="md-nav__source">
@@ -718,7 +718,7 @@
 </tr>
 <tr>
 <td><code>config/selscan.yaml</code></td>
-<td>Selscan parameters</td>
+<td>selscan parameters</td>
 </tr>
 <tr>
 <td><code>config/betascan.yaml</code></td>
@@ -726,7 +726,7 @@
 </tr>
 <tr>
 <td><code>config/scikit-allel.yaml</code></td>
-<td>Tajima's D parameters</td>
+<td>scikit-allel parameters</td>
 </tr>
 <tr>
 <td><code>config/dadi-cli.yaml</code></td>
@@ -797,117 +797,147 @@
 <th>Parameter</th>
 <th>Type</th>
 <th>Description</th>
-<th>Default</th>
+<th>Required</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>species</td>
 <td>string</td>
-<td>Species identifier for outputs</td>
-<td>"Human"</td>
+<td>Species name</td>
+<td>Y</td>
 </tr>
 <tr>
 <td>tax_id</td>
 <td>integer</td>
 <td>NCBI taxonomy ID</td>
-<td>9606</td>
+<td>Y</td>
 </tr>
 <tr>
 <td>ref_genome</td>
 <td>string</td>
 <td>Reference genome build</td>
-<td>"hg38"</td>
+<td>Y</td>
+</tr>
+<tr>
+<td>anc_alleles.path</td>
+<td>string</td>
+<td>Base folder for ancestral allele information</td>
+<td>N</td>
+</tr>
+<tr>
+<td>anc_alleles.prefix</td>
+<td>string</td>
+<td>Ancestral allele information filename prefix</td>
+<td>N</td>
+</tr>
+<tr>
+<td>genome_annotation</td>
+<td>string</td>
+<td>Path to genome annotation GTF file</td>
+<td>Y</td>
+</tr>
+<tr>
+<td>gene2go</td>
+<td>string</td>
+<td>Path to gene2go mapping file</td>
+<td>Y</td>
+</tr>
+<tr>
+<td>hwe_pvalue</td>
+<td>float</td>
+<td>Hardy-Weinberg equilibrium p-value threshold</td>
+<td>Y</td>
+</tr>
+<tr>
+<td>hwe_pvalue</td>
+<td>float</td>
+<td>Hardy-Weinberg equilibrium p-value threshold</td>
+<td>Y</td>
+</tr>
+<tr>
+<td>rmsk</td>
+<td>string</td>
+<td>Path to repeat masker BED file</td>
+<td>N</td>
+</tr>
+<tr>
+<td>seg_dup</td>
+<td>string</td>
+<td>Path to segmental duplications BED file</td>
+<td>N</td>
+</tr>
+<tr>
+<td>sim_rep</td>
+<td>string</td>
+<td>Path to simple repeats BED file</td>
+<td>N</td>
 </tr>
 <tr>
 <td>ploidy</td>
 <td>integer</td>
 <td>Organism ploidy</td>
-<td>2</td>
+<td>Y</td>
 </tr>
 <tr>
 <td>populations</td>
 <td>list</td>
-<td>Population codes to analyze</td>
-<td>["YRI", "CHS"]</td>
+<td>List of population IDs to analyze</td>
+<td>Y</td>
 </tr>
 <tr>
 <td>data_folder</td>
 <td>string</td>
-<td>VCF file directory</td>
-<td>"examples/data/Human/raw"</td>
+<td>Base folder for input VCF files</td>
+<td>Y</td>
 </tr>
 <tr>
 <td>vcf_prefix</td>
 <td>string</td>
 <td>VCF filename prefix</td>
-<td>"full_chr"</td>
+<td>Y</td>
 </tr>
 <tr>
 <td>vcf_suffix</td>
 <td>string</td>
 <td>VCF filename suffix</td>
-<td>".vcf.gz"</td>
+<td>Y</td>
 </tr>
 <tr>
 <td>metadata</td>
 <td>string</td>
-<td>Sample metadata file path</td>
-<td>required</td>
+<td>Path to sample metadata file</td>
+<td>Y</td>
 </tr>
 <tr>
 <td>chromosomes</td>
 <td>list</td>
-<td>Chromosomes to include</td>
-<td>[20, 21]</td>
+<td>List of chromosomes to analyze</td>
+<td>Y</td>
 </tr>
 <tr>
-<td>anc_alleles.path</td>
+<td>betascan_config</td>
 <td>string</td>
-<td>Ancestral allele directory</td>
-<td>optional</td>
+<td>Path to BetaScan configuration file</td>
+<td>Y</td>
 </tr>
 <tr>
-<td>anc_alleles.prefix</td>
+<td>selscan_config</td>
 <td>string</td>
-<td>Ancestral allele file prefix</td>
-<td>optional</td>
+<td>Path to selscan configuration file</td>
+<td>Y</td>
 </tr>
 <tr>
-<td>genome_annotation</td>
+<td>dadi_config</td>
 <td>string</td>
-<td>GTF annotation file</td>
-<td>required</td>
+<td>Path to dadi-cli configuration file</td>
+<td>Y</td>
 </tr>
 <tr>
-<td>gene2go</td>
+<td>scikit_allel_config</td>
 <td>string</td>
-<td>Gene2GO mapping file</td>
-<td>required</td>
-</tr>
-<tr>
-<td>hwe_pvalue</td>
-<td>float</td>
-<td>Hardy-Weinberg p-value threshold</td>
-<td>0.001</td>
-</tr>
-<tr>
-<td>rmsk</td>
-<td>string</td>
-<td>Repeat masker BED file</td>
-<td>optional</td>
-</tr>
-<tr>
-<td>seg_dup</td>
-<td>string</td>
-<td>Segmental duplications BED file</td>
-<td>optional</td>
-</tr>
-<tr>
-<td>sim_rep</td>
-<td>string</td>
-<td>Simple repeats BED file</td>
-<td>optional</td>
+<td>Path to scikit-allel configuration file</td>
+<td>Y</td>
 </tr>
 </tbody>
 </table>
@@ -923,7 +953,7 @@
 <span class="nt">max_af</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.95</span><span class="w">  </span><span class="c1"># Maximum allele frequency</span>
 
 <span class="c1"># Statistical thresholds</span>
-<span class="nt">top_proportion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0005</span><span class="w">  </span><span class="c1"># Top proportion for candidate identification</span>
+<span class="nt">top_proportion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0005</span><span class="w">  </span><span class="c1"># Top proportion for outlier identification</span>
 
 <span class="c1"># Manhattan plot settings</span>
 <span class="nt">manhattan_plot_width</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">640</span>
@@ -939,39 +969,39 @@
 <th>Parameter</th>
 <th>Type</th>
 <th>Description</th>
-<th>Default</th>
+<th>Required</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>unfolded</td>
 <td>boolean</td>
-<td>Use polarized/unfolded SFS</td>
-<td>True</td>
+<td>Use polarized/unfolded allele frequency spectrum</td>
+<td>Y</td>
 </tr>
 <tr>
 <td>core_frq</td>
 <td>float</td>
-<td>Core allele frequency for B1</td>
-<td>0.15</td>
+<td>Core allele frequency parameter</td>
+<td>Y</td>
 </tr>
 <tr>
 <td>min_af</td>
 <td>float</td>
 <td>Minimum allele frequency</td>
-<td>0.05</td>
+<td>Y</td>
 </tr>
 <tr>
 <td>max_af</td>
 <td>float</td>
 <td>Maximum allele frequency</td>
-<td>0.95</td>
+<td>Y</td>
 </tr>
 <tr>
 <td>top_proportion</td>
 <td>float</td>
-<td>Top proportion for candidates</td>
-<td>0.0005</td>
+<td>Top proportion for outlier identification</td>
+<td>Y</td>
 </tr>
 </tbody>
 </table>
@@ -1009,39 +1039,39 @@
 <th>Parameter</th>
 <th>Type</th>
 <th>Description</th>
-<th>Default</th>
+<th>Required</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>unphased</td>
 <td>boolean</td>
-<td>Handle unphased data</td>
-<td>true</td>
+<td>Use unphased (true) or phased (false) data</td>
+<td>Y</td>
 </tr>
 <tr>
 <td>wp_stats</td>
 <td>list</td>
-<td>Within-population statistics</td>
-<td>[ihs, nsl]</td>
+<td>Within-population statistics to compute</td>
+<td>Y</td>
 </tr>
 <tr>
 <td>xp_stats</td>
 <td>list</td>
-<td>Cross-population statistics</td>
-<td>[xpehh, xpnsl]</td>
+<td>Cross-population statistics to compute</td>
+<td>Y</td>
 </tr>
 <tr>
 <td>maf</td>
 <td>float</td>
 <td>Minor allele frequency threshold</td>
-<td>0.05</td>
+<td>Y</td>
 </tr>
 <tr>
 <td>top_proportion</td>
 <td>float</td>
-<td>Top proportion for candidates</td>
-<td>0.0005</td>
+<td>Top proportion for outlier identification</td>
+<td>Y</td>
 </tr>
 </tbody>
 </table>
@@ -1084,63 +1114,63 @@
 <th>Parameter</th>
 <th>Type</th>
 <th>Description</th>
-<th>Default</th>
+<th>Required</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>wp_stats</td>
 <td>list</td>
-<td>Within-population statistics</td>
-<td>[windowed_tajima_d, moving_tajima_d]</td>
-</tr>
-<tr>
-<td>windowed_window_sizes</td>
-<td>list</td>
-<td>Window sizes in bp</td>
-<td>[100_000]</td>
-</tr>
-<tr>
-<td>windowed_step_size_ratios</td>
-<td>list</td>
-<td>Step size as fraction of window</td>
-<td>[1]</td>
-</tr>
-<tr>
-<td>moving_window_sizes</td>
-<td>list</td>
-<td>Window sizes in SNPs</td>
-<td>[100]</td>
-</tr>
-<tr>
-<td>moving_step_size_ratios</td>
-<td>list</td>
-<td>Step size as fraction of window</td>
-<td>[1]</td>
+<td>Within-population statistics to compute</td>
+<td>Y</td>
 </tr>
 <tr>
 <td>xp_stats</td>
 <td>list</td>
-<td>Cross-population statistics</td>
-<td>[delta_moving_tajima_d]</td>
+<td>Cross-population statistics to compute</td>
+<td>Y</td>
 </tr>
 <tr>
-<td>delta_moving_window_sizes</td>
+<td>wtjd_window_sizes</td>
 <td>list</td>
-<td>XP window sizes in SNPs</td>
-<td>[100]</td>
+<td>Window sizes in base pairs for windowed tajima's d (wtjd) statistic</td>
+<td>Y</td>
 </tr>
 <tr>
-<td>delta_moving_step_size_ratios</td>
+<td>wtjd_step_size_ratios</td>
 <td>list</td>
-<td>XP step size as fraction</td>
-<td>[1]</td>
+<td>Step size as fraction of window in base pair for wtjd statistic</td>
+<td>Y</td>
+</tr>
+<tr>
+<td>mtjd_window_sizes</td>
+<td>list</td>
+<td>Window sizes in SNPs for moving tajima's d (mtjd) statistic</td>
+<td>Y</td>
+</tr>
+<tr>
+<td>mtjd_step_size_ratios</td>
+<td>list</td>
+<td>Step size as fraction of window in SNPs for mtjd statistic</td>
+<td>Y</td>
+</tr>
+<tr>
+<td>dtjd_moving_window_sizes</td>
+<td>list</td>
+<td>Window sizes in SNPs for xp moving delta tajima's d (dtjd) statistic</td>
+<td>Y</td>
+</tr>
+<tr>
+<td>dtjd_moving_step_size_ratios</td>
+<td>list</td>
+<td>Step size as fraction of window in SNPs for cross population dtjd statistic</td>
+<td>Y</td>
 </tr>
 <tr>
 <td>top_proportion</td>
 <td>float</td>
-<td>Top proportion for candidates</td>
-<td>0.05</td>
+<td>Top proportion for outlier identification</td>
+<td>Y</td>
 </tr>
 </tbody>
 </table>
@@ -1188,111 +1218,111 @@
 <th>Parameter</th>
 <th>Type</th>
 <th>Description</th>
-<th>Default</th>
+<th>Required</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>unfolded</td>
 <td>boolean</td>
-<td>Use polarized SFS</td>
-<td>True</td>
+<td>Use polarized/unfolded allele frequency spectrum</td>
+<td>Y</td>
 </tr>
 <tr>
 <td>demog_1d</td>
 <td>string</td>
-<td>1D demographic model</td>
-<td>two_epoch</td>
+<td>1D demographic model name</td>
+<td>Y</td>
 </tr>
 <tr>
 <td>demog_1d_p0</td>
 <td>string</td>
-<td>Initial demographic parameters</td>
-<td>"0.5 5 0.5"</td>
+<td>Initial parameters for 1D demographic model</td>
+<td>Y</td>
 </tr>
 <tr>
 <td>demog_1d_ub</td>
 <td>string</td>
-<td>Upper bounds</td>
-<td>"10 10 1"</td>
+<td>Upper bounds for 1D demographic model parameters</td>
+<td>Y</td>
 </tr>
 <tr>
 <td>demog_1d_lb</td>
 <td>string</td>
-<td>Lower bounds</td>
-<td>"10e-5 10e-5 0"</td>
+<td>Lower bounds for 1D demographic model parameters</td>
+<td>Y</td>
 </tr>
 <tr>
 <td>dfe_1d</td>
 <td>string</td>
-<td>1D DFE model</td>
-<td>lognormal</td>
+<td>1D DFE model name</td>
+<td>Y</td>
 </tr>
 <tr>
 <td>dfe_1d_p0</td>
 <td>string</td>
-<td>Initial DFE parameters</td>
-<td>"5 5 0.5"</td>
+<td>Initial parameters for 1D DFE model</td>
+<td>Y</td>
 </tr>
 <tr>
 <td>dfe_1d_ub</td>
 <td>string</td>
-<td>Upper bounds</td>
-<td>"100 1000 1"</td>
+<td>Upper bounds for 1D DFE model parameters</td>
+<td>Y</td>
 </tr>
 <tr>
 <td>dfe_1d_lb</td>
 <td>string</td>
-<td>Lower bounds</td>
-<td>"10e-5 10e-5 0"</td>
+<td>Lower bounds for 1D DFE model parameters</td>
+<td>Y</td>
 </tr>
 <tr>
 <td>dm_grid_size</td>
 <td>string</td>
-<td>Grid for demographic inference</td>
-<td>"300 400 500"</td>
+<td>Grid sizes for demographic inference</td>
+<td>Y</td>
 </tr>
 <tr>
 <td>dfe_grid_size</td>
 <td>string</td>
 <td>Grid for DFE inference</td>
-<td>"300 400 500"</td>
+<td>Y</td>
 </tr>
 <tr>
 <td>gamma_pts</td>
 <td>integer</td>
-<td>Gamma integration points</td>
-<td>100</td>
+<td>Number of gamma points for cache generation</td>
+<td>Y</td>
 </tr>
 <tr>
 <td>ratio</td>
 <td>float</td>
-<td>Nonsyn/syn mutation rate ratio</td>
-<td>2.31</td>
+<td>Ratio of non-synonymous to synonymous mutation rates</td>
+<td>Y</td>
 </tr>
 <tr>
 <td>optimizations</td>
 <td>integer</td>
 <td>Number of optimization runs</td>
-<td>50</td>
+<td>Y</td>
 </tr>
 <tr>
 <td>bootstrap_replicates</td>
 <td>integer</td>
-<td>Bootstrap replicates</td>
-<td>100</td>
+<td>Number of bootstrap replicates</td>
+<td>Y</td>
 </tr>
 <tr>
 <td>chunk_size</td>
 <td>integer</td>
-<td>Chunk size for bootstrap</td>
-<td>1000000</td>
+<td>Chunk size for bootstrapping</td>
+<td>Y</td>
 </tr>
 <tr>
 <td>mask_singletons</td>
 <td>boolean</td>
-<td>Mask singleton variants</td>
-<td>false</td>
+<td>Whether to mask singleton variants</td>
+<td>Y</td>
 </tr>
 </tbody>
 </table>
@@ -1316,9 +1346,9 @@
 <p><strong>Repeat Masking</strong>: Optional but recommended. Set to empty string or null to disable.</p>
 </li>
 <li>
-<p><strong>Step Size Ratios</strong>: Values between 0 and 1 represent the fraction of window size to step. </p>
+<p><strong>Step Size Ratios</strong>: Values from 0 to 1 represent the fraction of window size to step. </p>
 </li>
-<li>Example: window=100, step_ratio=0.1 → step=10</li>
+<li>Example: window_size=100, step_ratio=0.1 → step_size=10</li>
 </ol>
 <p>Please check <a href="https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html#configuration">Snakemake Configuration</a> documentation for additional information.</p>
 

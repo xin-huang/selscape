@@ -22,7 +22,7 @@
     
     
       
-        <title>Usage - Selscape</title>
+        <title>Usage - selscape</title>
       
     
     
@@ -88,7 +88,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Selscape" class="md-header__button md-logo" aria-label="Selscape" data-md-component="logo">
+    <a href="../.." title="selscape" class="md-header__button md-logo" aria-label="selscape" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -102,7 +102,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Selscape
+            selscape
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -195,13 +195,13 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Selscape" class="md-nav__button md-logo" aria-label="Selscape" data-md-component="logo">
+    <a href="../.." title="selscape" class="md-nav__button md-logo" aria-label="selscape" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    Selscape
+    selscape
   </label>
   
     <div class="md-nav__source">
@@ -715,10 +715,10 @@
 
 
 <h1 id="usage">Usage</h1>
-<p>Selscape provides example data to test the workflow, and supports analyzing your own datasets with flexible configuration.</p>
+<p><code>selscape</code> provides example data to test the workflow, and supports analyzing your own datasets with flexible configuration.</p>
 <h2 id="quick-start-with-example-data">Quick Start with Example Data</h2>
 <h3 id="1-download-example-data">1. Download Example Data</h3>
-<p>Selscape includes a workflow to download example data from the 1000 Genomes Project:</p>
+<p><code>selscape</code> includes a workflow to download example data from the 1000 Genomes Project:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Download example data (YRI and CHS populations, chromosomes 20-21)</span>
 snakemake<span class="w"> </span>-s<span class="w"> </span>examples/get_example_data.smk<span class="w"> </span>-c<span class="w"> </span><span class="m">1</span>
 </code></pre></div>
@@ -777,7 +777,7 @@ resources/data/
 <p><strong>Requirements:</strong>
 - All VCF files must be bgzipped (<code>.vcf.gz</code>)
 - All VCF files must be indexed (<code>.vcf.gz.tbi</code>)
-- Biallelic SNPs only (can be filtered by Selscape)</p>
+- Biallelic SNPs only (can be filtered by selscape)</p>
 <h4 id="metadata-file">Metadata File</h4>
 <p>Create a tab-separated file mapping samples to populations:</p>
 <div class="codehilite"><pre><span></span><code>Sample  Population
@@ -872,7 +872,7 @@ snakemake<span class="w"> </span>-c<span class="w"> </span><span class="m">1</sp
 snakemake<span class="w"> </span>-c<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>results/positive_selection/selscan/Human/1pop/YRI/ihs_0.05/YRI.normalized.ihs.maf_0.05.top_0.0005.scores.png
 
-<span class="c1"># Only Tajima&#39;s D</span>
+<span class="c1"># Only scikit-allel</span>
 snakemake<span class="w"> </span>-c<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>results/positive_selection/scikit-allel/Human/1pop/YRI/windowed_tajima_d/100000_1/YRI.windowed_tajima_d.top_0.05.scores.png
 
