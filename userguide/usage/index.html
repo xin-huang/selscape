@@ -399,9 +399,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#ancestral-alleles-optional-but-recommended" class="md-nav__link">
+  <a href="#ancestral-alleles-optional" class="md-nav__link">
     <span class="md-ellipsis">
-      Ancestral Alleles (Optional but Recommended)
+      Ancestral Alleles (Optional)
     </span>
   </a>
   
@@ -439,6 +439,15 @@
   <a href="#running-specific-analyses" class="md-nav__link">
     <span class="md-ellipsis">
       Running Specific Analyses
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#generate-html-report" class="md-nav__link">
+    <span class="md-ellipsis">
+      Generate HTML Report
     </span>
   </a>
   
@@ -627,9 +636,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#ancestral-alleles-optional-but-recommended" class="md-nav__link">
+  <a href="#ancestral-alleles-optional" class="md-nav__link">
     <span class="md-ellipsis">
-      Ancestral Alleles (Optional but Recommended)
+      Ancestral Alleles (Optional)
     </span>
   </a>
   
@@ -667,6 +676,15 @@
   <a href="#running-specific-analyses" class="md-nav__link">
     <span class="md-ellipsis">
       Running Specific Analyses
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#generate-html-report" class="md-nav__link">
+    <span class="md-ellipsis">
+      Generate HTML Report
     </span>
   </a>
   
@@ -793,7 +811,7 @@ HG00421 CHS
 - Header line: <code>Sample</code> and <code>Population</code>
 - Tab-separated
 - Sample IDs must match VCF file samples</p>
-<h4 id="ancestral-alleles-optional-but-recommended">Ancestral Alleles (Optional but Recommended)</h4>
+<h4 id="ancestral-alleles-optional">Ancestral Alleles (Optional)</h4>
 <p>If available, ancestral alleles enable polarized analyses (selscan, unfolded BetaScan/dadi):</p>
 <div class="codehilite"><pre><span></span><code>ancestral_alleles/
 ├──<span class="w"> </span>anc_chr1.bed.gz
@@ -849,17 +867,23 @@ chr1    2   3   G
 <span class="nt">rmsk</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;resources/repeats/repeats.bed&quot;</span>
 <span class="nt">seg_dup</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;resources/repeats/seg_dups.bed&quot;</span>
 <span class="nt">sim_rep</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;resources/repeats/simple_repeats.bed&quot;</span>
+
+<span class="c1"># Analysis tool configuration</span>
+<span class="nt">selscan_config</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;config/selscan.yaml&quot;</span>
+<span class="nt">betascan_config</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;config/betascan.yaml&quot;</span>
+<span class="nt">dadi_config</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;config/dadi-cli.yaml&quot;</span>
+<span class="nt">scikit_allel_config</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;config/scikit-allel.yaml&quot;</span>
 </code></pre></div>
 
 <h3 id="3-run-analysis">3. Run Analysis</h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Preview what will be executed (dry run)</span>
-snakemake<span class="w"> </span>-np
+snakemake<span class="w"> </span>-np<span class="w"> </span>--configfile<span class="w"> </span>/path/to/your/main.yaml
 
 <span class="c1"># Local execution</span>
 snakemake<span class="w"> </span>-c<span class="w"> </span><span class="m">1</span><span class="w"> </span>--configfile<span class="w"> </span>/path/to/your/main.yaml
 
 <span class="c1"># HPC cluster (SLURM)</span>
-snakemake<span class="w"> </span>-c<span class="w"> </span><span class="m">1</span><span class="w"> </span>--configfile<span class="w"> </span>/path/to/your/main.yaml<span class="w"> </span>--profile<span class="w"> </span>config/slurm/<span class="w"> </span>--jobs<span class="w"> </span><span class="m">50</span>
+snakemake<span class="w"> </span>-c<span class="w"> </span><span class="m">1</span><span class="w"> </span>--configfile<span class="w"> </span>/path/to/your/main.yaml<span class="w"> </span>--profile<span class="w"> </span>config/slurm/<span class="w"> </span>--j<span class="w"> </span><span class="m">50</span>
 </code></pre></div>
 
 <h2 id="running-specific-analyses">Running Specific Analyses</h2>
@@ -876,9 +900,18 @@ snakemake<span class="w"> </span>-c<span class="w"> </span><span class="m">1</sp
 snakemake<span class="w"> </span>-c<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>results/positive_selection/scikit-allel/Human/1pop/YRI/windowed_tajima_d/100000_1/YRI.windowed_tajima_d.top_0.05.scores.png
 
-<span class="c1"># Only DFE inference</span>
+<span class="c1"># Only dadi-cli</span>
 snakemake<span class="w"> </span>-c<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>results/dadi/Human/dfe/YRI/plots/YRI.hg38.two_epoch.lognormal.fitted.png
+</code></pre></div>
+
+<h2 id="generate-html-report">Generate HTML Report</h2>
+<p>Snakemake can automatically generate an interactive HTML report with main results, plots, and tables:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Generate report after workflow completion</span>
+snakemake<span class="w"> </span>--report<span class="w"> </span>--configfile<span class="w"> </span>/path/to/your/main.yaml
+
+<span class="c1"># Customize report location and file name</span>
+snakemake<span class="w"> </span>--report<span class="w"> </span>/path/to/my_report.html<span class="w"> </span>--configfile<span class="w"> </span>/path/to/your/main.yaml
 </code></pre></div>
 
 <h2 id="clean-restart">Clean Restart</h2>
@@ -908,7 +941,7 @@ rm<span class="w"> </span>-rf<span class="w"> </span>resources/<span class="w"> 
 <td>Use 4 parallel jobs (local)</td>
 </tr>
 <tr>
-<td><code>--jobs 50</code></td>
+<td><code>-j or --jobs 50</code></td>
 <td>Submit up to 50 jobs (cluster)</td>
 </tr>
 <tr>
