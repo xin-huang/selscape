@@ -603,6 +603,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#confidence-intervals" class="md-nav__link">
+    <span class="md-ellipsis">
+      Confidence Intervals
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -966,6 +975,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#confidence-intervals" class="md-nav__link">
+    <span class="md-ellipsis">
+      Confidence Intervals
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1102,7 +1120,6 @@
 <li><code>{dfe}</code>: DFE model (e.g., "lognormal")</li>
 </ul>
 <h2 id="positive-selection">Positive Selection</h2>
-<p>Tools for detecting beneficial mutations that have recently increased in frequency:</p>
 <h3 id="selscan">selscan</h3>
 <h4 id="within-population-statistics-ihs-nsl">Within-Population Statistics (iHS, nSL)</h4>
 <p><strong>File path:</strong></p>
@@ -1146,7 +1163,7 @@
 </tr>
 </tbody>
 </table>
-<p>Positive values indicate selection favoring the derived allele, while negative values indicate selection favoring the ancestral allele. High absolute values indicate recent positive selection.</p>
+<p>Positive values may indicate selection favoring the derived allele, while negative values may indicate selection favoring the ancestral allele. High absolute values may indicate recent positive selection.</p>
 <p><img alt="selscan Manhattan Plot" src="../../images/selscan_manhattan_plot.png" /></p>
 <h4 id="cross-population-statistics-xp-ehh-xp-nsl">Cross-Population Statistics (XP-EHH, XP-nSL)</h4>
 <p><strong>File path:</strong></p>
@@ -1154,8 +1171,8 @@
 </code></pre></div>
 
 <p>Same format as within-population statistics.</p>
-<p>Positive values indicate selection in the first population (e.g., YRI in YRI_CHS), while negative values indicate selection in the second population (e.g., CHS in YRI_CHS).</p>
-<p>More information: <a href="https://github.com/szpiech/selscan/blob/main/Selscan_Manual_v2_1_1.pdf">selscan</a></p>
+<p>Positive values may indicate selection in the first population (e.g., YRI in YRI_CHS), while negative values may indicate selection in the second population (e.g., CHS in YRI_CHS).</p>
+<p>More information: <a href="https://github.com/szpiech/selscan">selscan</a>.</p>
 <h3 id="scikit-allel">scikit-allel</h3>
 <h4 id="windowed-tajimas-d">Windowed Tajima's D</h4>
 <p><strong>File path:</strong></p>
@@ -1310,9 +1327,8 @@
 </table>
 <p><img alt="Delta Tajima's D Manhattan Plot" src="../../images/delta_tajima_manhattan_plot.png" /></p>
 <p>Large positive or negative values indicate selection acting differently between populations.</p>
-<p>More information: <a href="https://scikit-allel.readthedocs.io/en/stable/index.html">scikit-allel</a></p>
+<p>More information: <a href="https://scikit-allel.readthedocs.io/en/stable/index.html">scikit-allel</a>.</p>
 <h2 id="balancing-selection">Balancing Selection</h2>
-<p>Tools for identifying regions where multiple alleles are maintained over time:</p>
 <h3 id="betascan">BetaScan</h3>
 <p><strong>File path:</strong></p>
 <div class="codehilite"><pre><span></span><code>results/balancing_selection/betascan/{species}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.outliers.scores
@@ -1353,7 +1369,7 @@
 </table>
 <p>Higher B1 values indicate stronger evidence for long-term balancing selection, where multiple alleles are maintained over extended periods.</p>
 <p><img alt="BetaScan Manhattan Plot" src="../../images/betascan_manhattan_plot.png" /></p>
-<p>More information: <a href="https://github.com/ksiewert/BetaScan/wiki">BetaScan</a></p>
+<p>More information: <a href="https://github.com/ksiewert/BetaScan/wiki">BetaScan</a>.</p>
 <h3 id="scikit-allel_1">scikit-allel</h3>
 <h4 id="windowed-tajimas-d_1">Windowed Tajima's D</h4>
 <p><strong>File path:</strong></p>
@@ -1450,7 +1466,6 @@
 </tbody>
 </table>
 <h2 id="distribution-of-fitness-effects">Distribution of Fitness Effects</h2>
-<p>Inference of mutation fitness distributions across selection strength categories:</p>
 <h3 id="dadidadi-cli">dadi/dadi-cli</h3>
 <h4 id="demographic-model-inference">Demographic Model Inference</h4>
 <p><strong>File path:</strong> <code>results/dadi/{species}/dfe/{ppl}/InferDM/{ppl}.{ref_genome}.{demog}.InferDM.bestfits</code></p>
@@ -1542,7 +1557,7 @@ The visualization shows the observed vs. model-predicted frequency spectrum for 
 <p><strong>File path:</strong> <code>results/dadi/{species}/dfe/{ppl}/plots/{ppl}.{ref_genome}.{demog}.{dfe}.fitted.mut.prop.png</code></p>
 <p><img alt="Mutation Proportions" src="../../images/two_epoch.lognormal.mut.prop.png" /></p>
 <p>The mutation proportion plot shows the distribution of mutations by selection strength (2N|s|): nearly neutral mutations (&lt; 1), weakly deleterious mutations (1–10), moderately deleterious mutations (10–100), and strongly deleterious mutations (&gt; 100).</p>
-<p>#### Confidence Intervals</p>
+<h4 id="confidence-intervals">Confidence Intervals</h4>
 <p><strong>File path:</strong>  <code>results/dadi/{species}/dfe/{ppl}/StatDFE/{ppl}.{ref_genome}.{demog}.{dfe}.godambe.ci</code></p>
 <p><strong>Example output:</strong></p>
 <div class="codehilite"><pre><span></span><code>Estimated 95% uncerts (theta adj), with step size 0.1): [2.45625971 3.17513531 0.11405905]
@@ -1558,12 +1573,12 @@ Lower bounds of 95% confidence interval : [-0.39421163 -0.11396035  0.00262596]
 Upper bounds of 95% confidence interval : [3.99729681 4.98007091 0.21626994]
 </code></pre></div>
 
-<p>Bootstrap-based 95% confidence intervals for all DFE parameters.</p>
-<p>More information: <a href="https://dadi-cli.readthedocs.io/en/latest/">dadi-cli</a></p>
+<p>Godambe-based 95% confidence intervals for all DFE parameters.</p>
+<p>More information: <a href="https://dadi.readthedocs.io/en/latest/">dadi</a> and <a href="https://dadi-cli.readthedocs.io/en/latest/">dadi-cli</a>.</p>
 <h2 id="functional-annotation">Functional Annotation</h2>
-<p>Gene and functional annotation of selection outliers:</p>
+<p>Gene and functional annotation of outliers:</p>
 <h3 id="annovar-annotated-outliers">ANNOVAR Annotated Outliers</h3>
-<p>All selection outliers are annotated with gene information:</p>
+<p>All outliers are annotated with gene information:</p>
 <p><strong>File path:</strong> <code>{analysis_path}/{file_prefix}.annotated.outliers</code></p>
 <p><strong>Example output:</strong></p>
 <div class="codehilite"><pre><span></span><code><span class="nv">Chr</span><span class="w">     </span><span class="nv">Start</span><span class="w">   </span><span class="k">End</span><span class="w">     </span><span class="nv">Ref</span><span class="w">     </span><span class="nv">Alt</span><span class="w">     </span><span class="nv">Func</span>.<span class="nv">refGene</span><span class="w">    </span><span class="nv">Gene</span>.<span class="nv">refGene</span><span class="w">    </span><span class="nv">ExonicFunc</span>.<span class="nv">refGene</span><span class="w">      </span><span class="nv">AAChange</span>.<span class="nv">refGene</span>
@@ -1629,9 +1644,9 @@ UQCC1
 </code></pre></div>
 
 <p>Simple list of unique genes extracted from annotated outliers.</p>
-<p>More information: <a href="https://annovar.openbioinformatics.org/en/latest/">ANNOVAR</a></p>
+<p>More information: <a href="https://annovar.openbioinformatics.org/en/latest/">ANNOVAR</a>.</p>
 <h2 id="go-enrichment-analysis">GO Enrichment Analysis</h2>
-<p>Statistical testing for enrichment of biological processes in candidate genes:</p>
+<p>Statistical testing for GO enrichment in outlier genes:</p>
 <h3 id="gowinda-enrichment-results">Gowinda Enrichment Results</h3>
 <p><strong>File path:</strong>  <code>{analysis_path}/{file_prefix}.gowinda.enrichment.tsv</code></p>
 <p><strong>Example output:</strong></p>
@@ -1695,7 +1710,7 @@ UQCC1
 <p><strong>File path:</strong>  <code>{analysis_path}/{file_prefix}.gowinda.enrichment.png</code></p>
 <p><img alt="Gowinda Enrichment Plot" src="../../images/gowinda_enrichment_plot.png" /></p>
 <p>The enrichment plot shows top 20 GO terms, sorted by their significance (FDR adjusted p-value) and then by the number of genes found. Bars are colored based on significance: red for highly significant enrichment (&lt; 0.001), purple for significant enrichment (&lt; 0.01), blue for moderately significant enrichment (&lt; 0.05), and gray for non-significant results (≥ 0.05).</p>
-<p>More information: <a href="https://sourceforge.net/p/gowinda/wiki/Tutorial">Gowinda Tutorial</a></p>
+<p>More information: <a href="https://sourceforge.net/p/gowinda/wiki/Tutorial">Gowinda Tutorial</a>.</p>
 <h2 id="interactive-html-reports">Interactive HTML Reports</h2>
 <p>All methods generate interactive HTML tables with search, sort, and export functionality:</p>
 <ul>
