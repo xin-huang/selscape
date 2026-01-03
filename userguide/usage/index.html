@@ -903,16 +903,16 @@ snakemake<span class="w"> </span>-c<span class="w"> </span><span class="m">1</sp
 <h2 id="running-specific-analyses">Running Specific Analyses</h2>
 <p>You can run only specific methods by requesting specific output files:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Only BetaScan with B1</span>
-snakemake<span class="w"> </span>-c<span class="w"> </span><span class="m">1</span><span class="w"> </span>--configfile<span class="w"> </span>config/main.yaml<span class="w"> </span>-R<span class="w"> </span>--until<span class="w"> </span>plot_gowinda_enrichment_betascan
+snakemake<span class="w"> </span>-c<span class="w"> </span><span class="m">1</span><span class="w"> </span>--configfile<span class="w"> </span>/path/to/your/main.yaml<span class="w"> </span>-R<span class="w"> </span>--until<span class="w"> </span>plot_gowinda_enrichment_betascan
 
 <span class="c1"># Only selscan with single population statistics (requires ancestral alleles)</span>
-snakemake<span class="w"> </span>-c<span class="w"> </span><span class="m">1</span><span class="w"> </span>--configfile<span class="w"> </span>config/main.yaml<span class="w"> </span>-R<span class="w"> </span>--until<span class="w"> </span>plot_gowinda_enrichment_selscan
+snakemake<span class="w"> </span>-c<span class="w"> </span><span class="m">1</span><span class="w"> </span>--configfile<span class="w"> </span>/path/to/your/main.yaml<span class="w"> </span>-R<span class="w"> </span>--until<span class="w"> </span>plot_gowinda_enrichment_selscan
 
 <span class="c1"># Only scikit-allel with Tajima&#39;s D</span>
-snakemake<span class="w"> </span>-c<span class="w"> </span><span class="m">1</span><span class="w"> </span>--configfile<span class="w"> </span>config/main.yaml<span class="w"> </span>-R<span class="w"> </span>--until<span class="w"> </span>plot_gowinda_enrichment_tajima_d
+snakemake<span class="w"> </span>-c<span class="w"> </span><span class="m">1</span><span class="w"> </span>--configfile<span class="w"> </span>/path/to/your/main.yaml<span class="w"> </span>-R<span class="w"> </span>--until<span class="w"> </span>plot_gowinda_enrichment_tajima_d
 
 <span class="c1"># Only dadi-cli for DFE inference</span>
-snakemake<span class="w"> </span>-c<span class="w"> </span><span class="m">1</span><span class="w"> </span>--configfile<span class="w"> </span>config/main.yaml<span class="w"> </span>-R<span class="w"> </span>--until<span class="w"> </span>plot_fitted_dfe
+snakemake<span class="w"> </span>-c<span class="w"> </span><span class="m">1</span><span class="w"> </span>--configfile<span class="w"> </span>/path/to/your/main.yaml<span class="w"> </span>-R<span class="w"> </span>--until<span class="w"> </span>plot_fitted_dfe
 </code></pre></div>
 
 <h2 id="clean-restart">Clean Restart</h2>
