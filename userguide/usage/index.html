@@ -355,6 +355,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#3-generate-html-report" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Generate HTML Report
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -439,15 +448,6 @@
   <a href="#running-specific-analyses" class="md-nav__link">
     <span class="md-ellipsis">
       Running Specific Analyses
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#generate-html-report" class="md-nav__link">
-    <span class="md-ellipsis">
-      Generate HTML Report
     </span>
   </a>
   
@@ -592,6 +592,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#3-generate-html-report" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Generate HTML Report
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -682,15 +691,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#generate-html-report" class="md-nav__link">
-    <span class="md-ellipsis">
-      Generate HTML Report
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#clean-restart" class="md-nav__link">
     <span class="md-ellipsis">
       Clean Restart
@@ -772,6 +772,16 @@ snakemake<span class="w"> </span>-c<span class="w"> </span><span class="m">4</sp
 snakemake<span class="w"> </span>-c<span class="w"> </span><span class="m">1</span><span class="w"> </span>--configfile<span class="w"> </span>config/main.yaml<span class="w"> </span>--profile<span class="w"> </span>config/slurm/<span class="w"> </span>-j<span class="w"> </span><span class="m">50</span>
 </code></pre></div>
 
+<h3 id="3-generate-html-report">3. Generate HTML Report</h3>
+<p>Snakemake can automatically generate an interactive HTML report with main results, plots, and tables:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Generate report after workflow completion</span>
+snakemake<span class="w"> </span>-c<span class="w"> </span><span class="m">1</span><span class="w"> </span>--configfile<span class="w"> </span>config/main.yaml<span class="w"> </span>--report
+
+<span class="c1"># Customize report location and file name</span>
+snakemake<span class="w"> </span>-c<span class="w"> </span><span class="m">1</span><span class="w"> </span>--configfile<span class="w"> </span>config/main.yaml<span class="w"> </span>--report<span class="w"> </span>/path/to/my_report.html
+</code></pre></div>
+
+<p>The report for the analysis of the example data can be found <a href="report.html">here</a>.</p>
 <h2 id="analyzing-your-own-data">Analyzing Your Own Data</h2>
 <h3 id="1-prepare-your-data">1. Prepare Your Data</h3>
 <h4 id="vcf-files">VCF Files</h4>
@@ -792,10 +802,12 @@ resources/data/
 └──<span class="w"> </span>Sample_chr2.vcf.gz.tbi
 </code></pre></div>
 
-<p><strong>Requirements:</strong>
-- All VCF files must be bgzipped (<code>.vcf.gz</code>)
-- All VCF files must be indexed (<code>.vcf.gz.tbi</code>)
-- Biallelic SNPs only (can be filtered by selscape)</p>
+<p><strong>Requirements:</strong></p>
+<ul>
+<li>All VCF files must be bgzipped (<code>.vcf.gz</code>)</li>
+<li>All VCF files must be indexed (<code>.vcf.gz.tbi</code>)</li>
+<li>Biallelic SNPs only (can be filtered by selscape)</li>
+</ul>
 <h4 id="metadata-file">Metadata File</h4>
 <p>Create a tab-separated file mapping samples to populations:</p>
 <div class="codehilite"><pre><span></span><code>Sample  Population
@@ -807,10 +819,12 @@ HG00420 CHS
 HG00421 CHS
 </code></pre></div>
 
-<p><strong>Requirements:</strong>
-- Header line: <code>Sample</code> and <code>Population</code>
-- Tab-separated
-- Sample IDs must match VCF file samples</p>
+<p><strong>Requirements:</strong></p>
+<ul>
+<li>Header line: <code>Sample</code> and <code>Population</code></li>
+<li>Tab-separated</li>
+<li>Sample IDs must match VCF file samples</li>
+</ul>
 <h4 id="ancestral-alleles-optional">Ancestral Alleles (Optional)</h4>
 <p>If available, ancestral alleles enable polarized analyses (selscan, unfolded BetaScan/dadi):</p>
 <div class="codehilite"><pre><span></span><code>ancestral_alleles/
@@ -905,15 +919,6 @@ snakemake<span class="w"> </span>-c<span class="w"> </span><span class="m">1</sp
 <span class="w">  </span>results/dadi/Human/dfe/YRI/plots/YRI.hg38.two_epoch.lognormal.fitted.png
 </code></pre></div>
 
-<h2 id="generate-html-report">Generate HTML Report</h2>
-<p>Snakemake can automatically generate an interactive HTML report with main results, plots, and tables:</p>
-<div class="codehilite"><pre><span></span><code><span class="c1"># Generate report after workflow completion</span>
-snakemake<span class="w"> </span>--report<span class="w"> </span>--configfile<span class="w"> </span>/path/to/your/main.yaml
-
-<span class="c1"># Customize report location and file name</span>
-snakemake<span class="w"> </span>--report<span class="w"> </span>/path/to/my_report.html<span class="w"> </span>--configfile<span class="w"> </span>/path/to/your/main.yaml
-</code></pre></div>
-
 <h2 id="clean-restart">Clean Restart</h2>
 <p>To remove all results and start fresh:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Remove all results (keeps raw data)</span>
@@ -968,15 +973,15 @@ rm<span class="w"> </span>-rf<span class="w"> </span>resources/<span class="w"> 
 </table>
 <h2 id="troubleshooting">Troubleshooting</h2>
 <p><strong>Workflow locked:</strong></p>
-<div class="codehilite"><pre><span></span><code>snakemake<span class="w"> </span>--unlock
+<div class="codehilite"><pre><span></span><code>snakemake<span class="w"> </span>--unlock<span class="w"> </span>--configfile<span class="w"> </span>/path/to/your/main.yaml
 </code></pre></div>
 
 <p><strong>Re-run specific rule:</strong></p>
-<div class="codehilite"><pre><span></span><code>snakemake<span class="w"> </span>--forcerun<span class="w"> </span>&lt;rule_name&gt;<span class="w"> </span>-c<span class="w"> </span><span class="m">1</span>
+<div class="codehilite"><pre><span></span><code>snakemake<span class="w"> </span>--forcerun<span class="w"> </span>&lt;rule_name&gt;<span class="w"> </span>-c<span class="w"> </span><span class="m">1</span><span class="w"> </span>--configfile<span class="w"> </span>/path/to/your/main.yaml
 </code></pre></div>
 
 <p><strong>Check what will run:</strong></p>
-<div class="codehilite"><pre><span></span><code>snakemake<span class="w"> </span>-n<span class="w"> </span>-p
+<div class="codehilite"><pre><span></span><code>snakemake<span class="w"> </span>-n<span class="w"> </span>-p<span class="w"> </span>--configfile<span class="w"> </span>/path/to/your/main.yaml
 </code></pre></div>
 
 <p>For more information, visit the <a href="https://snakemake.readthedocs.io/en/stable/index.html">Snakemake documentation</a>.</p>
