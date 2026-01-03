@@ -781,7 +781,7 @@ snakemake<span class="w"> </span>-c<span class="w"> </span><span class="m">1</sp
 snakemake<span class="w"> </span>-c<span class="w"> </span><span class="m">1</span><span class="w"> </span>--configfile<span class="w"> </span>config/main.yaml<span class="w"> </span>--report<span class="w"> </span>/path/to/my_report.html
 </code></pre></div>
 
-<p>The report for the analysis of the example data can be found <a href="report.html">here</a>.</p>
+<p>The report for the analysis of the example data can be found <a href="userguide/report.html">here</a>.</p>
 <h2 id="analyzing-your-own-data">Analyzing Your Own Data</h2>
 <h3 id="1-prepare-your-data">1. Prepare Your Data</h3>
 <h4 id="vcf-files">VCF Files</h4>
@@ -902,21 +902,17 @@ snakemake<span class="w"> </span>-c<span class="w"> </span><span class="m">1</sp
 
 <h2 id="running-specific-analyses">Running Specific Analyses</h2>
 <p>You can run only specific methods by requesting specific output files:</p>
-<div class="codehilite"><pre><span></span><code><span class="c1"># Only BetaScan</span>
-snakemake<span class="w"> </span>-c<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>results/balancing_selection/betascan/Human/YRI/m_0.15/YRI.hg38.m_0.15.b1.top_0.0005.scores.png
+<div class="codehilite"><pre><span></span><code><span class="c1"># Only BetaScan with B1</span>
+snakemake<span class="w"> </span>-c<span class="w"> </span><span class="m">1</span><span class="w"> </span>--configfile<span class="w"> </span>config/main.yaml<span class="w"> </span>-R<span class="w"> </span>--until<span class="w"> </span>plot_gowinda_enrichment_betascan
 
-<span class="c1"># Only selscan (requires ancestral alleles)</span>
-snakemake<span class="w"> </span>-c<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>results/positive_selection/selscan/Human/1pop/YRI/ihs_0.05/YRI.normalized.ihs.maf_0.05.top_0.0005.scores.png
+<span class="c1"># Only selscan with single population statistics (requires ancestral alleles)</span>
+snakemake<span class="w"> </span>-c<span class="w"> </span><span class="m">1</span><span class="w"> </span>--configfile<span class="w"> </span>config/main.yaml<span class="w"> </span>-R<span class="w"> </span>--until<span class="w"> </span>plot_gowinda_enrichment_selscan
 
-<span class="c1"># Only scikit-allel</span>
-snakemake<span class="w"> </span>-c<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>results/positive_selection/scikit-allel/Human/1pop/YRI/windowed_tajima_d/100000_1/YRI.windowed_tajima_d.top_0.05.scores.png
+<span class="c1"># Only scikit-allel with Tajima&#39;s D</span>
+snakemake<span class="w"> </span>-c<span class="w"> </span><span class="m">1</span><span class="w"> </span>--configfile<span class="w"> </span>config/main.yaml<span class="w"> </span>-R<span class="w"> </span>--until<span class="w"> </span>plot_gowinda_enrichment_tajima_d
 
-<span class="c1"># Only dadi-cli</span>
-snakemake<span class="w"> </span>-c<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>results/dadi/Human/dfe/YRI/plots/YRI.hg38.two_epoch.lognormal.fitted.png
+<span class="c1"># Only dadi-cli for DFE inference</span>
+snakemake<span class="w"> </span>-c<span class="w"> </span><span class="m">1</span><span class="w"> </span>--configfile<span class="w"> </span>config/main.yaml<span class="w"> </span>-R<span class="w"> </span>--until<span class="w"> </span>plot_fitted_dfe
 </code></pre></div>
 
 <h2 id="clean-restart">Clean Restart</h2>
@@ -981,7 +977,7 @@ rm<span class="w"> </span>-rf<span class="w"> </span>resources/<span class="w"> 
 </code></pre></div>
 
 <p><strong>Check what will run:</strong></p>
-<div class="codehilite"><pre><span></span><code>snakemake<span class="w"> </span>-n<span class="w"> </span>-p<span class="w"> </span>--configfile<span class="w"> </span>/path/to/your/main.yaml
+<div class="codehilite"><pre><span></span><code>snakemake<span class="w"> </span>-np<span class="w"> </span>--configfile<span class="w"> </span>/path/to/your/main.yaml
 </code></pre></div>
 
 <p>For more information, visit the <a href="https://snakemake.readthedocs.io/en/stable/index.html">Snakemake documentation</a>.</p>
