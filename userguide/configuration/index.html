@@ -1409,11 +1409,11 @@
 </li>
 <li>
 <p><strong>VCF File Naming</strong>: VCF files must follow the pattern: <code>{data_folder}/{vcf_prefix}{chromosome}{vcf_suffix}</code></p>
-</li>
+<ul>
 <li>Example with <code>vcf_prefix: "full_chr"</code>: <code>examples/data/Human/raw/full_chr21.vcf.gz</code></li>
 <li>Example with <code>vcf_prefix: "chr"</code>: <code>resources/data/chr21.vcf.gz</code></li>
-<li>
-<p>Example with <code>vcf_prefix: ""</code>: <code>resources/data/21.vcf.gz</code></p>
+<li>Example with <code>vcf_prefix: ""</code>: <code>resources/data/21.vcf.gz</code></li>
+</ul>
 </li>
 <li>
 <p><strong>Metadata Format</strong>: Tab-separated file with columns: <code>Sample</code> and <code>Population</code></p>
@@ -1422,9 +1422,11 @@
 <p><strong>Repeat Masking</strong>: Optional but recommended. Set to empty string or null to disable.</p>
 </li>
 <li>
-<p><strong>Step Size Ratios</strong>: Values from 0 to 1 represent the fraction of window size to step. </p>
-</li>
+<p><strong>Step Size Ratios</strong>: Values from 0 to 1 represent the fraction of window size to step.</p>
+<ul>
 <li>Example: window size = 100, step size ratio = 0.1 → step size = 10</li>
+</ul>
+</li>
 </ol>
 <p>Please check <a href="https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html#configuration">Snakemake Configuration</a> documentation for additional information.</p>
 
