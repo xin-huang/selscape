@@ -1163,7 +1163,7 @@
 </tr>
 </tbody>
 </table>
-<p>Positive values may indicate selection favoring the derived allele, while negative values may indicate selection favoring the ancestral allele. High absolute values may indicate recent positive selection.</p>
+<p>Positive values indicate unusually long haplotypes around the derived allele, whereas negative values indicate unusually long haplotypes around the ancestral allele. Large absolute values may be consistent with a recent selective sweep.</p>
 <p><img alt="selscan Manhattan Plot" src="../../images/selscan_manhattan_plot.png" /></p>
 <h4 id="cross-population-statistics-xp-ehh-xp-nsl">Cross-Population Statistics (XP-EHH, XP-nSL)</h4>
 <p><strong>File path:</strong></p>
@@ -1171,7 +1171,7 @@
 </code></pre></div>
 
 <p>Same format as within-population statistics.</p>
-<p>Positive values may indicate selection in the first population (e.g., YRI in YRI_CHS), while negative values may indicate selection in the second population (e.g., CHS in YRI_CHS).</p>
+<p>Positive values indicate a stronger extended-haplotype signal in the first population (e.g., YRI in YRI_CHS), and negative values indicate a stronger signal in the second population (e.g., CHS in YRI_CHS).</p>
 <p>More information: <a href="https://github.com/szpiech/selscan">selscan</a>.</p>
 <h3 id="scikit-allel">scikit-allel</h3>
 <h4 id="windowed-tajimas-d">Windowed Tajima's D</h4>
@@ -1223,7 +1223,7 @@
 </tr>
 </tbody>
 </table>
-<p>Negative values suggest recent positive selection (selective sweeps), where beneficial alleles rapidly increased in frequency.</p>
+<p>Negative values indicates an excess of rare variants, which can be consistent with a signature of positive selection, but may also be caused by demographic history (e.g., population expansion).</p>
 <p><img alt="Windowed Tajima's D Manhattan Plot" src="../../images/windowed_tajima_d_manhattan_plot.png" /></p>
 <p>For all Tajima's D methods, each data point in the Manhattan plot represents the starting position (<code>window_start</code>) of a window.</p>
 <h4 id="moving-tajimas-d">Moving Tajima's D</h4>
@@ -1231,7 +1231,7 @@
 <div class="codehilite"><pre><span></span><code>results/positive_selection/scikit-allel/{species}/1pop/{ppl}/moving_tajima_d/{window}_{step}/{ppl}.moving_tajima_d.top_{cutoff}.outliers.scores
 </code></pre></div>
 
-<p>Similar format to windowed approach, but windows are defined by SNP counts rather than base pairs.</p>
+<p>Similar format to windowed approach, but windows are defined by as a fixed number of SNPs rather than base pairs.</p>
 <table>
 <thead>
 <tr>
@@ -1326,7 +1326,7 @@
 </tbody>
 </table>
 <p><img alt="Delta Tajima's D Manhattan Plot" src="../../images/delta_tajima_manhattan_plot.png" /></p>
-<p>Large positive or negative values indicate selection acting differently between populations.</p>
+<p>Large positive or negative delta Tajima’s D values indicate strong differences in the allele frequency spectrum between populations, which may be consistent with differential selection but can also explained by demographic history. Here, windows are defined by a fixed number of SNPs.</p>
 <p>More information: <a href="https://scikit-allel.readthedocs.io/en/stable/index.html">scikit-allel</a>.</p>
 <h2 id="balancing-selection">Balancing Selection</h2>
 <h3 id="betascan">BetaScan</h3>
@@ -1367,7 +1367,7 @@
 </tr>
 </tbody>
 </table>
-<p>Higher B1 values indicate stronger evidence for long-term balancing selection, where multiple alleles are maintained over extended periods.</p>
+<p>Larger B1 values indicate stronger evidence for long-term balancing selection (i.e., a balanced polymorphism maintained over extended periods).</p>
 <p><img alt="BetaScan Manhattan Plot" src="../../images/betascan_manhattan_plot.png" /></p>
 <p>More information: <a href="https://github.com/ksiewert/BetaScan/wiki">BetaScan</a>.</p>
 <h3 id="scikit-allel_1">scikit-allel</h3>
@@ -1420,13 +1420,13 @@
 </tr>
 </tbody>
 </table>
-<p>Positive values indicate balancing selection, where multiple alleles are maintained in the population.</p>
+<p>Positive values indicates an excess of intermediate-frequency variants; it can be consistent with balancing selection, but can also reflect demographic history.</p>
 <h4 id="moving-tajimas-d_1">Moving Tajima's D</h4>
 <p><strong>File path:</strong>  </p>
 <div class="codehilite"><pre><span></span><code>results/balancing_selection/scikit-allel/{species}/moving_tajima_d/{window}_{step}/{ppl}.moving_tajima_d.top_{cutoff}.outliers.scores
 </code></pre></div>
 
-<p>Similar format to windowed approach, but windows are defined by SNP counts rather than base pairs.</p>
+<p>Similar format to windowed approach, but windows are defined by a fixed number of SNPs rather than base pairs.</p>
 <table>
 <thead>
 <tr>
@@ -1509,7 +1509,7 @@
 <h4 id="demographic-model-fit">Demographic Model Fit</h4>
 <p><strong>File path:</strong> <code>results/dadi/{species}/dfe/{ppl}/plots/{ppl}.{ref_genome}.{demog}.fitted.png</code></p>
 <p><img alt="Demographic Model Fit" src="../../images/two_epoch.png" /></p>
-<p>The visualization shows the observed frequency spectrum (data) compared to the model-predicted spectrum.</p>
+<p>The plot shows the observed frequency spectrum (data) compared to the model-predicted spectrum.</p>
 <h4 id="distribution-of-fitness-effects_1">Distribution of Fitness Effects</h4>
 <p><strong>File path:</strong> <code>results/dadi/{species}/dfe/{ppl}/InferDFE/{ppl}.{ref_genome}.{demog}.{dfe}.InferDFE.bestfits</code></p>
 <p><strong>Example output:</strong></p>
@@ -1551,12 +1551,12 @@
 </table>
 <h4 id="dfe-model-fit-plot">DFE Model Fit Plot</h4>
 <p><strong>File path:</strong> <code>results/dadi/{species}/dfe/{ppl}/plots/{ppl}.{ref_genome}.{demog}.{dfe}.fitted.png</code></p>
-<p><img alt="DFE Model Fit" src="../../images/two_epoch.lognormal.png" />
-The visualization shows the observed vs. model-predicted frequency spectrum for nonsynonymous mutations.</p>
+<p><img alt="DFE Model Fit" src="../../images/two_epoch.lognormal.png" /></p>
+<p>The plot shows the observed vs. model-predicted frequency spectrum for nonsynonymous mutations.</p>
 <h4 id="mutation-proportion-plot">Mutation Proportion Plot</h4>
 <p><strong>File path:</strong> <code>results/dadi/{species}/dfe/{ppl}/plots/{ppl}.{ref_genome}.{demog}.{dfe}.fitted.mut.prop.png</code></p>
 <p><img alt="Mutation Proportions" src="../../images/two_epoch.lognormal.mut.prop.png" /></p>
-<p>The mutation proportion plot shows the distribution of mutations by selection strength (2N|s|): nearly neutral mutations (&lt; 1), weakly deleterious mutations (1–10), moderately deleterious mutations (10–100), and strongly deleterious mutations (&gt; 100).</p>
+<p>The mutation proportion plot shows the proportions of deleterious mutations grouped by the population-scaled selection coefficient (2N|s|): nearly neutral mutations (&lt; 1), weakly deleterious mutations (1–10), moderately deleterious mutations (10–100), and strongly deleterious mutations (&gt; 100).</p>
 <h4 id="confidence-intervals">Confidence Intervals</h4>
 <p><strong>File path:</strong>  <code>results/dadi/{species}/dfe/{ppl}/StatDFE/{ppl}.{ref_genome}.{demog}.{dfe}.godambe.ci</code></p>
 <p><strong>Example output:</strong></p>
