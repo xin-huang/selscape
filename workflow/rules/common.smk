@@ -85,8 +85,8 @@ TAJIMAD_MOVING_KW = dict(
     species=main_config["species"],
     ppl=main_config["populations"],
     method="moving_tajima_d",
-    window=scikit_allel_config["moving_window_sizes"],
-    step=scikit_allel_config["moving_step_size_ratios"],
+    window=scikit_allel_config["mtjd_window_sizes"],
+    step=scikit_allel_config["mtjd_step_size_ratios"],
     cutoff=scikit_allel_config["top_proportion"],
 )
 
@@ -94,8 +94,8 @@ TAJIMAD_WINDOWED_KW = dict(
     species=main_config["species"],
     ppl=main_config["populations"],
     method="windowed_tajima_d",
-    window=scikit_allel_config["windowed_window_sizes"],
-    step=scikit_allel_config["windowed_step_size_ratios"],
+    window=scikit_allel_config["wtjd_window_sizes"],
+    step=scikit_allel_config["wtjd_step_size_ratios"],
     cutoff=scikit_allel_config["top_proportion"],
 )
 
@@ -103,8 +103,8 @@ DELTA_TAJIMAD_KW = dict(
     species=main_config["species"],
     pair=["_".join(pair) for pair in combinations(main_config["populations"], 2)],
     method="delta_tajima_d",
-    window=scikit_allel_config["delta_moving_window_sizes"],
-    step=scikit_allel_config["delta_moving_step_size_ratios"],
+    window=scikit_allel_config["dtjd_window_sizes"],
+    step=scikit_allel_config["dtjd_step_size_ratios"],
     cutoff=scikit_allel_config["top_proportion"],
 )
 

@@ -1,25 +1,25 @@
-# Tajima's D analysis configuration
+# scikit-allel analysis configuration
 
 # Within-population statistics
 wp_stats:
   - windowed_tajima_d   
   - moving_tajima_d  
 
-# Windowed approach (base pair windows)
-windowed_window_sizes: [100_000]
-windowed_step_size_ratios: [1]
+# Windowed Tajima's D
+wtjd_window_sizes: [100_000]
+wtjd_step_size_ratios: [1]
 
-# Moving approach (SNP windows)
-moving_window_sizes: [100]
-moving_step_size_ratios: [1]
+# Moving Tajima's D
+mtjd_window_sizes: [100]
+mtjd_step_size_ratios: [1]
 
 # Cross-population statistics 
 xp_stats:
   - delta_moving_tajima_d
 
-# XP moving approach (SNP windows)
-delta_moving_window_sizes: [100]
-delta_moving_step_size_ratios: [1]
+# Delta Tajima's D
+dtjd_window_sizes: [100]
+dtjd_step_size_ratios: [1]
 
 # Statistical thresholds
 # Top proportion for candidate identification
@@ -30,3 +30,4 @@ manhattan_plot_width: 640
 manhattan_plot_height: 240
 manhattan_plot_color1: "#56B4E9"
 manhattan_plot_color2: "#F0E442"
+

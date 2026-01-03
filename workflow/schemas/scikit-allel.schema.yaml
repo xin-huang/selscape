@@ -1,5 +1,5 @@
 $schema: "http://json-schema.org/draft-06/schema#"
-description: "Tajima's D analysis configuration"
+description: "scikit-allel analysis configuration"
 
 type: object
 additionalProperties: false
@@ -11,64 +11,64 @@ properties:
       type: string
       enum: ["moving_tajima_d", "windowed_tajima_d"]
     minItems: 1
-    description: "Within-population statistics to compute"
+    description: "Within-population (wp) statistics to compute"
 
   xp_stats:
     type: ["array", "null"]
     items:
       type: string
       enum: ["delta_moving_tajima_d"]
-    description: "Cross-population statistics to compute"
+    description: "Cross-population (xp) statistics to compute"
 
 
-  windowed_window_sizes:
+  wtjd_window_sizes:
     type: array
     items:
       type: integer
-    description: "Window sizes in base pairs for windowed approach"
+    description: "Window sizes in base pairs for windowed tajima's d (wtjd) statistic"
 
-  windowed_step_size_ratios:
+  wtjd_step_size_ratios:
     type: array
     items:
       type: number
       minimum: 0.0
       maximum: 1.0
-    description: "Step size as fraction of window for windowed approach"
+    description: "Step size as fraction of window in base pair for wtjd statistic"
 
-  moving_window_sizes:
+  mtjd_window_sizes:
     type: array
     items:
       type: integer
-    description: "Window sizes in SNPs for moving approach"
+    description: "Window sizes in SNPs for moving tajima's d (mtjd) statistic"
 
-  moving_step_size_ratios:
+  mtjd_step_size_ratios:
     type: array
     items:
       type: number
       minimum: 0.0
       maximum: 1.0
-    description: "Step size as fraction of window for moving approach"
+    description: "Step size as fraction of window in SNPs for mtjd statistis"
 
-  delta_moving_window_sizes:
+  dtjd_window_sizes:
     type: array
     items:
       type: integer
-    description: "Window sizes in SNPs for cross population moving approach"
+    description: "Window sizes in SNPs for xp moving delta tajima's d (dtjd) statistic"
 
-  delta_moving_step_size_ratios:
+  dtjd_step_size_ratios:
     type: array
     items:
       type: number
       minimum: 0.0
       maximum: 1.0
-    description: "Step size as fraction of window for cross population moving approach"
+    description: "Step size as fraction of window in SNPs for cross population dtjd statistic"
 
   top_proportion:
     type: number
     minimum: 0.0
     maximum: 1.0
     default: 0.0005
-    description: "Top proportion for candidate identification"
+    description: "Top proportion for outlier identification"
 
   manhattan_plot_width:
     type: integer
@@ -91,10 +91,10 @@ properties:
     default: "#F0E442"
 
 required:
-  - windowed_window_sizes
-  - windowed_step_size_ratios
-  - moving_window_sizes
-  - moving_step_size_ratios
-  - delta_moving_window_sizes
-  - delta_moving_step_size_ratios
+  - wtjd_window_sizes
+  - wtjd_step_size_ratios
+  - mtjd_window_sizes
+  - mtjd_step_size_ratios
+  - dtjd_window_sizes
+  - dtjd_step_size_ratios
   - top_proportion
