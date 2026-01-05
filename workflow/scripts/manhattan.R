@@ -29,7 +29,7 @@ cutoff <- as.numeric(snakemake@params[["cutoff"]])
 use_absolute <- tolower(snakemake@params[["use_absolute"]]) %in% c("true", "1", "yes")
 plot_width <- as.numeric(snakemake@params[["width"]])
 plot_height <- as.numeric(snakemake@params[["height"]])
-output_table <- snakemake@output[["candidates"]]
+output_table <- snakemake@output[["outliers"]]
 color1 <- snakemake@params[["color1"]]
 color2 <- snakemake@params[["color2"]]
 output_plot <- snakemake@output[["plot"]]
@@ -76,13 +76,13 @@ if (top_n < 1) {
   create_no_results()
 }
 
-top_candidates <- data_sorted[1:top_n, ]
-write.table(top_candidates, file = output_table, quote = FALSE, sep = "\t", row.names = FALSE)
+top_outliers <- data_sorted[1:top_n, ]
+write.table(top_outliers, file = output_table, quote = FALSE, sep = "\t", row.names = FALSE)
 
 threshold <- if (sort_order == "asc") {
-  max(top_candidates[[score_used_col]])
+  max(top_outliers[[score_used_col]])
 } else {
-  min(top_candidates[[score_used_col]])
+  min(top_outliers[[score_used_col]])
 }
 
 ylab_text <- if (!is.null(snakemake@params[["ylab"]])) {

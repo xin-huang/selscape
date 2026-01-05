@@ -53,7 +53,7 @@ rule all:
         expand(
             "results/positive_selection/selscan/{species}/1pop/{ppl}/{method}_{maf}/{ppl}.normalized.{method}.maf_{maf}.top_{cutoff}.{type}.html",
             **SELSCAN_KW,
-            type=["candidate.genes", "gowinda.enrichment"],
+            type=["outlier.genes", "gowinda.enrichment"],
         )
         if "anc_alleles" in main_config and main_config["anc_alleles"]
         else [],
@@ -68,7 +68,7 @@ rule all:
         expand(
             "results/positive_selection/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.{type}.html",
             **SELSCAN_XP_KW,
-            type=["candidate.genes", "gowinda.enrichment"],
+            type=["outlier.genes", "gowinda.enrichment"],
         )
         if "anc_alleles" in main_config and main_config["anc_alleles"]
         else [],
@@ -81,7 +81,7 @@ rule all:
         expand(
             "results/balancing_selection/betascan/{species}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.{type}.html",
             **BETASCAN_KW,
-            type=["candidate.genes", "gowinda.enrichment"],
+            type=["outlier.genes", "gowinda.enrichment"],
         ),
         # dadi dfe
         expand(
@@ -117,7 +117,7 @@ rule all:
         expand(
             "results/positive_selection/scikit-allel/{species}/1pop/{ppl}/{method}/{window}_{step}/{ppl}.{method}.top_{cutoff}.{type}.html",
             **TAJIMAD_MOVING_KW,
-            type=["candidate.genes", "gowinda.enrichment"],
+            type=["outlier.genes", "gowinda.enrichment"],
         ),
         expand(
             "results/balancing_selection/scikit-allel/{species}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.top_{cutoff}.{type}.png",
@@ -127,7 +127,7 @@ rule all:
         expand(
             "results/balancing_selection/scikit-allel/{species}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.top_{cutoff}.{type}.html",
             **TAJIMAD_MOVING_KW,
-            type=["candidate.genes", "gowinda.enrichment"],
+            type=["outlier.genes", "gowinda.enrichment"],
         ),
         # windowed tajima d
         expand(
@@ -138,7 +138,7 @@ rule all:
         expand(
             "results/positive_selection/scikit-allel/{species}/1pop/{ppl}/{method}/{window}_{step}/{ppl}.{method}.top_{cutoff}.{type}.html",
             **TAJIMAD_WINDOWED_KW,
-            type=["candidate.genes", "gowinda.enrichment"],
+            type=["outlier.genes", "gowinda.enrichment"],
         ),
         expand(
             "results/balancing_selection/scikit-allel/{species}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.top_{cutoff}.{type}.png",
@@ -148,7 +148,7 @@ rule all:
         expand(
             "results/balancing_selection/scikit-allel/{species}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.top_{cutoff}.{type}.html",
             **TAJIMAD_WINDOWED_KW,
-            type=["candidate.genes", "gowinda.enrichment"],
+            type=["outlier.genes", "gowinda.enrichment"],
         ),
         # delta tajima d
         expand(
@@ -159,5 +159,5 @@ rule all:
         expand(
             "results/positive_selection/scikit-allel/{species}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.{type}.html",
             **DELTA_TAJIMAD_KW,
-            type=["candidate.genes", "gowinda.enrichment"],
+            type=["outlier.genes", "gowinda.enrichment"],
         ),
