@@ -13,7 +13,7 @@ min_af: 0.05
 max_af: 0.95
 
 # Statistical thresholds
-# Top proportion for candidate identification
+# Top proportion for outlier identification
 top_proportion: 0.0005
 
 # Manhattan plot settings

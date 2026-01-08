@@ -143,7 +143,7 @@ rule plot_selscan_xp:
     input:
         scores=rules.merge_selscan_xp_scores.output.merged_scores,
     output:
-        candidates="results/positive_selection/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.candidates.scores",
+        outliers="results/positive_selection/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.outliers.scores",
         plot=report(
             "results/positive_selection/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.scores.png",
             category="Positive Selection",
@@ -151,7 +151,7 @@ rule plot_selscan_xp:
             labels=selscan_xp_labels,
         ),
     params:
-        title=lambda w: f"{w.pair} (MAF={w.maf}, Top {float(w.cutoff)*100:.2f}%)",
+        title=add_selscan_title,
         score_column="normalized_{method}",
         use_absolute="TRUE",
         cutoff="{cutoff}",
@@ -169,9 +169,9 @@ rule plot_selscan_xp:
         "../scripts/manhattan.R"
 
 
-rule annotate_selscan_xp_candidates:
+rule annotate_selscan_xp_outliers:
     input:
-        outliers="results/positive_selection/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.candidates.scores",
+        outliers="results/positive_selection/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.outliers.scores",
         annotation=expand(
             "results/annotated_data/{species}/all/chr{i}.biallelic.snps.{ref_genome}_multianno.txt",
             i=main_config["chromosomes"],
@@ -179,47 +179,47 @@ rule annotate_selscan_xp_candidates:
             allow_missing=True,
         ),
     output:
-        annotated_candidates="results/positive_selection/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.annotated.candidates",
+        annotated_outliers="results/positive_selection/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.annotated.outliers",
     resources:
         mem_gb=32,
     log:
-        "logs/positive_selection/annotate_selscan_xp_candidates.{species}.{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.log",
+        "logs/positive_selection/annotate_selscan_xp_outliers.{species}.{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
-        "../scripts/get_annotated_candidates.py"
+        "../scripts/get_annotated_outliers.py"
 
 
-rule get_selscan_xp_candidate_genes:
+rule get_selscan_xp_outlier_genes:
     input:
-        selscan_xp_candidates=rules.annotate_selscan_xp_candidates.output.annotated_candidates,
+        selscan_xp_outliers=rules.annotate_selscan_xp_outliers.output.annotated_outliers,
     output:
-        selscan_xp_genes="results/positive_selection/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.candidate.genes",
+        selscan_xp_genes="results/positive_selection/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.outlier.genes",
     log:
-        "logs/positive_selection/get_selscan_xp_candidate_genes.{species}.{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.log",
+        "logs/positive_selection/get_selscan_xp_outlier_genes.{species}.{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
         """
-        ( sed '1d' {input.selscan_xp_candidates} | grep -v ";" | awk '{{print $7}}' | sort | uniq > {output.selscan_xp_genes} ) 2> {log} || true
+        ( sed '1d' {input.selscan_xp_outliers} | grep -v ";" | awk '{{print $7}}' | sort | uniq > {output.selscan_xp_genes} ) 2> {log} || true
         sed -i '1iGene' {output.selscan_xp_genes} 2>> {log}
         """
 
 
-rule selscan_xp_candidate_genes_table_html:
+rule selscan_xp_outlier_genes_table_html:
     input:
-        tsv="results/positive_selection/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.candidate.genes",
+        tsv="results/positive_selection/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.outlier.genes",
     output:
         html=report(
-            "results/positive_selection/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.candidate.genes.html",
+            "results/positive_selection/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.outlier.genes.html",
             category="Positive Selection",
             subcategory="{method}",
             labels=lambda wildcards: selscan_xp_labels(wildcards, type="Gene List"),
         ),
     params:
-        title=lambda w: f"{w.pair} {w.method.upper()} (MAF={w.maf}, Top {float(w.cutoff)*100:.2f}%) CANDIDATE GENES",
+        title=add_selscan_title,
     log:
-        "logs/positive_selection/selscan_xp_candidate_genes_table_html.{species}.{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.log",
+        "logs/positive_selection/selscan_xp_outlier_genes_table_html.{species}.{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
@@ -231,14 +231,14 @@ rule enrichment_selscan_xp_gowinda:
         gowinda=rules.download_gowinda.output.gowinda,
         go2gene=rules.convert_ncbi_go.output.go2gene,
         gtf=rules.convert_ncbi_gtf.output.gtf,
-        candidates=rules.annotate_selscan_xp_candidates.output.annotated_candidates,
+        outliers=rules.annotate_selscan_xp_outliers.output.annotated_outliers,
         total=expand(
             "results/polarized_data/{species}/2pop/{pair}/{pair}.chr{i}.biallelic.snps.vcf.gz",
             i=main_config["chromosomes"],
             allow_missing=True,
         ),
     output:
-        candidate_snps="results/positive_selection/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.candidate.snps.tsv",
+        outlier_snps="results/positive_selection/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.outlier.snps.tsv",
         total_snps="results/positive_selection/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.total.snps.tsv",
         enrichment="results/positive_selection/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.gowinda.enrichment.tsv",
     resources:
@@ -250,7 +250,7 @@ rule enrichment_selscan_xp_gowinda:
         "../envs/selscape-env.yaml"
     shell:
         """
-        sed '1d' {input.candidates} | awk '{{print "chr"$1"\\t"$2}}' > {output.candidate_snps} 2> {log}
+        sed '1d' {input.outliers} | awk '{{print "chr"$1"\\t"$2}}' > {output.outlier_snps} 2> {log}
 
         for i in {input.total}; do
             bcftools query -f "%CHROM\\t%POS\\n" $i
@@ -258,7 +258,7 @@ rule enrichment_selscan_xp_gowinda:
 
         java -Xmx{resources.mem_gb}g -jar {input.gowinda} \
             --snp-file {output.total_snps} \
-            --candidate-snp-file {output.candidate_snps} \
+            --candidate-snp-file {output.outlier_snps} \
             --gene-set-file {input.go2gene} \
             --annotation-file {input.gtf} \
             --simulations 1000000 \
@@ -285,7 +285,7 @@ rule selscan_xp_enrichment_results_table_html:
                 wildcards, type="Enrichment Table"),
         ),
     params:
-        title=lambda w: f"{w.pair} {w.method.upper()} (MAF={w.maf}, Top {float(w.cutoff)*100:.2f}%) ENRICHMENT",
+        title=add_selscan_title,
     log:
         "logs/positive_selection/selscan_xp_enrichment_results_table_html.{species}.{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.log",
     conda:
@@ -305,7 +305,7 @@ rule plot_gowinda_enrichment_selscan_xp:
             labels=lambda wildcards: selscan_xp_labels(wildcards, type="Enrichment Plot"),
         ),
     params:
-        title=lambda w: f"{w.pair} {w.method.upper()} ENRICHMENT (MAF={w.maf}, Top {float(w.cutoff)*100:.2f}%)",
+        title=add_selscan_title,
     resources:
         mem_gb=8,
     log:

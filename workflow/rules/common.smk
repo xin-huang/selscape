@@ -138,8 +138,9 @@ def _vs_pair(wildcards) -> str:
     return " vs ".join(wildcards.pair.split("_"))
 
 def format_method_name(method):
-    """Format method name for display in titles."""
-    return method.replace('tajima_d', "Tajima's D").replace('_', ' ').upper()
+    """Format scikit-allel method name for display in titles."""
+    formatted = method.replace("tajima_d", "Tajima's D").replace("_", " ")
+    return formatted.title().replace("Tajima'S D", "Tajima's D")
 
 def selscan_labels(wildcards, type: str = "Manhattan Plot") -> dict[str, str]:
     """Labels for within-population selscan Manhattan plot."""
@@ -219,3 +220,101 @@ def fitted_dfe_labels(wildcards, type: str = "Model Fit") -> dict[str, str]:
         "Type": type,
     }
 
+
+
+def add_selscan_title(wildcards, input):
+    """Generate title for selscan plots and tables."""
+    cutoff_pct = float(wildcards.cutoff) * 100
+    pop_id = wildcards.get("ppl") or wildcards.get("pair")
+    
+    if hasattr(input, "scores"):
+        return " ".join([
+            f"{pop_id}",
+            f"(MAF={wildcards.maf},",
+            f"Top {cutoff_pct:.2f}%)",
+        ])
+    
+    return " ".join([
+        f"{pop_id}",
+        selscan_method_names[wildcards.method],
+        f"(MAF={wildcards.maf},",
+        f"Top {cutoff_pct:.2f}%)",
+    ])
+
+
+def add_scikit_allel_title(wildcards, input=None):
+    """Generate title for scikit-allel plots and tables."""
+    window = int(wildcards.window)
+    step = int(float(wildcards.step) * window)
+    cutoff_pct = float(wildcards.cutoff) * 100
+    pop_id = wildcards.get("ppl") or wildcards.get("pair")
+    
+    method = wildcards.method
+    if method == "delta_tajima_d":
+        unit = "SNPs"
+        method_name = "Delta Tajima's D"
+    else:
+        unit = "SNPs" if method == "moving_tajima_d" else "bp"
+        method_name = format_method_name(method)
+    
+    if input and hasattr(input, "scores"):
+        return " ".join([
+            f"{pop_id}",
+            f"(Window size={window} {unit},",
+            f"Step size={step} {unit},",
+            f"Top {cutoff_pct:.2f}%)",
+        ])
+    
+    return " ".join([
+        f"{pop_id}",
+        method_name,
+        f"(Window size={window} {unit},",
+        f"Step size={step} {unit},",
+        f"Top {cutoff_pct:.2f}%)",
+    ])
+
+
+def add_betascan_title(wildcards, input):
+    """ Generate title for BetaScan plots and tables."""
+    cutoff_pct = float(wildcards.cutoff) * 100
+    
+    if hasattr(input, "scores"):
+        return " ".join([
+            f"{wildcards.ppl}",
+            f"(Core Freq={wildcards.core_frq},",
+            f"Top {cutoff_pct:.2f}%)",
+        ])
+    
+    return " ".join([
+        f"{wildcards.ppl}",
+        "B1",
+        f"(Core Freq={wildcards.core_frq},",
+        f"Top {cutoff_pct:.2f}%)",
+    ])
+
+
+def add_dm_title(wildcards, input):
+    """Add title for dadi-cli demographic model plots tables."""
+    demog_fmt = wildcards.demog.replace('_', ' ').title()
+    
+    if hasattr(input, "tsv"):
+        return f"{wildcards.ppl} {demog_fmt} Demographic Model (Top 10 Bestfits, {dadi_config['optimizations']} optimizations)"
+    
+    return f"{wildcards.ppl} {demog_fmt} Demographic Model Fit"
+
+
+def add_dfe_title(wildcards, input):
+    """Add title for dadi-cli DFE plots and tables."""
+    demog_fmt = wildcards.demog.replace('_', ' ').title()
+    dfe_fmt = wildcards.dfe.replace('_', ' ').title()
+    base = f"{wildcards.ppl} {dfe_fmt} DFE ({demog_fmt})"
+    
+    if hasattr(input, "dfe_popt"):
+        return f"{base} Mutation Proportions"
+    
+    if hasattr(input, "tsv"):
+        if "godambe" in str(input.tsv):
+            return f"{base} Estimated 95% Uncertainties ({dadi_config['bootstrap_replicates']} bootstrap replicates, chunk size={dadi_config['chunk_size']} bp)"
+        return f"{base} (Top 10 Bestfits, {dadi_config['optimizations']} optimizations)"
+    
+    return f"{base} Model Fit"

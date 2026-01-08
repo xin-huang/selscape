@@ -152,7 +152,7 @@ rule convert_1pop_dm_top_10_bestfits_html:
             ),
         ),
     params:
-        title=lambda w: f"{w.ppl} {w.demog.upper().replace('_', ' ')} DEMOGRAPHIC MODEL (Top 10 Bestfits, {dadi_config['optimizations']} optimizations)",
+        title=add_dm_title,
     log:
         "logs/deleterious_dfe/convert_1pop_dm_top_10_bestfits_html.{species}.{ppl}.{ref_genome}.{demog}.log",
     conda:
@@ -269,7 +269,7 @@ rule convert_1pop_dfe_top_10_bestfits_html:
             ),
         ),
     params:
-        title=lambda w: f"{w.ppl} {w.dfe.upper().replace('_', ' ')} DFE ({w.demog.upper().replace('_', ' ')}) MODEL (Top 10 Bestfits, {dadi_config['optimizations']} optimizations)",
+        title=add_dfe_title,
     log:
         "logs/deleterious_dfe/convert_1pop_dfe_top_10_bestfits_html.{species}.{ppl}.{ref_genome}.{demog}.{dfe}.log",
     conda:
@@ -360,7 +360,7 @@ rule dfe_godambe_ci_table_html:
             ),
         ),
     params:
-        title=lambda w: f"{w.ppl} {w.dfe.upper().replace('_', ' ')} DFE ({w.demog.upper().replace('_', ' ')}) GODAMBE 95% CI ({dadi_config['bootstrap_replicates']} bootstrap replicates, chunk size={dadi_config['chunk_size']} bp)"
+        title=add_dfe_title,
     log:
         "logs/reports/dfe_ci_table_html.{species}.{ppl}.{ref_genome}.{demog}.{dfe}.log",
     conda:
@@ -421,7 +421,7 @@ rule plot_mutation_proportions:
             ),
         ),
     params:
-        title=lambda w: f"{w.ppl} {w.dfe.upper().replace('_', ' ')} DFE ({w.demog.upper().replace('_', ' ')}) MUTATION PROPORTIONS",
+        title=add_dfe_title,
     log:
         "logs/deleterious_dfe/plot_mutation_proportion.{species}.{ppl}.{ref_genome}.{demog}.{dfe}.log",
     conda:
@@ -440,7 +440,7 @@ rule wrap_fitted_1pop_dm_html:
             labels=lambda wildcards: fitted_1pop_dm_labels(wildcards, type="Model Fit Plot"),
         ),
     params:
-        title=lambda w: f"{w.ppl} {w.demog.upper().replace('_', ' ')} DEMOGRAPHIC MODEL FIT",
+        title=add_dm_title,
     log:
         "logs/deleterious_dfe/wrap_fitted_1pop_dm_html.{species}.{ppl}.{ref_genome}.{demog}.log",
     conda:
@@ -460,7 +460,7 @@ rule wrap_fitted_dfe_html:
             labels=lambda wildcards: fitted_dfe_labels(wildcards, type="Model Fit Plot"),
         ),
     params:
-        title=lambda w: f"{w.ppl} {w.dfe.upper().replace('_', ' ')} DFE ({w.demog.upper().replace('_', ' ')}) MODEL FIT",
+        title=add_dfe_title,
     log:
         "logs/deleterious_dfe/wrap_fitted_dfe_html.{species}.{ppl}.{ref_genome}.{demog}.{dfe}.log",
     conda:

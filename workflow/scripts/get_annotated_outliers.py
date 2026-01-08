@@ -27,7 +27,7 @@ sys.stderr = log_fh
 
 outlier_file = snakemake.input.outliers
 annotation_files = snakemake.input.annotation
-output_file = snakemake.output.annotated_candidates
+output_file = snakemake.output.annotated_outliers
 
 with open(output_file, "w"):
     pass
@@ -40,19 +40,19 @@ multianno_dict = {
     os.path.basename(f).split("chr")[1].split(".")[0]: f for f in annotation_files
 }
 
-candidate_positions = set()
+outlier_positions = set()
 #position_to_value = {}
 
 for _, row in outlier_df.iterrows():
     chrom = str(row["CHR"]).removeprefix("chr")
     pos = int(row["BP"])
     #value = row[value_col_name]
-    candidate_positions.add((chrom, pos))
+    outlier_positions.add((chrom, pos))
     #position_to_value[(chrom, pos)] = value
 
 filtered_variants = []
 
-for chrom in set(chrom for chrom, _ in candidate_positions):
+for chrom in set(chrom for chrom, _ in outlier_positions):
     print(f"Processing chromosome {chrom}...")
 
     if chrom not in multianno_dict:
@@ -68,7 +68,7 @@ for chrom in set(chrom for chrom, _ in candidate_positions):
     multianno_df["Start"] = multianno_df["Start"].astype(int)
     multianno_df["End"] = multianno_df["End"].astype(int)
 
-    positions_for_chrom = {pos for c, pos in candidate_positions if c == chrom}
+    positions_for_chrom = {pos for c, pos in outlier_positions if c == chrom}
 
     variants_in_region = multianno_df[multianno_df["Start"].isin(positions_for_chrom)]
 

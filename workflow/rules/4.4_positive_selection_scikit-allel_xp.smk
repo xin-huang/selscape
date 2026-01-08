@@ -18,28 +18,6 @@
 #    https://www.gnu.org/licenses/gpl-3.0.en.html
 
 
-def _add_delta_tajima_d_title(wildcards, input):
-    window = int(wildcards.window)
-    step = int(float(wildcards.step) * window)
-    cutoff_pct = float(wildcards.cutoff) * 100
-
-    if hasattr(input, "scores"):
-        return " ".join([
-            f"{wildcards.pair}",
-            f"(Window={window} SNPs,",
-            f"Step={step} SNPs,",
-            f"Top {cutoff_pct:.2f}%)",
-        ])
-
-    return " ".join([
-        f"{wildcards.pair}",
-        f"Delta Tajima's D",
-        f"(Window={window} SNPs,",
-        f"Step={step} SNPs,",
-        f"Top {cutoff_pct:.2f}%)",
-    ])
-
-
 rule calc_delta_tajima_d:
     input:
         vcf=rules.polarize_2pop.output.vcf,
@@ -115,9 +93,9 @@ rule plot_delta_tajima_d:
                 wildcards, type="Manhattan Plot"
             ),
         ),
-        candidates="results/positive_selection/scikit-allel/{species}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.candidates.scores",
+        outliers="results/positive_selection/scikit-allel/{species}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.outliers.scores",
     params:
-        title=_add_delta_tajima_d_title,
+        title=add_scikit_allel_title,
         score_column="delta_tajima_d",
         cutoff="{cutoff}",
         use_absolute="TRUE",
@@ -133,9 +111,9 @@ rule plot_delta_tajima_d:
         "../scripts/manhattan.R"
 
 
-rule extract_delta_tajima_d_candidate_variants:
+rule extract_delta_tajima_d_outlier_variants:
     input:
-        scores=rules.plot_delta_tajima_d.output.candidates,
+        scores=rules.plot_delta_tajima_d.output.outliers,
         vcfs=expand(
             "results/processed_data/{species}/2pop/{pair}/{pair}.chr{i}.biallelic.snps.vcf.gz",
             species=main_config["species"],
@@ -143,10 +121,10 @@ rule extract_delta_tajima_d_candidate_variants:
             allow_missing=True,
         ),
     output:
-        regions=temp("results/positive_selection/scikit-allel/{species}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.candidates.bed"),
-        variants=temp("results/positive_selection/scikit-allel/{species}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.candidates.variants"),
+        regions=temp("results/positive_selection/scikit-allel/{species}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.outliers.bed"),
+        variants=temp("results/positive_selection/scikit-allel/{species}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.outliers.variants"),
     log:
-        "logs/positive_selection/extract_delta_tajima_d_candidate_variants.{species}.{pair}.{method}.{window}_{step}.top_{cutoff}.log",
+        "logs/positive_selection/extract_delta_tajima_d_outlier_variants.{species}.{pair}.{method}.{window}_{step}.top_{cutoff}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -159,9 +137,9 @@ rule extract_delta_tajima_d_candidate_variants:
         """
 
 
-rule annotate_delta_tajima_d_candidates:
+rule annotate_delta_tajima_d_outliers:
     input:
-        outliers=rules.extract_delta_tajima_d_candidate_variants.output.variants,
+        outliers=rules.extract_delta_tajima_d_outlier_variants.output.variants,
         annotation=expand(
             "results/annotated_data/{species}/all/chr{i}.biallelic.snps.{ref_genome}_multianno.txt",
             species=main_config["species"],
@@ -170,39 +148,39 @@ rule annotate_delta_tajima_d_candidates:
             allow_missing=True,
         ),
     output:
-        annotated_candidates="results/positive_selection/scikit-allel/{species}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.annotated.candidates",
+        annotated_outliers="results/positive_selection/scikit-allel/{species}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.annotated.outliers",
     resources:
         mem_gb=32,
     log:
-        "logs/positive_selection/annotate_delta_tajima_d_candidates.{species}.{pair}.{method}.{window}_{step}.top_{cutoff}.log",
+        "logs/positive_selection/annotate_delta_tajima_d_outliers.{species}.{pair}.{method}.{window}_{step}.top_{cutoff}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
-        "../scripts/get_annotated_candidates.py"
+        "../scripts/get_annotated_outliers.py"
 
 
-rule get_delta_tajima_d_candidate_genes:
+rule get_delta_tajima_d_outlier_genes:
     input:
-        delta_candidates=rules.annotate_delta_tajima_d_candidates.output.annotated_candidates,
+        delta_outliers=rules.annotate_delta_tajima_d_outliers.output.annotated_outliers,
     output:
-        delta_genes="results/positive_selection/scikit-allel/{species}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.candidate.genes",
+        delta_genes="results/positive_selection/scikit-allel/{species}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.outlier.genes",
     log:
-        "logs/positive_selection/get_delta_tajima_d_candidate_genes.{species}.{pair}.{method}.{window}_{step}.top_{cutoff}.log",
+        "logs/positive_selection/get_delta_tajima_d_outlier_genes.{species}.{pair}.{method}.{window}_{step}.top_{cutoff}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
         """
-        ( sed '1d' {input.delta_candidates} | grep -v ";" | awk '{{print $7}}' | sort | uniq > {output.delta_genes} ) 2> {log} || true
+        ( sed '1d' {input.delta_outliers} | grep -v ";" | awk '{{print $7}}' | sort | uniq > {output.delta_genes} ) 2> {log} || true
         sed -i '1iGene' {output.delta_genes} 2>> {log}
         """
 
 
-rule delta_tajima_d_candidate_genes_table_html:
+rule delta_tajima_d_outlier_genes_table_html:
     input:
-        tsv=rules.get_delta_tajima_d_candidate_genes.output.delta_genes,
+        tsv=rules.get_delta_tajima_d_outlier_genes.output.delta_genes,
     output:
         html=report(
-            "results/positive_selection/scikit-allel/{species}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.candidate.genes.html",
+            "results/positive_selection/scikit-allel/{species}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.outlier.genes.html",
             category="Positive Selection",
             subcategory="{method}",
             labels=lambda wildcards: delta_tajima_d_labels(
@@ -210,9 +188,9 @@ rule delta_tajima_d_candidate_genes_table_html:
             ),
         ),
     params:
-        title=_add_delta_tajima_d_title,
+        title=add_scikit_allel_title,
     log:
-        "logs/positive_selection/delta_tajima_d_candidate_genes_table_html.{species}.{pair}.{method}.{window}_{step}.top_{cutoff}.log", 
+        "logs/positive_selection/delta_tajima_d_outlier_genes_table_html.{species}.{pair}.{method}.{window}_{step}.top_{cutoff}.log", 
     conda:
         "../envs/selscape-env.yaml"
     script:
@@ -224,7 +202,7 @@ rule enrichment_delta_tajima_d_gowinda:
         gowinda=rules.download_gowinda.output.gowinda,
         go2gene=rules.convert_ncbi_go.output.go2gene,
         gtf=rules.convert_ncbi_gtf.output.gtf,
-        candidates=rules.annotate_delta_tajima_d_candidates.output.annotated_candidates,
+        outliers=rules.annotate_delta_tajima_d_outliers.output.annotated_outliers,
         total=expand(
             "results/processed_data/{species}/2pop/{pair}/{pair}.chr{i}.biallelic.snps.vcf.gz",
             species=main_config["species"],
@@ -232,7 +210,7 @@ rule enrichment_delta_tajima_d_gowinda:
             allow_missing=True,
         ),
     output:
-        candidate_snps="results/positive_selection/scikit-allel/{species}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.candidate.snps.tsv",
+        outlier_snps="results/positive_selection/scikit-allel/{species}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.outlier.snps.tsv",
         total_snps="results/positive_selection/scikit-allel/{species}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.total.snps.tsv",
         enrichment="results/positive_selection/scikit-allel/{species}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.gowinda.enrichment.tsv",
     resources:
@@ -244,7 +222,7 @@ rule enrichment_delta_tajima_d_gowinda:
         "../envs/selscape-env.yaml"
     shell:
         r"""
-        sed '1d' {input.candidates} | awk '{{print "chr"$1"\t"$2}}' > {output.candidate_snps} 2> {log}
+        sed '1d' {input.outliers} | awk '{{print "chr"$1"\t"$2}}' > {output.outlier_snps} 2> {log}
 
         for i in {input.total}; do
             bcftools query -f "%CHROM\t%POS\n" $i
@@ -252,7 +230,7 @@ rule enrichment_delta_tajima_d_gowinda:
         
         java -Xmx{resources.mem_gb}g -jar {input.gowinda} \
             --snp-file {output.total_snps} \
-            --candidate-snp-file {output.candidate_snps} \
+            --candidate-snp-file {output.outlier_snps} \
             --gene-set-file {input.go2gene} \
             --annotation-file {input.gtf} \
             --simulations 1000000 \
@@ -280,7 +258,7 @@ rule delta_tajima_d_enrichment_results_table_html:
             ),
         ),
     params:
-        title=_add_delta_tajima_d_title,
+        title=add_scikit_allel_title,
     log:
         "logs/positive_selection/delta_tajima_d_enrichment_results_table_html.{species}.{pair}.{method}.{window}_{step}.top_{cutoff}.log",
     conda:
@@ -300,7 +278,7 @@ rule plot_gowinda_enrichment_delta_tajima_d:
             labels=lambda wildcards: delta_tajima_d_labels(wildcards, type="Enrichment Plot"),
         ),
     params:
-        title=_add_delta_tajima_d_title,
+        title=add_scikit_allel_title,
     resources:
         mem_gb=8,
     log:
