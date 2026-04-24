@@ -22,6 +22,8 @@ import numpy as np
 
 example_pops = ["YRI", "CHS"]
 example_chrs = ["20","21"]
+example_chr_low = ["21"]
+example_chr_ape = ["21"]
 
 
 # Separate rule for just creating examples
@@ -33,6 +35,21 @@ rule create_examples:
         "examples/data/Human/metadata/example_metadata.txt",
         "examples/data/Human/annotation/Human.gtf.gz",
         "examples/data/Human/annotation/gene2go.gz",
+        # 1kg_low
+        expand("examples/data/Human/1kg_low/chr{i}.vcf.gz", i=example_chr_low),
+        expand(
+            "examples/data/Human/ancestral_alleles/homo_sapiens_ancestor_GRCh37/homo_sapiens_ancestor_chr{i}.bed.gz",
+            i=example_chr_low,
+        ),
+        expand(
+            "examples/data/Human/repeats/hg19.{type}.autosomes.bed",
+            type=["rmsk", "seg.dups", "simple.repeats"],
+        ),
+        "examples/data/Human/1kg_low/metadata.txt",
+        # great ape
+        expand("examples/data/greatape/Pan/chr{i}.filteranno.vcf.gz", i=example_chr_ape),
+        expand("examples/data/greatape/Pan/chr{i}.filteranno.vcf.gz.tbi", i=example_chr_ape),
+        "examples/data/greatape/metadata.txt",
 
 
 rule download_1KG_genomes:
@@ -163,4 +180,148 @@ rule convert_repeat_files:
         zcat {input.rmsk} | awk 'BEGIN{{OFS="\\t"}}$6!~/chr(X|Y|Un|M|[0-9]_|[0-9][0-9]_)/{{print $6,$7,$8,$11,$2,$10}}' | sed 's/^chr//' | sort -k1,1n -k2,2n -k3,3n > {output.rmsk}
         zcat {input.segdup} | awk 'BEGIN{{OFS="\\t"}}$2!~/chr(X|Y|Un|M|[0-9]_|[0-9][0-9]_)/{{print $2,$3,$4,$5,$6,$7}}' | sed 's/^chr//' | sort -k1,1n -k2,2n -k3,3n > {output.segdup}
         zcat {input.simrep} | awk 'BEGIN{{OFS="\\t"}}$2!~/chr(X|Y|Un|M|[0-9]_|[0-9][0-9]_)/{{print $2,$3,$4,$5,$11}}' | sed 's/^chr//' | sort -k1,1n -k2,2n -k3,3n > {output.simrep}
+        """
+
+
+
+rule download_1kg_low_vcf:
+    output:
+        vcf="examples/data/Human/1kg_low/chr{i}.vcf.gz",
+        idx="examples/data/Human/1kg_low/chr{i}.vcf.gz.tbi",
+    shell:
+        """
+        wget -c https://ftp.ncbi.nih.gov/1000genomes/ftp/release/20130502/ALL.chr{wildcards.i}.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz \
+            -O {output.vcf}
+        wget -c https://ftp.ncbi.nih.gov/1000genomes/ftp/release/20130502/ALL.chr{wildcards.i}.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz.tbi \
+            -O {output.idx}
+        """
+
+rule create_1kg_low_metadata:
+    input:
+        samples=rules.download_1KG_info.output.samples,
+    output:
+        metadata="examples/data/Human/1kg_low/metadata.txt",
+    shell:
+        """
+        grep -w YRI {input.samples} | awk '{{print $1"\\tYRI"}}' > {output.metadata}
+        sed -i '1iSample\\tPopulation' {output.metadata}
+        """
+
+
+rule download_hg19_repeat_files:
+    output:
+        rmsk="examples/data/Human/repeats/hg19.rmsk.txt.gz",
+        segdup="examples/data/Human/repeats/hg19.genomicSuperDups.txt.gz",
+        simrep="examples/data/Human/repeats/hg19.simpleRepeat.txt.gz",
+    shell:
+        """
+        wget -c https://hgdownload.soe.ucsc.edu/goldenPath/hg19/database/rmsk.txt.gz -O {output.rmsk}
+        wget -c https://hgdownload.soe.ucsc.edu/goldenPath/hg19/database/genomicSuperDups.txt.gz -O {output.segdup}
+        wget -c https://hgdownload.soe.ucsc.edu/goldenPath/hg19/database/simpleRepeat.txt.gz -O {output.simrep}
+        """
+
+
+rule convert_hg19_repeat_files:
+    input:
+        rmsk=rules.download_hg19_repeat_files.output.rmsk,
+        segdup=rules.download_hg19_repeat_files.output.segdup,
+        simrep=rules.download_hg19_repeat_files.output.simrep,
+    output:
+        rmsk="examples/data/Human/repeats/hg19.rmsk.autosomes.bed",
+        segdup="examples/data/Human/repeats/hg19.seg.dups.autosomes.bed",
+        simrep="examples/data/Human/repeats/hg19.simple.repeats.autosomes.bed",
+    shell:
+        """
+        zcat {input.rmsk} | awk 'BEGIN{{OFS="\\t"}}$6!~/chr(X|Y|Un|M|[0-9]_|[0-9][0-9]_)/{{print $6,$7,$8,$11,$2,$10}}' | sed 's/^chr//' | sort -k1,1n -k2,2n -k3,3n > {output.rmsk}
+        zcat {input.segdup} | awk 'BEGIN{{OFS="\\t"}}$2!~/chr(X|Y|Un|M|[0-9]_|[0-9][0-9]_)/{{print $2,$3,$4,$5,$6,$7}}' | sed 's/^chr//' | sort -k1,1n -k2,2n -k3,3n > {output.segdup}
+        zcat {input.simrep} | awk 'BEGIN{{OFS="\\t"}}$2!~/chr(X|Y|Un|M|[0-9]_|[0-9][0-9]_)/{{print $2,$3,$4,$5,$11}}' | sed 's/^chr//' | sort -k1,1n -k2,2n -k3,3n > {output.simrep}
+        """
+
+
+rule download_ensembl_ancestral_alleles_hg19:
+    output:
+        anc_alleles=temp("examples/data/Human/ancestral_alleles/homo_sapiens_ancestor_GRCh37_e71.tar.bz2"),
+    shell:
+        """
+        wget -c https://ftp.ensembl.org/pub/release-75/fasta/ancestral_alleles/homo_sapiens_ancestor_GRCh37_e71.tar.bz2 \
+            -O {output.anc_alleles}
+        tar -xjf {output.anc_alleles} -C examples/data/Human/ancestral_alleles
+        """
+
+
+rule extract_anc_info_hg19:
+    input:
+        anc_alleles=rules.download_ensembl_ancestral_alleles_hg19.output.anc_alleles,
+    output:
+        bed=temp("examples/data/Human/ancestral_alleles/homo_sapiens_ancestor_GRCh37/homo_sapiens_ancestor_chr{i}.bed"),
+    params:
+        fasta="examples/data/Human/ancestral_alleles/homo_sapiens_ancestor_GRCh37_e71/homo_sapiens_ancestor_{i}.fa",
+    run:
+        import pysam
+        import re
+
+        fasta = pysam.FastaFile(params.fasta)
+
+        with open(output.bed, "wt") as out:
+            for raw_chrom in fasta.references:
+                match = re.search(r"GRCh\d+:(\d+|X|Y)", raw_chrom)
+                if not match:
+                    print(f"Skipping unrecognized chromosome name: {raw_chrom}")
+                    continue
+                chrom = match.group(1)
+
+                seq = fasta.fetch(raw_chrom).upper()
+                for pos, base in enumerate(seq):
+                    if base in "ACGT":
+                        out.write(f"chr{chrom}\t{pos}\t{pos+1}\t{base}\n")
+
+        fasta.close()
+
+
+rule compress_anc_info_hg19:
+    input:
+        bed=rules.extract_anc_info_hg19.output.bed,
+    output:
+        bed="examples/data/Human/ancestral_alleles/homo_sapiens_ancestor_GRCh37/homo_sapiens_ancestor_chr{i}.bed.gz",
+    shell:
+        """
+        bgzip -c {input.bed} > {output.bed}
+        tabix -p bed {output.bed}
+        """
+
+
+
+rule link_greatape_vcf:
+    input:
+        vcf="/lisc/opt/mirror/phaidra/o_2066302/merged_segregating/Pan/Pan_wild_filtered/chr{i}.filteranno.vcf.gz",
+    output:
+        vcf="examples/data/greatape/Pan/chr{i}.filteranno.vcf.gz",
+        idx="examples/data/greatape/Pan/chr{i}.filteranno.vcf.gz.tbi",
+    shell:
+        """
+        ln -sf {input.vcf} {output.vcf}
+        bcftools index -t {output.vcf}
+        """
+
+
+rule link_greatape_metadata:
+    input:
+        metadata="/lisc/opt/mirror/phaidra/o_2066302/metadata_full.txt",
+    output:
+        raw="examples/data/greatape/metadata_full.txt",
+    shell:
+        """
+        ln -sf {input.metadata} {output.raw}
+        """
+
+
+rule create_greatape_metadata:
+    input:
+        metadata=rules.link_greatape_metadata.output.raw,
+    output:
+        metadata="examples/data/greatape/metadata.txt",
+    shell:
+        """
+        grep -v captive {input.metadata} | awk 'NR>1 {{print $4"\\t"$2}}' > {output.metadata}
+        sed -i '1iSample\\tPopulation' {output.metadata}
         """

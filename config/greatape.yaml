@@ -1,0 +1,31 @@
+dataset: "greatape"
+species: "Pan"
+tax_id: 9598
+
+ref_genome: "hg38"
+anc_alleles:
+  path: "examples/data/Human/ancestral_alleles/homo_sapiens_ancestor_GRCh38"
+  prefix: "homo_sapiens_ancestor_chr"
+
+genome_annotation: "examples/data/Human/annotation/Human.gtf.gz"
+gene2go: "examples/data/Human/annotation/gene2go.gz"
+
+hwe_pvalue: 0.001
+
+rmsk:    "examples/data/Human/repeats/hg38.rmsk.autosomes.bed"
+seg_dup: "examples/data/Human/repeats/hg38.seg.dups.autosomes.bed"
+sim_rep: "examples/data/Human/repeats/hg38.simple.repeats.autosomes.bed"
+
+ploidy: 2
+
+populations:
+  - PPA
+
+data_folder: "examples/data/greatape/Pan"
+vcf_prefix: "chr"
+vcf_suffix: ".filteranno.vcf.gz"
+
+metadata: "examples/data/greatape/metadata.txt"
+
+chromosomes:
+  - 21
