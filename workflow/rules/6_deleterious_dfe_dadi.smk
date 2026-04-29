@@ -148,7 +148,7 @@ rule convert_1pop_dm_top_10_bestfits_html:
     conda:
         "../envs/selscape-env.yaml"
     script:
-        "../scripts/tsv2html.R"
+        "../scripts/visualization/tsv2html.R"
 
 
 rule generate_1d_cache:
@@ -265,7 +265,7 @@ rule convert_1pop_dfe_top_10_bestfits_html:
     conda:
         "../envs/selscape-env.yaml"
     script:
-        "../scripts/tsv2html.R"
+        "../scripts/visualization/tsv2html.R"
 
 
 rule dfe_godambe_ci:
@@ -356,7 +356,7 @@ rule dfe_godambe_ci_table_html:
     conda:
         "../envs/selscape-env.yaml"
     script:
-        "../scripts/tsv2html.R"
+        "../scripts/visualization/tsv2html.R"
 
 
 rule plot_fitted_1pop_dm:
@@ -419,6 +419,7 @@ rule plot_mutation_proportions:
     script:
         "../scripts/plot_mutation_prop.py"
 
+
 rule wrap_fitted_1pop_dm_html:
     input:
         plot=rules.plot_fitted_1pop_dm.output.fs_plot,
@@ -436,7 +437,7 @@ rule wrap_fitted_1pop_dm_html:
     conda:
         "../envs/selscape-env.yaml"
     script:
-        "../scripts/plot2html.py"
+        "../scripts/visualization/plot2html.py"
 
 
 rule wrap_fitted_dfe_html:
@@ -456,4 +457,4 @@ rule wrap_fitted_dfe_html:
     conda:
         "../envs/selscape-env.yaml"
     script:
-        "../scripts/plot2html.py"
+        "../scripts/visualization/plot2html.py"
