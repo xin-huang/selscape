@@ -18,30 +18,20 @@
 #    https://www.gnu.org/licenses/gpl-3.0.en.html
 
 
-vcf_dir = "processed_data"
-folding_flag = ""
-if (
-    "anc_alleles" in main_config
-    and main_config["anc_alleles"]
-    and betascan_config["unfolded"]
-):
-    vcf_dir = "polarized_data"
-    folding_flag = "-fold"
-
 
 rule get_allele_counts:
     input:
-        vcf=f"results/{vcf_dir}/{{species}}/1pop/{{ppl}}/{{ppl}}.chr{{i}}.biallelic.snps.repeats.removed.vcf.gz",
+        vcf=lambda wc: f"results/{get_betascan_vcf_dir(wc)}/{wc.dataset}/{wc.species}/1pop/{wc.ppl}/{wc.ppl}.chr{wc.i}.biallelic.snps.repeats.removed.vcf.gz",
     output:
         ac=temp(
-            "results/balancing_selection/betascan/{species}/{ppl}/ac/{ppl}.{ref_genome}.chr{i}.ac"
+            "results/balancing_selection/betascan/{dataset}/{species}/{ppl}/ac/{ppl}.{ref_genome}.chr{i}.ac"
         ),
     params:
-        ploidy=main_config["ploidy"],
+        ploidy=get_ploidy,
         min_af=betascan_config["min_af"],
         max_af=betascan_config["max_af"],
     log:
-        "logs/balancing_selection/get_allele_counts.{species}.{ppl}.{ref_genome}.chr{i}.log",
+        "logs/balancing_selection/get_allele_counts.{dataset}.{species}.{ppl}.{ref_genome}.chr{i}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -57,12 +47,12 @@ rule estimate_b1_scores:
         betascan=rules.download_betascan.output.betascan,
     output:
         scores=temp(
-            "results/balancing_selection/betascan/{species}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.chr{i}.b1.scores"
+            "results/balancing_selection/betascan/{dataset}/{species}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.chr{i}.b1.scores"
         ),
     params:
-        folding_flag=f"{folding_flag}",
+        folding_flag=get_folding_flag,
     log:
-        "logs/balancing_selection/estimate_b1_scores.{species}.{ppl}.{ref_genome}.m_{core_frq}.chr{i}.log",
+        "logs/balancing_selection/estimate_b1_scores.{dataset}.{species}.{ppl}.{ref_genome}.m_{core_frq}.chr{i}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -75,15 +65,16 @@ rule estimate_b1_scores:
 
 rule merge_b1_scores:
     input:
-        scores=expand(
-            "results/balancing_selection/betascan/{species}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.chr{i}.b1.scores",
-            i=main_config["chromosomes"],
-            allow_missing=True,
+        scores=lambda wc: expand(
+            "results/balancing_selection/betascan/{dataset}/{species}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.chr{i}.b1.scores",
+            dataset=wc.dataset, species=wc.species, ppl=wc.ppl,
+            core_frq=wc.core_frq, ref_genome=wc.ref_genome,
+            i=get_chromosomes(wc),
         ),
     output:
-        merged_scores="results/balancing_selection/betascan/{species}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.b1.scores",
+        merged_scores="results/balancing_selection/betascan/{dataset}/{species}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.b1.scores",
     log:
-        "logs/balancing_selection/merge_b1_scores.{species}.{ppl}.m_{core_frq}.{ref_genome}.log",
+        "logs/balancing_selection/merge_b1_scores.{dataset}.{species}.{ppl}.m_{core_frq}.{ref_genome}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -94,19 +85,19 @@ rule merge_b1_scores:
 
 rule annotate_betascan_outliers:
     input:
-        outliers="results/balancing_selection/betascan/{species}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.outliers.scores",
-        annotation=expand(
-            "results/annotated_data/{species}/all/chr{i}.biallelic.snps.{ref_genome}_multianno.txt",
-            i=main_config["chromosomes"],
-            ref_genome=main_config["ref_genome"],
-            allow_missing=True,
+        outliers="results/balancing_selection/betascan/{dataset}/{species}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.outliers.scores",
+        annotation=lambda wc: expand(
+            "results/annotated_data/{dataset}/{species}/all/chr{i}.biallelic.snps.{ref_genome}_multianno.txt",
+            dataset=wc.dataset, species=wc.species,
+            i=get_chromosomes(wc),
+            ref_genome=get_ref_genome(wc),
         ),
     output:
-        annotated_outliers="results/balancing_selection/betascan/{species}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.annotated.outliers",
+        annotated_outliers="results/balancing_selection/betascan/{dataset}/{species}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.annotated.outliers",
     resources:
         mem_gb=32,
     log:
-        "logs/balancing_selection/annotate_betascan_outliers.{species}.{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.log",
+        "logs/balancing_selection/annotate_betascan_outliers.{dataset}.{species}.{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
@@ -117,9 +108,9 @@ rule get_betascan_outlier_genes:
     input:
         betascan_outliers=rules.annotate_betascan_outliers.output.annotated_outliers,
     output:
-        betascan_genes="results/balancing_selection/betascan/{species}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.outlier.genes",
+        betascan_genes="results/balancing_selection/betascan/{dataset}/{species}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.outlier.genes",
     log:
-        "logs/balancing_selection/get_betascan_outlier_genes.{species}.{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.log",
+        "logs/balancing_selection/get_betascan_outlier_genes.{dataset}.{species}.{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -135,20 +126,20 @@ rule enrichment_betascan_gowinda:
         go2gene=rules.convert_ncbi_go.output.go2gene,
         gtf=rules.convert_ncbi_gtf.output.gtf,
         outliers=rules.annotate_betascan_outliers.output.annotated_outliers,
-        total=expand(
-            f"results/{vcf_dir}/{{species}}/1pop/{{ppl}}/{{ppl}}.chr{{i}}.biallelic.snps.vcf.gz",
-            i=main_config["chromosomes"],
-            allow_missing=True,
+        total=lambda wc: expand(
+            f"results/{get_betascan_vcf_dir(wc)}/{{dataset}}/{{species}}/1pop/{{ppl}}/{{ppl}}.chr{{i}}.biallelic.snps.vcf.gz",
+            dataset=wc.dataset, species=wc.species, ppl=wc.ppl,
+            i=get_chromosomes(wc),
         ),
     output:
-        outlier_snps="results/balancing_selection/betascan/{species}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.outlier.snps.tsv",
-        total_snps="results/balancing_selection/betascan/{species}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.total.snps.tsv",
-        enrichment="results/balancing_selection/betascan/{species}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.gowinda.enrichment.tsv",
+        outlier_snps="results/balancing_selection/betascan/{dataset}/{species}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.outlier.snps.tsv",
+        total_snps="results/balancing_selection/betascan/{dataset}/{species}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.total.snps.tsv",
+        enrichment="results/balancing_selection/betascan/{dataset}/{species}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.gowinda.enrichment.tsv",
     resources:
         mem_gb=32,
         cpus=8,
     log:
-        "logs/balancing_selection/enrichment_betascan_gowinda.{species}.{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.log",
+        "logs/balancing_selection/enrichment_betascan_gowinda.{dataset}.{species}.{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -181,7 +172,7 @@ rule betascan_outlier_genes_table_html:
         tsv=rules.get_betascan_outlier_genes.output.betascan_genes,
     output:
         html=report(
-            "results/balancing_selection/betascan/{species}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.outlier.genes.html",
+            "results/balancing_selection/betascan/{dataset}/{species}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.outlier.genes.html",
             category="Balancing Selection",
             subcategory="B1",
             labels=lambda wildcards: betascan_labels(wildcards, type="Gene List"),
@@ -189,7 +180,7 @@ rule betascan_outlier_genes_table_html:
     params:
         title=add_betascan_title,
     log:
-        "logs/balancing_selection/betascan_outlier_genes_table_html.{species}.{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.log",
+        "logs/balancing_selection/betascan_outlier_genes_table_html.{dataset}.{species}.{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
@@ -201,7 +192,7 @@ rule betascan_enrichment_results_table_html:
         tsv=rules.enrichment_betascan_gowinda.output.enrichment,
     output:
         html=report(
-            "results/balancing_selection/betascan/{species}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.gowinda.enrichment.html",
+            "results/balancing_selection/betascan/{dataset}/{species}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.gowinda.enrichment.html",
             category="Balancing Selection",
             subcategory="B1",
             labels=lambda wildcards: betascan_labels(
@@ -211,7 +202,7 @@ rule betascan_enrichment_results_table_html:
     params:
         title=add_betascan_title,
     log:
-        "logs/balancing_selection/betascan_enrichment_results_table_html.{species}.{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.log",
+        "logs/balancing_selection/betascan_enrichment_results_table_html.{dataset}.{species}.{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
@@ -222,9 +213,9 @@ rule plot_betascan:
     input:
         scores=rules.merge_b1_scores.output.merged_scores,
     output:
-        outliers="results/balancing_selection/betascan/{species}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.outliers.scores",
+        outliers="results/balancing_selection/betascan/{dataset}/{species}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.outliers.scores",
         plot=report(
-            "results/balancing_selection/betascan/{species}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.scores.png",
+            "results/balancing_selection/betascan/{dataset}/{species}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.scores.png",
             category="Balancing Selection",
             subcategory="B1",
             labels=betascan_labels,
@@ -241,7 +232,7 @@ rule plot_betascan:
     resources:
         mem_gb=16,
     log:
-        "logs/balancing_selection/plot_betascan.{species}.{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.log",
+        "logs/balancing_selection/plot_betascan.{dataset}.{species}.{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
@@ -253,7 +244,7 @@ rule plot_gowinda_enrichment_betascan:
         enrichment=rules.enrichment_betascan_gowinda.output.enrichment,
     output:
         plot=report(
-            "results/balancing_selection/betascan/{species}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.gowinda.enrichment.png",
+            "results/balancing_selection/betascan/{dataset}/{species}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.gowinda.enrichment.png",
             category="Balancing Selection",
             subcategory="B1",
             labels=lambda wildcards: betascan_labels(wildcards, type="Enrichment Plot"),
@@ -263,7 +254,7 @@ rule plot_gowinda_enrichment_betascan:
     resources:
         mem_gb=8,
     log:
-        "logs/balancing_selection/plot_gowinda_enrichment_betascan.{species}.{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.log",
+        "logs/balancing_selection/plot_gowinda_enrichment_betascan.{dataset}.{species}.{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:

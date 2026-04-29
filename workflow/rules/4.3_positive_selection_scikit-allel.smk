@@ -23,13 +23,13 @@ rule calc_tajima_d:
         vcf=rules.extract_pop_data.output.vcf,
     output:
         scores=temp(
-            "results/positive_selection/scikit-allel/{species}/1pop/{ppl}/{method}/{window}_{step}/chr{i}.{method}.scores.txt"
+            "results/positive_selection/scikit-allel/{dataset}/{species}/1pop/{ppl}/{method}/{window}_{step}/chr{i}.{method}.scores.txt"
         ),
     params:
         window_size="{window}",
         step_size_ratio="{step}",
     log:
-        "logs/positive_selection/calc_tajima_d.{species}.{ppl}.{method}.{window}_{step}.chr{i}.log",
+        "logs/positive_selection/calc_tajima_d.{dataset}.{species}.{ppl}.{method}.{window}_{step}.chr{i}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
@@ -41,13 +41,13 @@ rule format_tajima_d:
         scores=rules.calc_tajima_d.output.scores,
     output:
         formatted=temp(
-            "results/positive_selection/scikit-allel/{species}/1pop/{ppl}/{method}/{window}_{step}/chr{i}.{method}.formatted.txt"
+            "results/positive_selection/scikit-allel/{dataset}/{species}/1pop/{ppl}/{method}/{window}_{step}/chr{i}.{method}.formatted.txt"
         ),
     params:
         chrom="{i}",
         method="{method}",
     log:
-        "logs/positive_selection/format_tajima_d.{species}.{ppl}.{method}.{window}_{step}.chr{i}.log",
+        "logs/positive_selection/format_tajima_d.{dataset}.{species}.{ppl}.{method}.{window}_{step}.chr{i}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -61,15 +61,16 @@ rule format_tajima_d:
 
 rule merge_tajima_d_scores:
     input:
-        scores=expand(
-            "results/positive_selection/scikit-allel/{species}/1pop/{ppl}/{method}/{window}_{step}/chr{i}.{method}.formatted.txt",
-            i=main_config["chromosomes"],
-            allow_missing=True,
+        scores=lambda wc: expand(
+            "results/positive_selection/scikit-allel/{dataset}/{species}/1pop/{ppl}/{method}/{window}_{step}/chr{i}.{method}.formatted.txt",
+            dataset=wc.dataset, species=wc.species, ppl=wc.ppl,
+            method=wc.method, window=wc.window, step=wc.step,
+            i=get_chromosomes(wc),
         ),
     output:
-        merged_scores="results/positive_selection/scikit-allel/{species}/1pop/{ppl}/{method}/{window}_{step}/{ppl}.{method}.scores",
+        merged_scores="results/positive_selection/scikit-allel/{dataset}/{species}/1pop/{ppl}/{method}/{window}_{step}/{ppl}.{method}.scores",
     log:
-        "logs/positive_selection/merge_tajima_d_scores.{species}.{ppl}.{method}.{window}_{step}.log",
+        "logs/positive_selection/merge_tajima_d_scores.{dataset}.{species}.{ppl}.{method}.{window}_{step}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -86,10 +87,10 @@ rule plot_tajima_d:
         scores=rules.merge_tajima_d_scores.output.merged_scores,
     output:
         outliers=temp(
-            "results/positive_selection/scikit-allel/{species}/1pop/{ppl}/{method}/{window}_{step}/{ppl}.{method}.top_{cutoff}.outliers.scores",
+            "results/positive_selection/scikit-allel/{dataset}/{species}/1pop/{ppl}/{method}/{window}_{step}/{ppl}.{method}.top_{cutoff}.outliers.scores",
         ),
         plot=report(
-            "results/positive_selection/scikit-allel/{species}/1pop/{ppl}/{method}/{window}_{step}/{ppl}.{method}.top_{cutoff}.scores.png",
+            "results/positive_selection/scikit-allel/{dataset}/{species}/1pop/{ppl}/{method}/{window}_{step}/{ppl}.{method}.top_{cutoff}.scores.png",
             category="Positive Selection",
             subcategory="{method}",
             labels=lambda wildcards: tajima_d_labels(wildcards, type="Manhattan Plot"),
@@ -106,7 +107,7 @@ rule plot_tajima_d:
         color1=scikit_allel_config["manhattan_plot_color1"],
         color2=scikit_allel_config["manhattan_plot_color2"],
     log:
-        "logs/positive_selection/plot_tajima_d.{species}.{ppl}.{method}.{window}_{step}.top_{cutoff}.log",
+        "logs/positive_selection/plot_tajima_d.{dataset}.{species}.{ppl}.{method}.{window}_{step}.top_{cutoff}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
@@ -116,16 +117,16 @@ rule plot_tajima_d:
 rule extract_tajima_d_outlier_variants:
     input:
         scores=rules.plot_tajima_d.output.outliers,
-        vcfs=expand(
-            "results/processed_data/{species}/1pop/{ppl}/{ppl}.chr{i}.biallelic.snps.vcf.gz",
-            i=main_config["chromosomes"],
-            allow_missing=True,
+        vcfs=lambda wc: expand(
+            "results/processed_data/{dataset}/{species}/1pop/{ppl}/{ppl}.chr{i}.biallelic.snps.vcf.gz",
+            dataset=wc.dataset, species=wc.species, ppl=wc.ppl,
+            i=get_chromosomes(wc),
         ),
     output:
-        regions=temp("results/positive_selection/scikit-allel/{species}/1pop/{ppl}/{method}/{window}_{step}/{ppl}.{method}.top_{cutoff}.outliers.bed"),
-        variants=temp("results/positive_selection/scikit-allel/{species}/1pop/{ppl}/{method}/{window}_{step}/{ppl}.{method}.top_{cutoff}.outliers.variants"),
+        regions=temp("results/positive_selection/scikit-allel/{dataset}/{species}/1pop/{ppl}/{method}/{window}_{step}/{ppl}.{method}.top_{cutoff}.outliers.bed"),
+        variants=temp("results/positive_selection/scikit-allel/{dataset}/{species}/1pop/{ppl}/{method}/{window}_{step}/{ppl}.{method}.top_{cutoff}.outliers.variants"),
     log:
-        "logs/positive_selection/extract_tajima_d_outlier_variants.{species}.{ppl}.{method}.{window}_{step}.top_{cutoff}.log",
+        "logs/positive_selection/extract_tajima_d_outlier_variants.{dataset}.{species}.{ppl}.{method}.{window}_{step}.top_{cutoff}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -141,18 +142,18 @@ rule extract_tajima_d_outlier_variants:
 rule annotate_tajima_d_outliers:
     input:
         outliers=rules.extract_tajima_d_outlier_variants.output.variants,
-        annotation=expand(
-            "results/annotated_data/{species}/all/chr{i}.biallelic.snps.{ref_genome}_multianno.txt",
-            i=main_config["chromosomes"],
-            ref_genome=main_config["ref_genome"],
-            allow_missing=True,
+        annotation=lambda wc: expand(
+            "results/annotated_data/{dataset}/{species}/all/chr{i}.biallelic.snps.{ref_genome}_multianno.txt",
+            dataset=wc.dataset, species=wc.species,
+            i=get_chromosomes(wc),
+            ref_genome=get_ref_genome(wc),
         ),
     output:
-        annotated_outliers="results/positive_selection/scikit-allel/{species}/1pop/{ppl}/{method}/{window}_{step}/{ppl}.{method}.top_{cutoff}.annotated.outliers",
+        annotated_outliers="results/positive_selection/scikit-allel/{dataset}/{species}/1pop/{ppl}/{method}/{window}_{step}/{ppl}.{method}.top_{cutoff}.annotated.outliers",
     resources:
         mem_gb=32,
     log:
-        "logs/positive_selection/annotate_tajima_d_outliers.{species}.{ppl}.{method}.{window}_{step}.top_{cutoff}.log",
+        "logs/positive_selection/annotate_tajima_d_outliers.{dataset}.{species}.{ppl}.{method}.{window}_{step}.top_{cutoff}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
@@ -163,9 +164,9 @@ rule get_tajima_d_outlier_genes:
     input:
         tajima_d_outliers=rules.annotate_tajima_d_outliers.output.annotated_outliers,
     output:
-        tajima_d_genes="results/positive_selection/scikit-allel/{species}/1pop/{ppl}/{method}/{window}_{step}/{ppl}.{method}.top_{cutoff}.outlier.genes",
+        tajima_d_genes="results/positive_selection/scikit-allel/{dataset}/{species}/1pop/{ppl}/{method}/{window}_{step}/{ppl}.{method}.top_{cutoff}.outlier.genes",
     log:
-        "logs/positive_selection/get_tajima_d_outlier_genes.{species}.{ppl}.{method}.{window}_{step}.top_{cutoff}.log",
+        "logs/positive_selection/get_tajima_d_outlier_genes.{dataset}.{species}.{ppl}.{method}.{window}_{step}.top_{cutoff}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -180,7 +181,7 @@ rule tajima_d_outlier_genes_table_html:
         tsv=rules.get_tajima_d_outlier_genes.output.tajima_d_genes,
     output:
         html=report(
-            "results/positive_selection/scikit-allel/{species}/1pop/{ppl}/{method}/{window}_{step}/{ppl}.{method}.top_{cutoff}.outlier.genes.html",
+            "results/positive_selection/scikit-allel/{dataset}/{species}/1pop/{ppl}/{method}/{window}_{step}/{ppl}.{method}.top_{cutoff}.outlier.genes.html",
             category="Positive Selection",
             subcategory="{method}",
             labels=lambda wildcards: tajima_d_labels(wildcards, type="Gene List"),
@@ -188,7 +189,7 @@ rule tajima_d_outlier_genes_table_html:
     params:
         title=add_scikit_allel_title,
     log:
-        "logs/positive_selection/tajima_d_outlier_genes_table_html.{species}.{ppl}.{method}.{window}_{step}.top_{cutoff}.log",
+        "logs/positive_selection/tajima_d_outlier_genes_table_html.{dataset}.{species}.{ppl}.{method}.{window}_{step}.top_{cutoff}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
@@ -201,20 +202,20 @@ rule enrichment_tajima_d_gowinda:
         go2gene=rules.convert_ncbi_go.output.go2gene,
         gtf=rules.convert_ncbi_gtf.output.gtf,
         outliers=rules.annotate_tajima_d_outliers.output.annotated_outliers,
-        total=expand(
-            "results/processed_data/{species}/1pop/{ppl}/{ppl}.chr{i}.biallelic.snps.vcf.gz",
-            i=main_config["chromosomes"],
-            allow_missing=True,
+        total=lambda wc: expand(
+            "results/processed_data/{dataset}/{species}/1pop/{ppl}/{ppl}.chr{i}.biallelic.snps.vcf.gz",
+            dataset=wc.dataset, species=wc.species, ppl=wc.ppl,
+            i=get_chromosomes(wc),
         ),
     output:
-        outlier_snps="results/positive_selection/scikit-allel/{species}/1pop/{ppl}/{method}/{window}_{step}/{ppl}.{method}.top_{cutoff}.outlier.snps.tsv",
-        total_snps="results/positive_selection/scikit-allel/{species}/1pop/{ppl}/{method}/{window}_{step}/{ppl}.{method}.top_{cutoff}.total.snps.tsv",
-        enrichment="results/positive_selection/scikit-allel/{species}/1pop/{ppl}/{method}/{window}_{step}/{ppl}.{method}.top_{cutoff}.gowinda.enrichment.tsv",
+        outlier_snps="results/positive_selection/scikit-allel/{dataset}/{species}/1pop/{ppl}/{method}/{window}_{step}/{ppl}.{method}.top_{cutoff}.outlier.snps.tsv",
+        total_snps="results/positive_selection/scikit-allel/{dataset}/{species}/1pop/{ppl}/{method}/{window}_{step}/{ppl}.{method}.top_{cutoff}.total.snps.tsv",
+        enrichment="results/positive_selection/scikit-allel/{dataset}/{species}/1pop/{ppl}/{method}/{window}_{step}/{ppl}.{method}.top_{cutoff}.gowinda.enrichment.tsv",
     resources:
         mem_gb=32,
         cpus=8,
     log:
-        "logs/positive_selection/enrichment_tajima_d_gowinda.{species}.{ppl}.{method}.{window}_{step}.top_{cutoff}.log",
+        "logs/positive_selection/enrichment_tajima_d_gowinda.{dataset}.{species}.{ppl}.{method}.{window}_{step}.top_{cutoff}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -247,7 +248,7 @@ rule tajima_d_enrichment_results_table_html:
         tsv=rules.enrichment_tajima_d_gowinda.output.enrichment,
     output:
         html=report(
-            "results/positive_selection/scikit-allel/{species}/1pop/{ppl}/{method}/{window}_{step}/{ppl}.{method}.top_{cutoff}.gowinda.enrichment.html",
+            "results/positive_selection/scikit-allel/{dataset}/{species}/1pop/{ppl}/{method}/{window}_{step}/{ppl}.{method}.top_{cutoff}.gowinda.enrichment.html",
             category="Positive Selection",
             subcategory="{method}",
             labels=lambda wildcards: tajima_d_labels(
@@ -256,7 +257,7 @@ rule tajima_d_enrichment_results_table_html:
     params:
         title=add_scikit_allel_title,
     log:
-        "logs/positive_selection/tajima_d_enrichment_results_table_html.{species}.{ppl}.{method}.{window}_{step}.top_{cutoff}.log",
+        "logs/positive_selection/tajima_d_enrichment_results_table_html.{dataset}.{species}.{ppl}.{method}.{window}_{step}.top_{cutoff}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
@@ -268,7 +269,7 @@ rule plot_gowinda_enrichment_tajima_d:
         enrichment=rules.enrichment_tajima_d_gowinda.output.enrichment,
     output:
         plot=report(
-            "results/positive_selection/scikit-allel/{species}/1pop/{ppl}/{method}/{window}_{step}/{ppl}.{method}.top_{cutoff}.gowinda.enrichment.png",
+            "results/positive_selection/scikit-allel/{dataset}/{species}/1pop/{ppl}/{method}/{window}_{step}/{ppl}.{method}.top_{cutoff}.gowinda.enrichment.png",
             category="Positive Selection",
             subcategory="{method}",
             labels=lambda wildcards: tajima_d_labels(wildcards, type="Enrichment Plot"),
@@ -278,7 +279,7 @@ rule plot_gowinda_enrichment_tajima_d:
     resources:
         mem_gb=8,
     log:
-        "logs/positive_selection/plot_gowinda_enrichment_tajima_d.{species}.{ppl}.{method}.{window}_{step}.top_{cutoff}.log",
+        "logs/positive_selection/plot_gowinda_enrichment_tajima_d.{dataset}.{species}.{ppl}.{method}.{window}_{step}.top_{cutoff}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:

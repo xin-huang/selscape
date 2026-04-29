@@ -1,0 +1,41 @@
+# Low coverage 1000 Genomes Project (Phase 3, GRCh37/hg19)
+# Source: https://ftp.ncbi.nih.gov/1000genomes/ftp/release/20130502/
+dataset: "1000g_low"
+species: "Human"
+tax_id: 9606
+
+ref_genome: "hg19"
+anc_alleles: null
+#  path: "examples/data/Human/ancestral_alleles/homo_sapiens_ancestor_GRCh37"
+#  prefix: "homo_sapiens_ancestor_chr"
+
+
+genome_annotation: "examples/data/Human/annotation/Human.gtf.gz"
+gene2go: "examples/data/Human/annotation/gene2go.gz"
+
+# Quality control filters
+# Hardy-Weinberg equilibrium p-value threshold for balancing selection
+hwe_pvalue: 0.001
+
+# Repeat filters
+rmsk:    "examples/data/Human/repeats/hg19.rmsk.autosomes.bed"
+seg_dup: "examples/data/Human/repeats/hg19.seg.dups.autosomes.bed"
+sim_rep: "examples/data/Human/repeats/hg19.simple.repeats.autosomes.bed"
+
+ploidy: 2
+
+# Population definitions
+populations:
+  - YRI
+
+# Data file configuration
+data_folder: "examples/data/Human/1kg_low"
+# VCF file naming convention: {file_prefix}chr{chr_name}{file_suffix}
+vcf_prefix: "chr"
+vcf_suffix: ".vcf.gz"
+# Sample metadata file
+metadata: "examples/data/Human/1kg_low/metadata.txt"
+
+# Chromosome range to analyze
+chromosomes:
+  - 21
