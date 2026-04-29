@@ -1,7 +1,7 @@
 # Main configuration: links to individual dataset configs
 datasets:
   - config/1000g_high.yaml
-  - config/1000g_low.yaml
+#  - config/1000g_low.yaml
   - config/greatape.yaml
 
 

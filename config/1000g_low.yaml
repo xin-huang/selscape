@@ -5,9 +5,10 @@ species: "Human"
 tax_id: 9606
 
 ref_genome: "hg19"
-anc_alleles:
-  path: "examples/data/Human/ancestral_alleles/homo_sapiens_ancestor_GRCh37"
-  prefix: "homo_sapiens_ancestor_chr"
+anc_alleles: null
+#  path: "examples/data/Human/ancestral_alleles/homo_sapiens_ancestor_GRCh37"
+#  prefix: "homo_sapiens_ancestor_chr"
+
 
 genome_annotation: "examples/data/Human/annotation/Human.gtf.gz"
 gene2go: "examples/data/Human/annotation/gene2go.gz"
@@ -28,12 +29,12 @@ populations:
   - YRI
 
 # Data file configuration
-data_folder: "resources/1kg_low/vcf"
+data_folder: "examples/data/Human/1kg_low"
 # VCF file naming convention: {file_prefix}chr{chr_name}{file_suffix}
 vcf_prefix: "chr"
 vcf_suffix: ".vcf.gz"
 # Sample metadata file
-metadata: "resources/1kg_low/metadata.txt"
+metadata: "examples/data/Human/1kg_low/metadata.txt"
 
 # Chromosome range to analyze
 chromosomes:
