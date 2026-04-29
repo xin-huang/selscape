@@ -417,7 +417,7 @@ rule plot_mutation_proportions:
     conda:
         "../envs/selscape-env.yaml"
     script:
-        "../scripts/plot_mutation_prop.py"
+        "../scripts/visualization/plot_mutation_prop.py"
 
 
 rule wrap_fitted_1pop_dm_html:
