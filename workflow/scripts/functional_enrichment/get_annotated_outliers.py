@@ -34,6 +34,10 @@ with open(output_file, "w"):
 
 outlier_df = pd.read_csv(outlier_file, sep="\t")
 
+if outlier_df.empty:
+    log_fh.close()
+    sys.exit(0)
+
 #value_col_name = outlier_df.columns[3]
 
 multianno_dict = {

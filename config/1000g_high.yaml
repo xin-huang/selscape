@@ -1,0 +1,67 @@
+# Main configuration for species and data paths
+dataset: "1000g_high"
+species: "Human"
+tax_id: 9606
+
+ref_genome: "hg38"
+anc_alleles: 
+  path: "examples/data/Human/ancestral_alleles/homo_sapiens_ancestor_GRCh38"
+  prefix: "homo_sapiens_ancestor_"
+
+genome_annotation: "examples/data/Human/annotation/Human.gtf.gz"
+gene2go: "examples/data/Human/annotation/gene2go.gz"
+
+# Quality control filters
+# Hardy-Weinberg equilibrium p-value threshold for balancing selection
+hwe_pvalue: 0.001
+
+# Repeat filters
+rmsk: "examples/data/Human/repeats/hg38.rmsk.autosomes.bed" # repeat masker
+seg_dup: "examples/data/Human/repeats/hg38.seg.dups.autosomes.bed" # segment duplications
+sim_rep: "examples/data/Human/repeats/hg38.simple.repeats.autosomes.bed" # simple repeats
+
+ploidy: 2
+
+# Population definitions
+populations:
+  - YRI
+  - CHS
+
+# Data file configuration
+# Base folder for resources
+data_folder: "examples/data/Human/raw"
+  
+# VCF file naming convention: {file_prefix}chr{chr_name}{file_suffix}
+vcf_prefix: "full_"
+vcf_suffix: ".vcf.gz"
+    
+# Sample metadata file
+metadata: "examples/data/Human/metadata/example_metadata.txt"
+  
+# Chromosome range to analyze
+chromosomes:
+  #- chr1
+  #- chr2
+  #- chr3
+  #- chr4
+  #- chr5
+  #- chr6
+  #- chr7
+  #- chr8
+  #- chr9
+  #- chr10
+  #- chr11
+  #- chr12
+  #- chr13
+  #- chr14
+  #- chr15
+  #- chr16
+  #- chr17
+  #- chr18
+  #- chr19
+  #- chr20
+  - chr21
+  #- chr22
+  #- chrX    
+  #- chrY 
+

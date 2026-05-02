@@ -21,17 +21,17 @@
 
 rule get_allele_counts:
     input:
-        vcf=lambda wc: f"results/{get_betascan_vcf_dir(wc)}/{wc.dataset}/{wc.species}/1pop/{wc.ppl}/{wc.ppl}.chr{wc.i}.biallelic.snps.repeats.removed.vcf.gz",
+        vcf=lambda wc: f"results/{get_betascan_vcf_dir(wc)}/{wc.dataset}/{wc.species}/1pop/{wc.ppl}/{wc.ppl}.{wc.i}.biallelic.snps.repeats.removed.vcf.gz",
     output:
         ac=temp(
-            "results/balancing_selection/betascan/{dataset}/{species}/{ppl}/ac/{ppl}.{ref_genome}.chr{i}.ac"
+            "results/balancing_selection/betascan/{dataset}/{species}/{ppl}/ac/{ppl}.{ref_genome}.{i}.ac"
         ),
     params:
         ploidy=get_ploidy,
         min_af=betascan_config["min_af"],
         max_af=betascan_config["max_af"],
     log:
-        "logs/balancing_selection/get_allele_counts.{dataset}.{species}.{ppl}.{ref_genome}.chr{i}.log",
+        "logs/balancing_selection/get_allele_counts.{dataset}.{species}.{ppl}.{ref_genome}.{i}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -47,12 +47,12 @@ rule estimate_b1_scores:
         betascan=rules.download_betascan.output.betascan,
     output:
         scores=temp(
-            "results/balancing_selection/betascan/{dataset}/{species}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.chr{i}.b1.scores"
+            "results/balancing_selection/betascan/{dataset}/{species}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.{i}.b1.scores"
         ),
     params:
         folding_flag=get_folding_flag,
     log:
-        "logs/balancing_selection/estimate_b1_scores.{dataset}.{species}.{ppl}.{ref_genome}.m_{core_frq}.chr{i}.log",
+        "logs/balancing_selection/estimate_b1_scores.{dataset}.{species}.{ppl}.{ref_genome}.m_{core_frq}.{i}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -66,7 +66,7 @@ rule estimate_b1_scores:
 rule merge_b1_scores:
     input:
         scores=lambda wc: expand(
-            "results/balancing_selection/betascan/{dataset}/{species}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.chr{i}.b1.scores",
+            "results/balancing_selection/betascan/{dataset}/{species}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.{i}.b1.scores",
             dataset=wc.dataset, species=wc.species, ppl=wc.ppl,
             core_frq=wc.core_frq, ref_genome=wc.ref_genome,
             i=get_chromosomes(wc),
@@ -79,15 +79,14 @@ rule merge_b1_scores:
         "../envs/selscape-env.yaml"
     shell:
         """
-        ( cat {input.scores} | awk '{{print $1":"$2"\\t"$1"\\t"$2"\\t"$3}}' | sed '1iSNP\\tCHR\\tBP\\tB1' > {output.merged_scores} ) 2> {log}
+        ( cat {input.scores} | awk 'BEGIN{{OFS="\\t"}}{{chrom_num=(substr($1,1,3)=="chr")?substr($1,4):$1; print $1":"$2, chrom_num, $2, $3}}' | sed '1iSNP\\tCHR\\tBP\\tB1' > {output.merged_scores} ) 2> {log}
         """
-
 
 rule annotate_betascan_outliers:
     input:
         outliers="results/balancing_selection/betascan/{dataset}/{species}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.outliers.scores",
         annotation=lambda wc: expand(
-            "results/annotated_data/{dataset}/{species}/all/chr{i}.biallelic.snps.{ref_genome}_multianno.txt",
+            "results/annotated_data/{dataset}/{species}/all/{i}.biallelic.snps.{ref_genome}_multianno.txt",
             dataset=wc.dataset, species=wc.species,
             i=get_chromosomes(wc),
             ref_genome=get_ref_genome(wc),
@@ -127,7 +126,7 @@ rule enrichment_betascan_gowinda:
         gtf=rules.convert_ncbi_gtf.output.gtf,
         outliers=rules.annotate_betascan_outliers.output.annotated_outliers,
         total=lambda wc: expand(
-            f"results/{get_betascan_vcf_dir(wc)}/{{dataset}}/{{species}}/1pop/{{ppl}}/{{ppl}}.chr{{i}}.biallelic.snps.vcf.gz",
+            f"results/{get_betascan_vcf_dir(wc)}/{{dataset}}/{{species}}/1pop/{{ppl}}/{{ppl}}.{{i}}.biallelic.snps.vcf.gz",
             dataset=wc.dataset, species=wc.species, ppl=wc.ppl,
             i=get_chromosomes(wc),
         ),
@@ -144,7 +143,7 @@ rule enrichment_betascan_gowinda:
         "../envs/selscape-env.yaml"
     shell:
         """
-        ( sed '1d' {input.outliers} | awk '{{print "chr"$1"\\t"$2}}' > {output.outlier_snps} ) 2> {log}
+        ( sed '1d' {input.outliers} | awk '{{print $1"\\t"$2}}' > {output.outlier_snps} ) 2> {log}
 
         for i in {input.total}; do
             bcftools query -f "%CHROM\\t%POS\\n" $i
