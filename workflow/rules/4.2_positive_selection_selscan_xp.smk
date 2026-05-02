@@ -25,22 +25,22 @@ rule extract_pair_snps:
         pair_info=rules.create_pair_info.output.pair_info,
     output:
         vcf1=temp(
-            "results/polarized_data/{dataset}/{species}/2pop/{pair}/pop1.chr{i}.biallelic.snps.vcf.gz"
+            "results/polarized_data/{dataset}/{species}/2pop/{pair}/pop1.{i}.biallelic.snps.vcf.gz"
         ),
         vcf2=temp(
-            "results/polarized_data/{dataset}/{species}/2pop/{pair}/pop2.chr{i}.biallelic.snps.vcf.gz"
+            "results/polarized_data/{dataset}/{species}/2pop/{pair}/pop2.{i}.biallelic.snps.vcf.gz"
         ),
         idx1=temp(
-            "results/polarized_data/{dataset}/{species}/2pop/{pair}/pop1.chr{i}.biallelic.snps.vcf.gz.tbi"
+            "results/polarized_data/{dataset}/{species}/2pop/{pair}/pop1.{i}.biallelic.snps.vcf.gz.tbi"
         ),
         idx2=temp(
-            "results/polarized_data/{dataset}/{species}/2pop/{pair}/pop2.chr{i}.biallelic.snps.vcf.gz.tbi"
+            "results/polarized_data/{dataset}/{species}/2pop/{pair}/pop2.{i}.biallelic.snps.vcf.gz.tbi"
         ),
         map=temp(
-            "results/polarized_data/{dataset}/{species}/2pop/{pair}/chr{i}.biallelic.snps.map"
+            "results/polarized_data/{dataset}/{species}/2pop/{pair}/{i}.biallelic.snps.map"
         ),
     log:
-        "logs/positive_selection/extract_pair_snps.{dataset}.{species}.{pair}.chr{i}.log",
+        "logs/positive_selection/extract_pair_snps.{dataset}.{species}.{pair}.{i}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -65,21 +65,21 @@ rule estimate_selscan_xp_scores:
         map=rules.extract_pair_snps.output.map,
     output:
         out=temp(
-            "results/positive_selection/selscan/{dataset}/{species}/2pop/{pair}/{method}_{maf}/{pair}.chr{i}.{method}.out"
+            "results/positive_selection/selscan/{dataset}/{species}/2pop/{pair}/{method}_{maf}/{pair}.{i}.{method}.out"
         ),
         formatted_out=temp(
-            "results/positive_selection/selscan/{dataset}/{species}/2pop/{pair}/{method}_{maf}/{pair}.chr{i}.{method}.formatted.out"
+            "results/positive_selection/selscan/{dataset}/{species}/2pop/{pair}/{method}_{maf}/{pair}.{i}.{method}.formatted.out"
         ),
         log=temp(
-            "results/positive_selection/selscan/{dataset}/{species}/2pop/{pair}/{method}_{maf}/{pair}.chr{i}.{method}.log"
+            "results/positive_selection/selscan/{dataset}/{species}/2pop/{pair}/{method}_{maf}/{pair}.{i}.{method}.log"
         ),
     params:
-        output_prefix="results/positive_selection/selscan/{dataset}/{species}/2pop/{pair}/{method}_{maf}/{pair}.chr{i}",
+        output_prefix="results/positive_selection/selscan/{dataset}/{species}/2pop/{pair}/{method}_{maf}/{pair}.{i}",
         phasing_flag=get_phasing_flag,
     resources:
         cpus=8,
     log:
-        "logs/positive_selection/estimate_selscan_xp_scores.{dataset}.{species}.{pair}.{method}.{maf}.chr{i}.log",
+        "logs/positive_selection/estimate_selscan_xp_scores.{dataset}.{species}.{pair}.{method}.{maf}.{i}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -94,14 +94,14 @@ rule normalize_selscan_xp_scores:
     input:
         norm=rules.download_selscan.output.norm,
         scores=lambda wc: expand(
-            "results/positive_selection/selscan/{dataset}/{species}/2pop/{pair}/{method}_{maf}/{pair}.chr{i}.{method}.formatted.out",
+            "results/positive_selection/selscan/{dataset}/{species}/2pop/{pair}/{method}_{maf}/{pair}.{i}.{method}.formatted.out",
             dataset=wc.dataset, species=wc.species, pair=wc.pair,
             method=wc.method, maf=wc.maf,
             i=get_chromosomes(wc),
         ),
     output:
         scores=temp(expand(
-            "results/positive_selection/selscan/{dataset}/{species}/2pop/{pair}/{method}_{maf}/{pair}.chr{i}.{method}.formatted.out.norm",
+            "results/positive_selection/selscan/{dataset}/{species}/2pop/{pair}/{method}_{maf}/{pair}.{i}.{method}.formatted.out.norm",
             i=all_chromosomes, allow_missing=True,
         )),
         log=temp(
@@ -128,7 +128,7 @@ rule merge_selscan_xp_scores:
         "../envs/selscape-env.yaml"
     shell:
         """
-        ( cat {input.scores} | grep -v id | awk '{{print $1":"$2"\\t"$1"\\t"$2"\\t"$9}}' | sed '1iSNP\\tCHR\\tBP\\tnormalized_{wildcards.method}' > {output.merged_scores} ) 2> {log}
+        ( cat {input.scores} | grep -v id | awk 'BEGIN{{OFS="\\t"}}{{chrom_num=(substr($1,1,3)=="chr")?substr($1,4):$1; print $1":"$2, chrom_num, $2, $9}}' | sed '1iSNP\\tCHR\\tBP\\tnormalized_{wildcards.method}' > {output.merged_scores} ) 2> {log}
         """
 
 
@@ -166,7 +166,7 @@ rule annotate_selscan_xp_outliers:
     input:
         outliers="results/positive_selection/selscan/{dataset}/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.outliers.scores",
         annotation=lambda wc: expand(
-            "results/annotated_data/{dataset}/{species}/all/chr{i}.biallelic.snps.{ref_genome}_multianno.txt",
+            "results/annotated_data/{dataset}/{species}/all/{i}.biallelic.snps.{ref_genome}_multianno.txt",
             dataset=wc.dataset, species=wc.species,
             i=get_chromosomes(wc),
             ref_genome=get_ref_genome(wc),
@@ -226,7 +226,7 @@ rule enrichment_selscan_xp_gowinda:
         gtf=rules.convert_ncbi_gtf.output.gtf,
         outliers=rules.annotate_selscan_xp_outliers.output.annotated_outliers,
         total=lambda wc: expand(
-            "results/polarized_data/{dataset}/{species}/2pop/{pair}/{pair}.chr{i}.biallelic.snps.vcf.gz",
+            "results/polarized_data/{dataset}/{species}/2pop/{pair}/{pair}.{i}.biallelic.snps.vcf.gz",
             dataset=wc.dataset, species=wc.species, pair=wc.pair,
             i=get_chromosomes(wc),
         ),
@@ -243,7 +243,7 @@ rule enrichment_selscan_xp_gowinda:
         "../envs/selscape-env.yaml"
     shell:
         """
-        sed '1d' {input.outliers} | awk '{{print "chr"$1"\\t"$2}}' > {output.outlier_snps} 2> {log}
+        sed '1d' {input.outliers} | awk '{{print $1"\\t"$2}}' > {output.outlier_snps} 2> {log}
 
         for i in {input.total}; do
             bcftools query -f "%CHROM\\t%POS\\n" $i

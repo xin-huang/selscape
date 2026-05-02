@@ -6,7 +6,7 @@ tax_id: 9606
 ref_genome: "hg19"
 anc_alleles: 
   path: ".test/ci/data"
-  prefix: "test.chr"
+  prefix: "test."
 
 genome_annotation: ".test/ci/data/test.gtf.gz"
 gene2go: ".test/ci/data/test.gene2go.gz"
@@ -31,7 +31,7 @@ populations:
 data_folder: ".test/ci/data"
   
 # VCF file naming convention: {file_prefix}chr{chr_name}{file_suffix}
-vcf_prefix: "chr"
+vcf_prefix: ""
 vcf_suffix: ".hg19.test.vcf.gz"
     
 # Sample metadata file
@@ -39,4 +39,4 @@ metadata: ".test/ci/data/test_metadata.txt"
   
 # Chromosome range to analyze
 chromosomes:
-  - 21
+  - chr21

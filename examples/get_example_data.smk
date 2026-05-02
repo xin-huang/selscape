@@ -21,7 +21,7 @@
 import numpy as np
 
 example_pops = ["YRI", "CHS"]
-example_chrs = ["20","21"]
+example_chr_high = ["21"]
 example_chr_low = ["21"]
 example_chr_ape = ["21"]
 
@@ -29,8 +29,8 @@ example_chr_ape = ["21"]
 # Separate rule for just creating examples
 rule create_examples:
     input:
-        expand("examples/data/Human/raw/full_chr{i}.vcf.gz", i=example_chrs),
-        expand("examples/data/Human/ancestral_alleles/homo_sapiens_ancestor_GRCh38/homo_sapiens_ancestor_chr{i}.bed.gz", i=example_chrs),
+        expand("examples/data/Human/raw/full_chr{i}.vcf.gz", i=example_chr_high),
+        expand("examples/data/Human/ancestral_alleles/homo_sapiens_ancestor_GRCh38/homo_sapiens_ancestor_chr{i}.bed.gz", i=example_chr_high),
         expand("examples/data/Human/repeats/hg38.{type}.autosomes.bed", type=["rmsk", "seg.dups", "simple.repeats"]),
         "examples/data/Human/metadata/example_metadata.txt",
         "examples/data/Human/annotation/Human.gtf.gz",
@@ -177,9 +177,9 @@ rule convert_repeat_files:
         simrep="examples/data/Human/repeats/hg38.simple.repeats.autosomes.bed",
     shell:
         """
-        zcat {input.rmsk} | awk 'BEGIN{{OFS="\\t"}}$6!~/chr(X|Y|Un|M|[0-9]_|[0-9][0-9]_)/{{print $6,$7,$8,$11,$2,$10}}' | sed 's/^chr//' | sort -k1,1n -k2,2n -k3,3n > {output.rmsk}
-        zcat {input.segdup} | awk 'BEGIN{{OFS="\\t"}}$2!~/chr(X|Y|Un|M|[0-9]_|[0-9][0-9]_)/{{print $2,$3,$4,$5,$6,$7}}' | sed 's/^chr//' | sort -k1,1n -k2,2n -k3,3n > {output.segdup}
-        zcat {input.simrep} | awk 'BEGIN{{OFS="\\t"}}$2!~/chr(X|Y|Un|M|[0-9]_|[0-9][0-9]_)/{{print $2,$3,$4,$5,$11}}' | sed 's/^chr//' | sort -k1,1n -k2,2n -k3,3n > {output.simrep}
+        zcat {input.rmsk} | awk 'BEGIN{{OFS="\\t"}}$6!~/chr(X|Y|Un|M|[0-9]_|[0-9][0-9]_)/{{print $6,$7,$8,$11,$2,$10}}'| sort -k1,1n -k2,2n -k3,3n > {output.rmsk}
+        zcat {input.segdup} | awk 'BEGIN{{OFS="\\t"}}$2!~/chr(X|Y|Un|M|[0-9]_|[0-9][0-9]_)/{{print $2,$3,$4,$5,$6,$7}}' | sort -k1,1n -k2,2n -k3,3n > {output.segdup}
+        zcat {input.simrep} | awk 'BEGIN{{OFS="\\t"}}$2!~/chr(X|Y|Un|M|[0-9]_|[0-9][0-9]_)/{{print $2,$3,$4,$5,$11}}' | sort -k1,1n -k2,2n -k3,3n > {output.simrep}
         """
 
 

@@ -23,13 +23,13 @@ rule calc_tajima_d_balancing:
         vcf=rules.remove_repeats.output.vcf,
     output:
         scores=temp(
-            "results/balancing_selection/scikit-allel/{dataset}/{species}/{method}/{ppl}/{window}_{step}/chr{i}.{method}.scores.txt"
+            "results/balancing_selection/scikit-allel/{dataset}/{species}/{method}/{ppl}/{window}_{step}/{i}.{method}.scores.txt"
         ),
     params:
         window_size="{window}",
         step_size_ratio="{step}",
     log:
-        "logs/balancing_selection/calc_tajima_d_balancing.{dataset}.{species}.{ppl}.{method}.{window}_{step}.chr{i}.log",
+        "logs/balancing_selection/calc_tajima_d_balancing.{dataset}.{species}.{ppl}.{method}.{window}_{step}.{i}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
@@ -41,28 +41,28 @@ rule format_tajima_d_balancing:
         scores=rules.calc_tajima_d_balancing.output.scores,
     output:
         formatted=temp(
-            "results/balancing_selection/scikit-allel/{dataset}/{species}/{method}/{ppl}/{window}_{step}/chr{i}.{method}.tajima_d.formatted.txt"
+            "results/balancing_selection/scikit-allel/{dataset}/{species}/{method}/{ppl}/{window}_{step}/{i}.{method}.tajima_d.formatted.txt"
         ),
     params:
         chrom="{i}",
         method="{method}",
     log:
-        "logs/balancing_selection/format_tajima_d_balancing.{dataset}.{species}.{ppl}.{method}.{window}_{step}.chr{i}.log",
+        "logs/balancing_selection/format_tajima_d_balancing.{dataset}.{species}.{ppl}.{method}.{window}_{step}.{i}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
         """
-        awk -v chr="{params.chrom}" 'BEGIN{{OFS="\\t"}}
+        awk -v chr="{params.chrom}" 'BEGIN{{OFS="\\t"; chrom_num=(substr(chr,1,3)=="chr")?substr(chr,4):chr}}
             NR==1{{print "SNP", "CHR", "BP", "tajima_d", "window_start", "window_end", "n_snps"}}
-            NR>1 && $4>0 {{print chr":"$1, chr, $1, $4, $1, $2, $3}}' \
-            {input.scores} > {output.formatted} 2> {log}
+            NR>1 && $4>0 {{print chr":"$1, chrom_num, $1, $4, $1, $2, $3}}' \
+        {input.scores} > {output.formatted} 2> {log}
         """
 
 
 rule merge_tajima_d_balancing_scores:
     input:
         scores=lambda wc: expand(
-            "results/balancing_selection/scikit-allel/{dataset}/{species}/{method}/{ppl}/{window}_{step}/chr{i}.{method}.tajima_d.formatted.txt",
+            "results/balancing_selection/scikit-allel/{dataset}/{species}/{method}/{ppl}/{window}_{step}/{i}.{method}.tajima_d.formatted.txt",
             dataset=wc.dataset, species=wc.species, ppl=wc.ppl,
             method=wc.method, window=wc.window, step=wc.step,
             i=get_chromosomes(wc),
@@ -115,7 +115,7 @@ rule extract_tajima_d_balancing_outlier_variants:
     input:
         scores=rules.plot_tajima_d_balancing.output.outliers,
         vcfs=lambda wc: expand(
-            "results/processed_data/{dataset}/{species}/1pop/{ppl}/{ppl}.chr{i}.biallelic.snps.vcf.gz",
+            "results/processed_data/{dataset}/{species}/1pop/{ppl}/{ppl}.{i}.biallelic.snps.vcf.gz",
             dataset=wc.dataset, species=wc.species, ppl=wc.ppl,
             i=get_chromosomes(wc),
         ),
@@ -128,11 +128,12 @@ rule extract_tajima_d_balancing_outlier_variants:
         "../envs/selscape-env.yaml"
     shell:
         r"""
-        ( sed '1d' {input.scores} | awk '{{print "chr"$2"\t"$5"\t"$6}}' > {output.regions} ) 2> {log}
-    
+        ( sed '1d' {input.scores} | awk '{{print $2"\t"$5"\t"$6}}' > {output.regions} ) 2> {log}
+
+        echo -e "CHR\tBP" > {output.variants}
         for i in {input.vcfs}; do
             bcftools view -H -R {output.regions} $i | awk '{{print $1"\t"$2}}'
-        done | sort -u | sed '1iCHR\tBP' > {output.variants} 2>> {log}
+        done | sort -u >> {output.variants} 2>> {log} || true
         """
 
 
@@ -140,7 +141,7 @@ rule annotate_tajima_d_balancing_outliers:
     input:
         outliers=rules.extract_tajima_d_balancing_outlier_variants.output.variants,
         annotation=lambda wc: expand(
-            "results/annotated_data/{dataset}/{species}/all/chr{i}.biallelic.snps.{ref_genome}_multianno.txt",
+            "results/annotated_data/{dataset}/{species}/all/{i}.biallelic.snps.{ref_genome}_multianno.txt",
             dataset=wc.dataset, species=wc.species,
             i=get_chromosomes(wc),
             ref_genome=get_ref_genome(wc),
@@ -200,7 +201,7 @@ rule enrichment_tajima_d_balancing_gowinda:
         gtf=rules.convert_ncbi_gtf.output.gtf,
         outliers=rules.annotate_tajima_d_balancing_outliers.output.annotated_outliers,
         total=lambda wc: expand(
-            "results/processed_data/{dataset}/{species}/1pop/{ppl}/{ppl}.chr{i}.biallelic.snps.vcf.gz",
+            "results/processed_data/{dataset}/{species}/1pop/{ppl}/{ppl}.{i}.biallelic.snps.vcf.gz",
             dataset=wc.dataset, species=wc.species, ppl=wc.ppl,
             i=get_chromosomes(wc),
         ),
@@ -217,7 +218,7 @@ rule enrichment_tajima_d_balancing_gowinda:
         "../envs/selscape-env.yaml"
     shell:
         r"""
-        sed '1d' {input.outliers} | awk '{{print "chr"$1"\t"$2}}' > {output.outlier_snps} 2> {log}
+        sed '1d' {input.outliers} | awk '{{print $1"\t"$2}}' > {output.outlier_snps} 2> {log}
 
         for i in {input.total}; do
             bcftools query -f "%CHROM\t%POS\n" $i

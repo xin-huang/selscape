@@ -24,13 +24,13 @@ rule calc_delta_tajima_d:
         pair_info=rules.create_pair_info.output.pair_info,
     output:
         scores=temp(
-            "results/positive_selection/scikit-allel/{dataset}/{species}/2pop/{pair}/{method}/{window}_{step}/chr{i}.{method}.scores.txt"
+            "results/positive_selection/scikit-allel/{dataset}/{species}/2pop/{pair}/{method}/{window}_{step}/{i}.{method}.scores.txt"
         ),
     params:
         window_size="{window}",
         step_size_ratio="{step}",
     log:
-        "logs/positive_selection/calc_delta_tajima_d.{dataset}.{species}.{pair}.{method}.{window}_{step}.chr{i}.log",
+        "logs/positive_selection/calc_delta_tajima_d.{dataset}.{species}.{pair}.{method}.{window}_{step}.{i}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
@@ -42,19 +42,19 @@ rule format_delta_tajima_d:
         scores=rules.calc_delta_tajima_d.output.scores,
     output:
         formatted=temp(
-            "results/positive_selection/scikit-allel/{dataset}/{species}/2pop/{pair}/{method}/{window}_{step}/chr{i}.{method}.formatted.txt"
+            "results/positive_selection/scikit-allel/{dataset}/{species}/2pop/{pair}/{method}/{window}_{step}/{i}.{method}.formatted.txt"
         ),
     params:
         chrom="{i}",
     log:
-        "logs/positive_selection/format_delta_tajima_d.{dataset}.{species}.{pair}.{method}.{window}_{step}.chr{i}.log",
+        "logs/positive_selection/format_delta_tajima_d.{dataset}.{species}.{pair}.{method}.{window}_{step}.{i}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
         """
-        awk -v chr="{params.chrom}" 'BEGIN{{OFS="\\t"}}
-             NR==1{{print "SNP", "CHR", "BP", "delta_tajima_d", "window_start", "window_end", "n_snps"}}
-             NR>1 {{print chr":"$1, chr, $1, $4, $1, $2, $3}}' \
+        awk -v chr="{params.chrom}" 'BEGIN{{OFS="\\t"; chrom_num=(substr(chr,1,3)=="chr")?substr(chr,4):chr}}
+            NR==1{{print "SNP", "CHR", "BP", "delta_tajima_d", "window_start", "window_end", "n_snps"}}
+            NR>1 {{print chr":"$1, chrom_num, $1, $4, $1, $2, $3}}' \
         {input.scores} > {output.formatted} 2> {log}
         """
 
@@ -62,7 +62,7 @@ rule format_delta_tajima_d:
 rule merge_delta_tajima_d_scores:
     input:
         scores=lambda wc: expand(
-            "results/positive_selection/scikit-allel/{dataset}/{species}/2pop/{pair}/{method}/{window}_{step}/chr{i}.{method}.formatted.txt",
+            "results/positive_selection/scikit-allel/{dataset}/{species}/2pop/{pair}/{method}/{window}_{step}/{i}.{method}.formatted.txt",
             dataset=wc.dataset, species=wc.species, pair=wc.pair,
             method=wc.method, window=wc.window, step=wc.step,
             i=get_chromosomes(wc),
@@ -116,7 +116,7 @@ rule extract_delta_tajima_d_outlier_variants:
     input:
         scores=rules.plot_delta_tajima_d.output.outliers,
         vcfs=lambda wc: expand(
-            "results/processed_data/{dataset}/{species}/2pop/{pair}/{pair}.chr{i}.biallelic.snps.vcf.gz",
+            "results/processed_data/{dataset}/{species}/2pop/{pair}/{pair}.{i}.biallelic.snps.vcf.gz",
             dataset=wc.dataset, species=wc.species, pair=wc.pair,
             i=get_chromosomes(wc),
         ),
@@ -129,19 +129,19 @@ rule extract_delta_tajima_d_outlier_variants:
         "../envs/selscape-env.yaml"
     shell:
         r"""
-        ( sed '1d' {input.scores} | awk '{{print "chr"$2"\t"$5"\t"$6}}' > {output.regions} ) 2> {log}
-    
+        ( sed '1d' {input.scores} | awk '{{print $2"\t"$5"\t"$6}}' > {output.regions} ) 2> {log}
+ 
+        echo -e "CHR\tBP" > {output.variants}
         for i in {input.vcfs}; do
             bcftools view -H -R {output.regions} $i | awk '{{print $1"\t"$2}}'
-        done | sort -u | sed '1iCHR\tBP' > {output.variants} 2>> {log}
+        done | sort -u >> {output.variants} 2>> {log} || true
         """
-
 
 rule annotate_delta_tajima_d_outliers:
     input:
         outliers=rules.extract_delta_tajima_d_outlier_variants.output.variants,
         annotation=lambda wc: expand(
-            "results/annotated_data/{dataset}/{species}/all/chr{i}.biallelic.snps.{ref_genome}_multianno.txt",
+            "results/annotated_data/{dataset}/{species}/all/{i}.biallelic.snps.{ref_genome}_multianno.txt",
             dataset=wc.dataset, species=wc.species,
             i=get_chromosomes(wc),
             ref_genome=get_ref_genome(wc),
@@ -203,7 +203,7 @@ rule enrichment_delta_tajima_d_gowinda:
         gtf=rules.convert_ncbi_gtf.output.gtf,
         outliers=rules.annotate_delta_tajima_d_outliers.output.annotated_outliers,
         total=lambda wc: expand(
-            "results/processed_data/{dataset}/{species}/2pop/{pair}/{pair}.chr{i}.biallelic.snps.vcf.gz",
+            "results/processed_data/{dataset}/{species}/2pop/{pair}/{pair}.{i}.biallelic.snps.vcf.gz",
             dataset=wc.dataset, species=wc.species, pair=wc.pair,
             i=get_chromosomes(wc),
         ),
@@ -220,7 +220,7 @@ rule enrichment_delta_tajima_d_gowinda:
         "../envs/selscape-env.yaml"
     shell:
         r"""
-        sed '1d' {input.outliers} | awk '{{print "chr"$1"\t"$2}}' > {output.outlier_snps} 2> {log}
+        sed '1d' {input.outliers} | awk '{{print $1"\t"$2}}' > {output.outlier_snps} 2> {log}
 
         for i in {input.total}; do
             bcftools query -f "%CHROM\t%POS\n" $i

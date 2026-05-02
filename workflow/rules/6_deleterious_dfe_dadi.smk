@@ -458,3 +458,46 @@ rule wrap_fitted_dfe_html:
         "../envs/selscape-env.yaml"
     script:
         "../scripts/visualization/plot2html.py"
+
+
+
+#rule merge_dfe_confidence_intervals:
+#    input:
+#        bestfit_files=expand_1pop(
+#            "results/dadi/{dataset}/{species}/dfe/{ppl}/InferDFE/{ppl}.{ref_genome}.two_epoch.lognormal.InferDFE.bestfits",
+#        ),
+#        ci_files=expand_1pop(
+#            "results/dadi/{dataset}/{species}/dfe/{ppl}/StatDFE/{ppl}.{ref_genome}.two_epoch.lognormal.godambe.ci",
+#        ),
+#    output:
+#        merged="results/plots/dfe/all_datasets.dfe_params.tsv",
+#    params:
+#        populations=expand_1pop("{ppl}"),
+#    script:
+#        "../scripts/visualization/merge_dfe_ci.py"
+
+#rule plot_dfe_confidence_intervals:
+#    input:
+#        data=rules.merge_dfe_confidence_intervals.output.merged,
+#    output:
+#        plot=report(
+#            "results/plots/dfe/{dataset}/{species}/{species}.{ref_genome}.dfe_params.svg",
+#            category="Distribution of Fitness Effects",
+#            subcategory="DFE Parameters",
+#            labels=lambda wildcards: {
+#                "Species": wildcards.species,
+#                "Reference Genome": wildcards.ref_genome,
+#                "Type": "DFE Confidence Intervals",
+#            },
+#        ),
+#    params:
+#        populations=lambda wc: get_dataset_cfg(wc)["populations"],
+#        mu_ylim=[-6, 13],
+#        sigma_ylim=[0, 40],
+#    log:
+#        "logs/deleterious_dfe/plot_dfe_confidence_intervals.{dataset}.{species}.{ref_genome}.log",
+#    conda:
+#        "../envs/selscape-env.yaml"
+#    script:
+#        "../scripts/visualization/plot_dfe_params.py"
+

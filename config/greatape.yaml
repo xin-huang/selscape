@@ -5,7 +5,7 @@ tax_id: 9598
 ref_genome: "hg38"
 anc_alleles:
   path: "examples/data/Human/ancestral_alleles/homo_sapiens_ancestor_GRCh38"
-  prefix: "homo_sapiens_ancestor_chr"
+  prefix: "homo_sapiens_ancestor_"
 
 genome_annotation: "examples/data/Human/annotation/Human.gtf.gz"
 gene2go: "examples/data/Human/annotation/gene2go.gz"
@@ -22,10 +22,10 @@ populations:
   - PPA
 
 data_folder: "examples/data/greatape/Pan"
-vcf_prefix: "chr"
+vcf_prefix: ""
 vcf_suffix: ".filteranno.vcf.gz"
 
 metadata: "examples/data/greatape/metadata.txt"
 
 chromosomes:
-  - 21
+  - chr21
