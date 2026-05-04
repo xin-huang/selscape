@@ -5,9 +5,9 @@ species: "Human"
 tax_id: 9606
 
 ref_genome: "hg19"
-anc_alleles: null
-#  path: "examples/data/Human/ancestral_alleles/homo_sapiens_ancestor_GRCh37"
-#  prefix: "homo_sapiens_ancestor_"
+anc_alleles:
+  path: "examples/data/Human/ancestral_alleles/homo_sapiens_ancestor_GRCh37"
+  prefix: "homo_sapiens_ancestor"
 
 
 genome_annotation: "examples/data/Human/annotation/Human.gtf.gz"
@@ -38,4 +38,4 @@ metadata: "examples/data/Human/1kg_low/metadata.txt"
 
 # Chromosome range to analyze
 chromosomes:
-  - 21
+  - chr21

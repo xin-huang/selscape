@@ -35,7 +35,7 @@ include: "rules/4.4_positive_selection_scikit-allel_xp.smk"
 include: "rules/5.1_balancing_selection_betascan.smk"
 include: "rules/5.2_balancing_selection_scikit-allel.smk"
 include: "rules/6_deleterious_dfe_dadi.smk"
-include: "rules/7_circos.smk"
+#include: "rules/7_circos.smk"
 
 #report: "report/workflow.rst"
 
@@ -72,23 +72,23 @@ rule all:
         # dadi dfe
         expand_1pop(
             "results/dadi/{dataset}/{species}/dfe/{ppl}/html/{ppl}.{ref_genome}.{demog}.dm.fitted.html",
-            **DADI_1D_KW,
+            anc_only=True, **DADI_1D_KW,
         ),
         expand_1pop(
             "results/dadi/{dataset}/{species}/dfe/{ppl}/html/{ppl}.{ref_genome}.{demog}.{dfe}.dfe.fitted.html",
-            **DADI_1D_KW, dfe=dadi_config["dfe_1d"],
+            anc_only=True, **DADI_1D_KW, dfe=dadi_config["dfe_1d"],
         ),
         expand_1pop(
             "results/dadi/{dataset}/{species}/dfe/{ppl}/plots/{ppl}.{ref_genome}.{demog}.{dfe}.fitted.mut.prop.png",
-            **DADI_1D_KW, dfe=dadi_config["dfe_1d"],
+            anc_only=True, **DADI_1D_KW, dfe=dadi_config["dfe_1d"],
         ),
         expand_1pop(
             "results/dadi/{dataset}/{species}/dfe/{ppl}/html/{ppl}.{ref_genome}.{demog}.InferDM.top10.bestfits.html",
-            **DADI_1D_KW,
+            anc_only=True, **DADI_1D_KW,
         ),
         expand_1pop(
             "results/dadi/{dataset}/{species}/dfe/{ppl}/html/{ppl}.{ref_genome}.{demog}.{dfe}.{type}.html",
-            **DADI_1D_KW, dfe=dadi_config["dfe_1d"],
+            anc_only=True, **DADI_1D_KW, dfe=dadi_config["dfe_1d"],
             type=["godambe.ci", "InferDFE.top10.bestfits"],
         ),
         # moving tajima d
@@ -141,5 +141,5 @@ rule all:
 #        expand_1pop(
 #            "results/plots/circos/{dataset}/{species}/{ppl}/{ppl}_balancing_selection_circos_scores.png",
 #        ),
-        # dfe confidence intervals
-#        "results/plots/dfe/combined.dfe_params.svg",
+        # dfe confidence intervals  ### unfinished ###
+        "results/plots/dfe/combined.dfe_params.svg",

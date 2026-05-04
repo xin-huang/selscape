@@ -6,7 +6,7 @@ tax_id: 9606
 ref_genome: "hg38"
 anc_alleles: 
   path: "examples/data/Human/ancestral_alleles/homo_sapiens_ancestor_GRCh38"
-  prefix: "homo_sapiens_ancestor_"
+  prefix: "homo_sapiens_ancestor"
 
 genome_annotation: "examples/data/Human/annotation/Human.gtf.gz"
 gene2go: "examples/data/Human/annotation/gene2go.gz"
@@ -32,7 +32,7 @@ populations:
 data_folder: "examples/data/Human/raw"
   
 # VCF file naming convention: {file_prefix}chr{chr_name}{file_suffix}
-vcf_prefix: "full_"
+vcf_prefix: "full"
 vcf_suffix: ".vcf.gz"
     
 # Sample metadata file

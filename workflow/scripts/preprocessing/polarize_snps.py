@@ -47,7 +47,8 @@ vcf.add_info_to_header({'ID': 'AA', 'Description': 'Ancestral Allele', 'Type': '
 
 w = Writer(output_vcf, vcf, mode="wz")
 for v in vcf:
-    key = f"{v.CHROM}:{v.POS}"
+    chrom = v.CHROM if v.CHROM.startswith("chr") else f"chr{v.CHROM}"
+    key = f"{chrom}:{v.POS}"
     if key in anc_alleles.keys():
         ancestral_base = anc_alleles[key]
         
