@@ -87,7 +87,7 @@ DATASET_2POP_ANC = [(ds, sp, pair, rg) for ds, sp, pair, rg in DATASET_2POP if d
 all_chromosomes = sorted(set(
     c for cfg in dataset_configs.values()
     for c in cfg["chromosomes"]
-))
+), key=str)
 
 
 def expand_1pop(pattern, anc_only=False, **kw):
@@ -169,13 +169,15 @@ def get_anc_allele_bed(wildcards):
     """Get ancestral allele bed files."""
     cfg = get_dataset_cfg(wildcards)
     anc = cfg["anc_alleles"]
-    return f"{anc['path']}/{anc['prefix']}{wildcards.i}.bed.gz"
+    return f"{anc['path']}/{anc['prefix']}.{wildcards.i}.bed.gz"
 
 
 def get_vcf_input_path(wildcards):
     """Get VCF input file path."""
     cfg = get_dataset_cfg(wildcards)
-    return f"{cfg['data_folder']}/{cfg['vcf_prefix']}{wildcards.i}{cfg['vcf_suffix']}"
+    prefix = cfg['vcf_prefix']
+    sep = "_" if prefix else ""
+    return f"{cfg['data_folder']}/{prefix}{sep}{wildcards.i}{cfg['vcf_suffix']}"
 
 
 def get_metadata(wildcards):

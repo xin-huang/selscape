@@ -28,6 +28,24 @@ properties:
     type: string
     description: "Path to scikit-allel configuration file"
 
+  population_groups:
+    type: object
+    description: "Optional: group populations by color for combined DFE plot"
+    additionalProperties:
+      type: object
+      properties:
+        color:
+          type: string
+          description: "Color for this group"
+        populations:
+          type: array
+          items:
+            type: string
+          minItems: 1
+          description: "List of population IDs in this group"
+      required:
+        - color
+        - populations
 required:
   - datasets
   - selscan_config

@@ -1,7 +1,7 @@
 # Main configuration: links to individual dataset configs
 datasets:
   - config/1000g_high.yaml
-#  - config/1000g_low.yaml
+  - config/1000g_low.yaml
   - config/greatape.yaml
 
 
@@ -10,3 +10,17 @@ selscan_config: "config/selscan.yaml"
 betascan_config: "config/betascan.yaml"
 dadi_config: "config/dadi-cli.yaml"
 scikit_allel_config: "config/scikit-allel.yaml"
+
+
+# Optional: group populations by color for DFE plot
+population_groups:
+  AFR:
+    color: "black"
+    populations: [YRI]
+
+  EAS:
+    color: "gold"
+    populations: [CHS]
+  Pan:
+    color: "#FF7F00"
+    populations: [PPA]

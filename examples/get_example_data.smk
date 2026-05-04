@@ -23,34 +23,27 @@ import numpy as np
 example_pops = ["YRI", "CHS"]
 example_chr_high = ["21"]
 example_chr_low = ["21"]
+example_chr_low_anc = ["21"]
 example_chr_ape = ["21"]
-
 
 # Separate rule for just creating examples
 rule create_examples:
     input:
         expand("examples/data/Human/raw/full_chr{i}.vcf.gz", i=example_chr_high),
-        expand("examples/data/Human/ancestral_alleles/homo_sapiens_ancestor_GRCh38/homo_sapiens_ancestor_chr{i}.bed.gz", i=example_chr_high),
+        expand("examples/data/Human/ancestral_alleles/homo_sapiens_ancestor_GRCh38/homo_sapiens_ancestor.{i}.bed.gz", i=example_chr_high),
         expand("examples/data/Human/repeats/hg38.{type}.autosomes.bed", type=["rmsk", "seg.dups", "simple.repeats"]),
         "examples/data/Human/metadata/example_metadata.txt",
         "examples/data/Human/annotation/Human.gtf.gz",
         "examples/data/Human/annotation/gene2go.gz",
         # 1kg_low
         expand("examples/data/Human/1kg_low/chr{i}.vcf.gz", i=example_chr_low),
-        expand(
-            "examples/data/Human/ancestral_alleles/homo_sapiens_ancestor_GRCh37/homo_sapiens_ancestor_chr{i}.bed.gz",
-            i=example_chr_low,
-        ),
-        expand(
-            "examples/data/Human/repeats/hg19.{type}.autosomes.bed",
-            type=["rmsk", "seg.dups", "simple.repeats"],
-        ),
+        expand("examples/data/Human/ancestral_alleles/homo_sapiens_ancestor_GRCh37/homo_sapiens_ancestor.{i}.bed.gz", i=example_chr_low_anc),
+        expand("examples/data/Human/repeats/hg19.{type}.autosomes.bed", type=["rmsk", "seg.dups", "simple.repeats"]),
         "examples/data/Human/1kg_low/metadata.txt",
         # great ape
-        expand("examples/data/greatape/Pan/chr{i}.filteranno.vcf.gz", i=example_chr_ape),
-        expand("examples/data/greatape/Pan/chr{i}.filteranno.vcf.gz.tbi", i=example_chr_ape),
+        expand("examples/data/greatape/Pan/{i}.filteranno.vcf.gz", i=example_chr_ape),
+        expand("examples/data/greatape/Pan/{i}.filteranno.vcf.gz.tbi", i=example_chr_ape),
         "examples/data/greatape/metadata.txt",
-
 
 rule download_1KG_genomes:
     output:
@@ -113,9 +106,9 @@ rule extract_anc_info:
     input:
         anc_alleles=rules.download_ensembl_ancestral_alleles.output.anc_alleles,
     output:
-        bed=temp("examples/data/Human/ancestral_alleles/homo_sapiens_ancestor_GRCh38/homo_sapiens_ancestor_chr{i}.bed"),
+        bed=temp("examples/data/Human/ancestral_alleles/homo_sapiens_ancestor_GRCh38/homo_sapiens_ancestor.{i}.bed"),
     params:
-        fasta="examples/data/Human/ancestral_alleles/homo_sapiens_ancestor_GRCh38/homo_sapiens_ancestor_{i}.fa",
+        fasta=lambda wc: f"examples/data/Human/ancestral_alleles/homo_sapiens_ancestor_GRCh38/homo_sapiens_ancestor_{wc.i.removeprefix('chr')}.fa",
     run:
         import pysam
         import re
@@ -144,7 +137,7 @@ rule compress_anc_info:
     input:
         bed=rules.extract_anc_info.output.bed,
     output:
-        bed="examples/data/Human/ancestral_alleles/homo_sapiens_ancestor_GRCh38/homo_sapiens_ancestor_chr{i}.bed.gz",
+        bed="examples/data/Human/ancestral_alleles/homo_sapiens_ancestor_GRCh38/homo_sapiens_ancestor.{i}.bed.gz",
     shell:
         """
         bgzip -c {input.bed} > {output.bed}
@@ -253,9 +246,9 @@ rule extract_anc_info_hg19:
     input:
         anc_alleles=rules.download_ensembl_ancestral_alleles_hg19.output.anc_alleles,
     output:
-        bed=temp("examples/data/Human/ancestral_alleles/homo_sapiens_ancestor_GRCh37/homo_sapiens_ancestor_chr{i}.bed"),
+        bed=temp("examples/data/Human/ancestral_alleles/homo_sapiens_ancestor_GRCh37/homo_sapiens_ancestor.{i}.bed"),
     params:
-        fasta="examples/data/Human/ancestral_alleles/homo_sapiens_ancestor_GRCh37_e71/homo_sapiens_ancestor_{i}.fa",
+        fasta=lambda wc: f"examples/data/Human/ancestral_alleles/homo_sapiens_ancestor_GRCh37_e71/homo_sapiens_ancestor_{wc.i.removeprefix('chr')}.fa",
     run:
         import pysam
         import re
@@ -282,7 +275,7 @@ rule compress_anc_info_hg19:
     input:
         bed=rules.extract_anc_info_hg19.output.bed,
     output:
-        bed="examples/data/Human/ancestral_alleles/homo_sapiens_ancestor_GRCh37/homo_sapiens_ancestor_chr{i}.bed.gz",
+        bed="examples/data/Human/ancestral_alleles/homo_sapiens_ancestor_GRCh37/homo_sapiens_ancestor.{i}.bed.gz",
     shell:
         """
         bgzip -c {input.bed} > {output.bed}
@@ -295,8 +288,8 @@ rule link_greatape_vcf:
     input:
         vcf="/lisc/opt/mirror/phaidra/o_2066302/merged_segregating/Pan/Pan_wild_filtered/chr{i}.filteranno.vcf.gz",
     output:
-        vcf="examples/data/greatape/Pan/chr{i}.filteranno.vcf.gz",
-        idx="examples/data/greatape/Pan/chr{i}.filteranno.vcf.gz.tbi",
+        vcf="examples/data/greatape/Pan/{i}.filteranno.vcf.gz",
+        idx="examples/data/greatape/Pan/{i}.filteranno.vcf.gz.tbi",
     shell:
         """
         ln -sf {input.vcf} {output.vcf}
