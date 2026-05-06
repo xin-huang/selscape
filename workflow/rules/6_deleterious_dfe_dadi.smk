@@ -27,9 +27,9 @@ rule create_pop_info:
     input:
         metadata=get_metadata,
     output:
-        pop_info="results/dadi/{dataset}/{species}/dfe/{ppl}/pop.list",
+        pop_info="results/dadi/{species}/{dataset}/dfe/{ppl}/pop.list",
     log:
-        "logs/deleterious_dfe/create_pop_info.{dataset}.{species}.{ppl}.log",
+        "logs/deleterious_dfe/create_pop_info.{species}.{dataset}.{ppl}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -40,17 +40,17 @@ rule create_pop_info:
 
 rule generate_1pop_fs:
     input:
-        syn_vcf=lambda wc: f"results/{get_dadi_vcf_dir(wc)}/{wc.dataset}/{wc.species}/1pop/{wc.ppl}/{wc.ppl}.biallelic.syn.snps.{wc.ref_genome}.vcf.gz",
-        nonsyn_vcf=lambda wc: f"results/{get_dadi_vcf_dir(wc)}/{wc.dataset}/{wc.species}/1pop/{wc.ppl}/{wc.ppl}.biallelic.nonsyn.snps.{wc.ref_genome}.vcf.gz",
+        syn_vcf=lambda wc: f"results/{get_dadi_vcf_dir(wc)}/{wc.species}/{wc.dataset}/1pop/{wc.ppl}/{wc.ppl}.biallelic.syn.snps.{wc.ref_genome}.vcf.gz",
+        nonsyn_vcf=lambda wc: f"results/{get_dadi_vcf_dir(wc)}/{wc.species}/{wc.dataset}/1pop/{wc.ppl}/{wc.ppl}.biallelic.nonsyn.snps.{wc.ref_genome}.vcf.gz",
         pop_info=rules.create_pop_info.output.pop_info,
     output:
-        syn_fs="results/dadi/{dataset}/{species}/dfe/{ppl}/fs/{ppl}.syn.{ref_genome}.dadi.fs",
-        nonsyn_fs="results/dadi/{dataset}/{species}/dfe/{ppl}/fs/{ppl}.nonsyn.{ref_genome}.dadi.fs",
+        syn_fs="results/dadi/{species}/{dataset}/dfe/{ppl}/fs/{ppl}.syn.{ref_genome}.dadi.fs",
+        nonsyn_fs="results/dadi/{species}/{dataset}/dfe/{ppl}/fs/{ppl}.nonsyn.{ref_genome}.dadi.fs",
     params:
         polarized_flag=get_polarization_flag,
         mask_singletons_flag=f"{mask_singletons_flag}",
     log:
-        "logs/deleterious_dfe/generate_1pop_fs.{dataset}.{species}.{ppl}.{ref_genome}.log",
+        "logs/deleterious_dfe/generate_1pop_fs.{species}.{dataset}.{ppl}.{ref_genome}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -64,9 +64,9 @@ rule infer_1pop_dm_warm_up:
     input:
         fs=rules.generate_1pop_fs.output.syn_fs,
     output:
-        p0="results/dadi/{dataset}/{species}/dfe/{ppl}/InferDM/{ppl}.{ref_genome}.{demog}.InferDM.opts.0",
+        p0="results/dadi/{species}/{dataset}/dfe/{ppl}/InferDM/{ppl}.{ref_genome}.{demog}.InferDM.opts.0",
     params:
-        output_prefix="results/dadi/{dataset}/{species}/dfe/{ppl}/InferDM/{ppl}.{ref_genome}.{demog}",
+        output_prefix="results/dadi/{species}/{dataset}/dfe/{ppl}/InferDM/{ppl}.{ref_genome}.{demog}",
         p0=dadi_config["demog_1d_p0"],
         ubounds=dadi_config["demog_1d_ub"],
         lbounds=dadi_config["demog_1d_lb"],
@@ -76,7 +76,7 @@ rule infer_1pop_dm_warm_up:
         time=720,
         cpus=16,
     log:
-        "logs/deleterious_dfe/infer_1pop_dm_warm_up.{dataset}.{species}.{ppl}.{ref_genome}.{demog}.log",
+        "logs/deleterious_dfe/infer_1pop_dm_warm_up.{species}.{dataset}.{ppl}.{ref_genome}.{demog}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -90,9 +90,9 @@ rule infer_1pop_dm_fine_tune:
         fs=rules.generate_1pop_fs.output.syn_fs,
         p0=rules.infer_1pop_dm_warm_up.output.p0,
     output:
-        bestfit="results/dadi/{dataset}/{species}/dfe/{ppl}/InferDM/{ppl}.{ref_genome}.{demog}.InferDM.bestfits",
+        bestfit="results/dadi/{species}/{dataset}/dfe/{ppl}/InferDM/{ppl}.{ref_genome}.{demog}.InferDM.bestfits",
     params:
-        output_prefix="results/dadi/{dataset}/{species}/dfe/{ppl}/InferDM/{ppl}.{ref_genome}.{demog}",
+        output_prefix="results/dadi/{species}/{dataset}/dfe/{ppl}/InferDM/{ppl}.{ref_genome}.{demog}",
         ubounds=dadi_config["dfe_1d_ub"],
         lbounds=dadi_config["dfe_1d_lb"],
         grid_size=dadi_config["dm_grid_size"],
@@ -101,7 +101,7 @@ rule infer_1pop_dm_fine_tune:
         time=720,
         cpus=16,
     log:
-        "logs/deleterious_dfe/infer_1pop_dm_fine_tune.{dataset}.{species}.{ppl}.{ref_genome}.{demog}.log",
+        "logs/deleterious_dfe/infer_1pop_dm_fine_tune.{species}.{dataset}.{ppl}.{ref_genome}.{demog}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -114,9 +114,9 @@ rule get_1pop_dm_top_10_bestfits:
     input:
         bestfit=rules.infer_1pop_dm_fine_tune.output.bestfit,
     output:
-        bestfit="results/dadi/{dataset}/{species}/dfe/{ppl}/InferDM/{ppl}.{ref_genome}.{demog}.InferDM.top10.bestfits.tsv",
+        bestfit="results/dadi/{species}/{dataset}/dfe/{ppl}/InferDM/{ppl}.{ref_genome}.{demog}.InferDM.top10.bestfits.tsv",
     log:
-        "logs/deleterious_dfe/get_1pop_dm_top_10_bestfits.{dataset}.{species}.{ppl}.{ref_genome}.{demog}.log",
+        "logs/deleterious_dfe/get_1pop_dm_top_10_bestfits.{species}.{dataset}.{ppl}.{ref_genome}.{demog}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -134,7 +134,7 @@ rule convert_1pop_dm_top_10_bestfits_html:
         tsv=rules.get_1pop_dm_top_10_bestfits.output.bestfit,
     output:
         html=report(
-            "results/dadi/{dataset}/{species}/dfe/{ppl}/html/{ppl}.{ref_genome}.{demog}.InferDM.top10.bestfits.html",
+            "results/dadi/{species}/{dataset}/dfe/{ppl}/html/{ppl}.{ref_genome}.{demog}.InferDM.top10.bestfits.html",
             category="Distribution of Fitness Effects",
             subcategory="Single Population",
             labels=lambda wildcards: fitted_1pop_dm_labels(
@@ -144,7 +144,7 @@ rule convert_1pop_dm_top_10_bestfits_html:
     params:
         title=add_dm_title,
     log:
-        "logs/deleterious_dfe/convert_1pop_dm_top_10_bestfits_html.{dataset}.{species}.{ppl}.{ref_genome}.{demog}.log",
+        "logs/deleterious_dfe/convert_1pop_dm_top_10_bestfits_html.{species}.{dataset}.{ppl}.{ref_genome}.{demog}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
@@ -156,7 +156,7 @@ rule generate_1d_cache:
         bestfit=rules.infer_1pop_dm_fine_tune.output.bestfit,
         pop_info=rules.create_pop_info.output.pop_info,
     output:
-        cache="results/dadi/{dataset}/{species}/dfe/{ppl}/InferDFE/{ppl}.{ref_genome}.{demog}.spectra.bpkl",
+        cache="results/dadi/{species}/{dataset}/dfe/{ppl}/InferDFE/{ppl}.{ref_genome}.{demog}.spectra.bpkl",
     params:
         grid_size=dadi_config["dfe_grid_size"],
         gamma_pts=dadi_config["gamma_pts"],
@@ -164,7 +164,7 @@ rule generate_1d_cache:
         time=720,
         cpus=16,
     log:
-        "logs/deleterious_dfe/generate_1d_cache.{dataset}.{species}.{ppl}.{ref_genome}.{demog}.log",
+        "logs/deleterious_dfe/generate_1d_cache.{species}.{dataset}.{ppl}.{ref_genome}.{demog}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -179,9 +179,9 @@ rule infer_dfe_warm_up:
         cache=rules.generate_1d_cache.output.cache,
         dm_bestfit=rules.infer_1pop_dm_fine_tune.output.bestfit,
     output:
-        p0="results/dadi/{dataset}/{species}/dfe/{ppl}/InferDFE/{ppl}.{ref_genome}.{demog}.{dfe}.InferDFE.opts.0",
+        p0="results/dadi/{species}/{dataset}/dfe/{ppl}/InferDFE/{ppl}.{ref_genome}.{demog}.{dfe}.InferDFE.opts.0",
     params:
-        output_prefix="results/dadi/{dataset}/{species}/dfe/{ppl}/InferDFE/{ppl}.{ref_genome}.{demog}.{dfe}",
+        output_prefix="results/dadi/{species}/{dataset}/dfe/{ppl}/InferDFE/{ppl}.{ref_genome}.{demog}.{dfe}",
         p0=dadi_config["dfe_1d_p0"],
         ubounds=dadi_config["dfe_1d_ub"],
         lbounds=dadi_config["dfe_1d_lb"],
@@ -191,7 +191,7 @@ rule infer_dfe_warm_up:
         time=720,
         cpus=16,
     log:
-        "logs/deleterious_dfe/infer_dfe_warm_up.{dataset}.{species}.{ppl}.{ref_genome}.{demog}.{dfe}.log",
+        "logs/deleterious_dfe/infer_dfe_warm_up.{species}.{dataset}.{ppl}.{ref_genome}.{demog}.{dfe}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -207,9 +207,9 @@ rule infer_dfe_fine_tune:
         dm_bestfit=rules.infer_1pop_dm_fine_tune.output.bestfit,
         p0=rules.infer_dfe_warm_up.output.p0,
     output:
-        bestfit="results/dadi/{dataset}/{species}/dfe/{ppl}/InferDFE/{ppl}.{ref_genome}.{demog}.{dfe}.InferDFE.bestfits",
+        bestfit="results/dadi/{species}/{dataset}/dfe/{ppl}/InferDFE/{ppl}.{ref_genome}.{demog}.{dfe}.InferDFE.bestfits",
     params:
-        output_prefix="results/dadi/{dataset}/{species}/dfe/{ppl}/InferDFE/{ppl}.{ref_genome}.{demog}.{dfe}",
+        output_prefix="results/dadi/{species}/{dataset}/dfe/{ppl}/InferDFE/{ppl}.{ref_genome}.{demog}.{dfe}",
         ubounds=dadi_config["dfe_1d_ub"],
         lbounds=dadi_config["dfe_1d_lb"],
         ratio=dadi_config["ratio"],
@@ -218,7 +218,7 @@ rule infer_dfe_fine_tune:
         time=720,
         cpus=16,
     log:
-        "logs/deleterious_dfe/infer_dfe_fine_tune.{dataset}.{species}.{ppl}.{ref_genome}.{demog}.{dfe}.log",
+        "logs/deleterious_dfe/infer_dfe_fine_tune.{species}.{dataset}.{ppl}.{ref_genome}.{demog}.{dfe}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -231,9 +231,9 @@ rule get_1pop_dfe_top_10_bestfits:
     input:
         bestfit=rules.infer_dfe_fine_tune.output.bestfit,
     output:
-        bestfit="results/dadi/{dataset}/{species}/dfe/{ppl}/InferDFE/{ppl}.{ref_genome}.{demog}.{dfe}.InferDFE.top10.bestfits.tsv",
+        bestfit="results/dadi/{species}/{dataset}/dfe/{ppl}/InferDFE/{ppl}.{ref_genome}.{demog}.{dfe}.InferDFE.top10.bestfits.tsv",
     log:
-        "logs/deleterious_dfe/get_1pop_dfe_top_10_bestfits.{dataset}.{species}.{ppl}.{ref_genome}.{demog}.{dfe}.log",
+        "logs/deleterious_dfe/get_1pop_dfe_top_10_bestfits.{species}.{dataset}.{ppl}.{ref_genome}.{demog}.{dfe}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -251,7 +251,7 @@ rule convert_1pop_dfe_top_10_bestfits_html:
         tsv=rules.get_1pop_dfe_top_10_bestfits.output.bestfit,
     output:
         html=report(
-            "results/dadi/{dataset}/{species}/dfe/{ppl}/html/{ppl}.{ref_genome}.{demog}.{dfe}.InferDFE.top10.bestfits.html",
+            "results/dadi/{species}/{dataset}/dfe/{ppl}/html/{ppl}.{ref_genome}.{demog}.{dfe}.InferDFE.top10.bestfits.html",
             category="Distribution of Fitness Effects",
             subcategory="Single Population",
             labels=lambda wildcards: fitted_dfe_labels(
@@ -261,7 +261,7 @@ rule convert_1pop_dfe_top_10_bestfits_html:
     params:
         title=add_dfe_title,
     log:
-        "logs/deleterious_dfe/convert_1pop_dfe_top_10_bestfits_html.{dataset}.{species}.{ppl}.{ref_genome}.{demog}.{dfe}.log",
+        "logs/deleterious_dfe/convert_1pop_dfe_top_10_bestfits_html.{species}.{dataset}.{ppl}.{ref_genome}.{demog}.{dfe}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
@@ -270,25 +270,25 @@ rule convert_1pop_dfe_top_10_bestfits_html:
 
 rule dfe_godambe_ci:
     input:
-        syn_vcf=lambda wc: f"results/{get_dadi_vcf_dir(wc)}/{wc.dataset}/{wc.species}/1pop/{wc.ppl}/{wc.ppl}.biallelic.syn.snps.{wc.ref_genome}.vcf.gz",
-        nonsyn_vcf=lambda wc: f"results/{get_dadi_vcf_dir(wc)}/{wc.dataset}/{wc.species}/1pop/{wc.ppl}/{wc.ppl}.biallelic.nonsyn.snps.{wc.ref_genome}.vcf.gz",
+        syn_vcf=lambda wc: f"results/{get_dadi_vcf_dir(wc)}/{wc.species}/{wc.dataset}/1pop/{wc.ppl}/{wc.ppl}.biallelic.syn.snps.{wc.ref_genome}.vcf.gz",
+        nonsyn_vcf=lambda wc: f"results/{get_dadi_vcf_dir(wc)}/{wc.species}/{wc.dataset}/1pop/{wc.ppl}/{wc.ppl}.biallelic.nonsyn.snps.{wc.ref_genome}.vcf.gz",
         pop_info=rules.create_pop_info.output.pop_info,
         nonsyn_fs=rules.generate_1pop_fs.output.nonsyn_fs,
         cache=rules.generate_1d_cache.output.cache,
         dfe_bestfit=rules.infer_dfe_fine_tune.output.bestfit,
     output:
-        dfe_godambe_ci="results/dadi/{dataset}/{species}/dfe/{ppl}/StatDFE/{ppl}.{ref_genome}.{demog}.{dfe}.godambe.ci",
+        dfe_godambe_ci="results/dadi/{species}/{dataset}/dfe/{ppl}/StatDFE/{ppl}.{ref_genome}.{demog}.{dfe}.godambe.ci",
     params:
-        syn_dir="results/dadi/{dataset}/{species}/dfe/{ppl}/StatDFE/{ppl}_bootstrapping_syn",
-        nonsyn_dir="results/dadi/{dataset}/{species}/dfe/{ppl}/StatDFE/{ppl}_bootstrapping_non",
-        syn_output_prefix="results/dadi/{dataset}/{species}/dfe/{ppl}/StatDFE/{ppl}_bootstrapping_syn/{ppl}.{ref_genome}.syn",
-        nonsyn_output_prefix="results/dadi/{dataset}/{species}/dfe/{ppl}/StatDFE/{ppl}_bootstrapping_non/{ppl}.{ref_genome}.nonsyn",
+        syn_dir="results/dadi/{species}/{dataset}/dfe/{ppl}/StatDFE/{ppl}_bootstrapping_syn",
+        nonsyn_dir="results/dadi/{species}/{dataset}/dfe/{ppl}/StatDFE/{ppl}_bootstrapping_non",
+        syn_output_prefix="results/dadi/{species}/{dataset}/dfe/{ppl}/StatDFE/{ppl}_bootstrapping_syn/{ppl}.{ref_genome}.syn",
+        nonsyn_output_prefix="results/dadi/{species}/{dataset}/dfe/{ppl}/StatDFE/{ppl}_bootstrapping_non/{ppl}.{ref_genome}.nonsyn",
         bootstrap_reps=dadi_config["bootstrap_replicates"],
         chunk_size=dadi_config["chunk_size"],
         polarized_flag=get_polarization_flag,
         mask_singletons_flag=f"{mask_singletons_flag}",
     log:
-        "logs/deleterious_dfe/dfe_godambe_ci.{dataset}.{species}.{ppl}.{ref_genome}.{demog}.{dfe}.log",
+        "logs/deleterious_dfe/dfe_godambe_ci.{species}.{dataset}.{ppl}.{ref_genome}.{demog}.{dfe}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -306,9 +306,9 @@ rule parse_dfe_godambe_ci_table:
         bestfit=rules.infer_dfe_fine_tune.output.bestfit,
         ci=rules.dfe_godambe_ci.output.dfe_godambe_ci,
     output:
-        tsv="results/dadi/{dataset}/{species}/dfe/{ppl}/StatDFE/{ppl}.{ref_genome}.{demog}.{dfe}.godambe.ci.tsv",
+        tsv="results/dadi/{species}/{dataset}/dfe/{ppl}/StatDFE/{ppl}.{ref_genome}.{demog}.{dfe}.godambe.ci.tsv",
     log:
-        "logs/deleterious_dfe/parse_dfe_godambe_ci_table.{dataset}.{species}.{ppl}.{ref_genome}.{demog}.{dfe}.log",
+        "logs/deleterious_dfe/parse_dfe_godambe_ci_table.{species}.{dataset}.{ppl}.{ref_genome}.{demog}.{dfe}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -342,7 +342,7 @@ rule dfe_godambe_ci_table_html:
         tsv=rules.parse_dfe_godambe_ci_table.output.tsv,
     output:
         html=report(
-            "results/dadi/{dataset}/{species}/dfe/{ppl}/html/{ppl}.{ref_genome}.{demog}.{dfe}.godambe.ci.html",
+            "results/dadi/{species}/{dataset}/dfe/{ppl}/html/{ppl}.{ref_genome}.{demog}.{dfe}.godambe.ci.html",
             category="Distribution of Fitness Effects",
             subcategory="Single Population",
             labels=lambda wildcards: fitted_dfe_labels(
@@ -352,7 +352,7 @@ rule dfe_godambe_ci_table_html:
     params:
         title=add_dfe_title,
     log:
-        "logs/reports/dfe_ci_table_html.{dataset}.{species}.{ppl}.{ref_genome}.{demog}.{dfe}.log",
+        "logs/reports/dfe_ci_table_html.{species}.{dataset}.{ppl}.{ref_genome}.{demog}.{dfe}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
@@ -365,11 +365,11 @@ rule plot_fitted_1pop_dm:
         dm_popt=rules.infer_1pop_dm_fine_tune.output.bestfit,
         pop_info=rules.create_pop_info.output.pop_info,
     output:
-        fs_plot="results/dadi/{dataset}/{species}/dfe/{ppl}/plots/{ppl}.{ref_genome}.{demog}.fitted.png",
+        fs_plot="results/dadi/{species}/{dataset}/dfe/{ppl}/plots/{ppl}.{ref_genome}.{demog}.fitted.png",
     params:
         ploidy=get_ploidy,
     log:
-        "logs/deleterious_dfe/plot_fitted_dm.{dataset}.{species}.{ppl}.{ref_genome}.{demog}.log",
+        "logs/deleterious_dfe/plot_fitted_dm.{species}.{dataset}.{ppl}.{ref_genome}.{demog}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -385,11 +385,11 @@ rule plot_fitted_dfe:
         cache=rules.generate_1d_cache.output.cache,
         pop_info=rules.create_pop_info.output.pop_info,
     output:
-        fs_plot="results/dadi/{dataset}/{species}/dfe/{ppl}/plots/{ppl}.{ref_genome}.{demog}.{dfe}.fitted.png",
+        fs_plot="results/dadi/{species}/{dataset}/dfe/{ppl}/plots/{ppl}.{ref_genome}.{demog}.{dfe}.fitted.png",
     params:
         ploidy=get_ploidy,
     log:
-        "logs/deleterious_dfe/plot_fitted_dfe.{dataset}.{species}.{ppl}.{ref_genome}.{demog}.{dfe}.log",
+        "logs/deleterious_dfe/plot_fitted_dfe.{species}.{dataset}.{ppl}.{ref_genome}.{demog}.{dfe}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -403,7 +403,7 @@ rule plot_mutation_proportions:
         dfe_popt=rules.infer_dfe_fine_tune.output.bestfit,
     output:
         plot=report(
-            "results/dadi/{dataset}/{species}/dfe/{ppl}/plots/{ppl}.{ref_genome}.{demog}.{dfe}.fitted.mut.prop.png",
+            "results/dadi/{species}/{dataset}/dfe/{ppl}/plots/{ppl}.{ref_genome}.{demog}.{dfe}.fitted.mut.prop.png",
             category="Distribution of Fitness Effects",
             subcategory="Single Population",
             labels=lambda wildcards: fitted_dfe_labels(
@@ -413,7 +413,7 @@ rule plot_mutation_proportions:
     params:
         title=add_dfe_title,
     log:
-        "logs/deleterious_dfe/plot_mutation_proportion.{dataset}.{species}.{ppl}.{ref_genome}.{demog}.{dfe}.log",
+        "logs/deleterious_dfe/plot_mutation_proportion.{species}.{dataset}.{ppl}.{ref_genome}.{demog}.{dfe}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
@@ -425,7 +425,7 @@ rule wrap_fitted_1pop_dm_html:
         plot=rules.plot_fitted_1pop_dm.output.fs_plot,
     output:
         html=report(
-            "results/dadi/{dataset}/{species}/dfe/{ppl}/html/{ppl}.{ref_genome}.{demog}.dm.fitted.html",
+            "results/dadi/{species}/{dataset}/dfe/{ppl}/html/{ppl}.{ref_genome}.{demog}.dm.fitted.html",
             category="Distribution of Fitness Effects",
             subcategory="Single Population",
             labels=lambda wildcards: fitted_1pop_dm_labels(wildcards, type="Model Fit Plot"),
@@ -433,7 +433,7 @@ rule wrap_fitted_1pop_dm_html:
     params:
         title=add_dm_title,
     log:
-        "logs/deleterious_dfe/wrap_fitted_1pop_dm_html.{dataset}.{species}.{ppl}.{ref_genome}.{demog}.log",
+        "logs/deleterious_dfe/wrap_fitted_1pop_dm_html.{species}.{dataset}.{ppl}.{ref_genome}.{demog}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
@@ -445,7 +445,7 @@ rule wrap_fitted_dfe_html:
         plot=rules.plot_fitted_dfe.output.fs_plot,
     output:
         html=report(
-            "results/dadi/{dataset}/{species}/dfe/{ppl}/html/{ppl}.{ref_genome}.{demog}.{dfe}.dfe.fitted.html",
+            "results/dadi/{species}/{dataset}/dfe/{ppl}/html/{ppl}.{ref_genome}.{demog}.{dfe}.dfe.fitted.html",
             category="Distribution of Fitness Effects",
             subcategory="Single Population",
             labels=lambda wildcards: fitted_dfe_labels(wildcards, type="Model Fit Plot"),
@@ -453,71 +453,9 @@ rule wrap_fitted_dfe_html:
     params:
         title=add_dfe_title,
     log:
-        "logs/deleterious_dfe/wrap_fitted_dfe_html.{dataset}.{species}.{ppl}.{ref_genome}.{demog}.{dfe}.log",
+        "logs/deleterious_dfe/wrap_fitted_dfe_html.{species}.{dataset}.{ppl}.{ref_genome}.{demog}.{dfe}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
         "../scripts/visualization/plot2html.py"
 
-
-
-
-### unfinished ###
-rule merge_dfe_confidence_intervals:
-    input:
-        bestfit_files=expand_1pop(
-            "results/dadi/{dataset}/{species}/dfe/{ppl}/InferDFE/{ppl}.{ref_genome}.{demog}.{dfe}.InferDFE.bestfits",
-            **DADI_1D_KW, dfe=dadi_config["dfe_1d"],
-        ),
-        ci_files=expand_1pop(
-            "results/dadi/{dataset}/{species}/dfe/{ppl}/StatDFE/{ppl}.{ref_genome}.{demog}.{dfe}.godambe.ci",
-            **DADI_1D_KW, dfe=dadi_config["dfe_1d"],
-        ),
-    output:
-        merged="results/plots/dfe/combined.dfe_params.tsv",
-    params:
-        populations=expand_1pop("{ppl}"),
-    log:
-        "logs/deleterious_dfe/merge_dfe_confidence_intervals.log",
-    conda:
-        "../envs/selscape-env.yaml"
-    script:
-        "../scripts/visualization/merge_dfe_ci.py"
-
-
-rule plot_dfe_confidence_intervals:
-    input:
-        data=rules.merge_dfe_confidence_intervals.output.merged,
-    output:
-        plot=report(
-            "results/plots/dfe/combined.dfe_params.svg",
-            category="Distribution of Fitness Effects",
-            subcategory="DFE Parameters",
-            labels={"Type": "DFE Confidence Intervals"},
-        ),
-    params:
-        populations=expand_1pop("{ppl}"),
-        pop_colors=lambda _: [
-            next(
-                (grp["color"] for grp in main_config.get("population_groups", {}).values()
-                 if pop in grp["populations"]),
-                None,
-            )
-            for pop in expand_1pop("{ppl}")
-        ],
-        pop_labels=lambda _: [
-            next(
-                (label for label, grp in main_config.get("population_groups", {}).items()
-                 if pop in grp["populations"]),
-                pop,
-            )
-            for pop in expand_1pop("{ppl}")
-        ],
-        mu_ylim=None,
-        sigma_ylim=None,
-    log:
-        "logs/deleterious_dfe/plot_dfe_confidence_intervals.log",
-    conda:
-        "../envs/selscape-env.yaml"
-    script:
-        "../scripts/visualization/plot_dfe_params.py"

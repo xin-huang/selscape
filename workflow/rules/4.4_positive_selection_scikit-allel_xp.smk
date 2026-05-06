@@ -24,13 +24,13 @@ rule calc_delta_tajima_d:
         pair_info=rules.create_pair_info.output.pair_info,
     output:
         scores=temp(
-            "results/positive_selection/scikit-allel/{dataset}/{species}/2pop/{pair}/{method}/{window}_{step}/{i}.{method}.scores.txt"
+            "results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{i}.{method}.scores.txt"
         ),
     params:
         window_size="{window}",
         step_size_ratio="{step}",
     log:
-        "logs/positive_selection/calc_delta_tajima_d.{dataset}.{species}.{pair}.{method}.{window}_{step}.{i}.log",
+        "logs/positive_selection/calc_delta_tajima_d.{species}.{dataset}.{pair}.{method}.{window}_{step}.{i}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
@@ -42,12 +42,12 @@ rule format_delta_tajima_d:
         scores=rules.calc_delta_tajima_d.output.scores,
     output:
         formatted=temp(
-            "results/positive_selection/scikit-allel/{dataset}/{species}/2pop/{pair}/{method}/{window}_{step}/{i}.{method}.formatted.txt"
+            "results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{i}.{method}.formatted.txt"
         ),
     params:
         chrom="{i}",
     log:
-        "logs/positive_selection/format_delta_tajima_d.{dataset}.{species}.{pair}.{method}.{window}_{step}.{i}.log",
+        "logs/positive_selection/format_delta_tajima_d.{species}.{dataset}.{pair}.{method}.{window}_{step}.{i}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -62,15 +62,14 @@ rule format_delta_tajima_d:
 rule merge_delta_tajima_d_scores:
     input:
         scores=lambda wc: expand(
-            "results/positive_selection/scikit-allel/{dataset}/{species}/2pop/{pair}/{method}/{window}_{step}/{i}.{method}.formatted.txt",
-            dataset=wc.dataset, species=wc.species, pair=wc.pair,
-            method=wc.method, window=wc.window, step=wc.step,
+            "results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{i}.{method}.formatted.txt",
             i=get_chromosomes(wc),
+            allow_missing=True,
         ),
     output:
-        merged_scores="results/positive_selection/scikit-allel/{dataset}/{species}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.merged.scores",
+        merged_scores="results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.merged.scores",
     log:
-        "logs/positive_selection/merge_delta_tajima_d_scores.{dataset}.{species}.{pair}.{method}.{window}_{step}.log",
+        "logs/positive_selection/merge_delta_tajima_d_scores.{species}.{dataset}.{pair}.{method}.{window}_{step}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -87,14 +86,14 @@ rule plot_delta_tajima_d:
         scores=rules.merge_delta_tajima_d_scores.output.merged_scores,
     output:
         plot=report(
-            "results/positive_selection/scikit-allel/{dataset}/{species}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.scores.png",
+            "results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.scores.png",
             category="Positive Selection",
             subcategory="{method}",
             labels=lambda wildcards: delta_tajima_d_labels(
                 wildcards, type="Manhattan Plot"
             ),
         ),
-        outliers="results/positive_selection/scikit-allel/{dataset}/{species}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.outliers.scores",
+        outliers="results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.outliers.scores",
     params:
         title=add_scikit_allel_title,
         score_column="delta_tajima_d",
@@ -105,7 +104,7 @@ rule plot_delta_tajima_d:
         color1=scikit_allel_config["manhattan_plot_color1"],
         color2=scikit_allel_config["manhattan_plot_color2"],
     log:
-        "logs/positive_selection/plot_delta_tajima_d.{dataset}.{species}.{pair}.{method}.{window}_{step}.top_{cutoff}.log",
+        "logs/positive_selection/plot_delta_tajima_d.{species}.{dataset}.{pair}.{method}.{window}_{step}.top_{cutoff}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
@@ -116,15 +115,15 @@ rule extract_delta_tajima_d_outlier_variants:
     input:
         scores=rules.plot_delta_tajima_d.output.outliers,
         vcfs=lambda wc: expand(
-            "results/processed_data/{dataset}/{species}/2pop/{pair}/{pair}.{i}.biallelic.snps.vcf.gz",
-            dataset=wc.dataset, species=wc.species, pair=wc.pair,
+            "results/processed_data/{species}/{dataset}/2pop/{pair}/{pair}.{i}.biallelic.snps.vcf.gz",
             i=get_chromosomes(wc),
+            allow_missing=True,
         ),
     output:
-        regions=temp("results/positive_selection/scikit-allel/{dataset}/{species}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.outliers.bed"),
-        variants=temp("results/positive_selection/scikit-allel/{dataset}/{species}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.outliers.variants"),
+        regions=temp("results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.outliers.bed"),
+        variants=temp("results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.outliers.variants"),
     log:
-        "logs/positive_selection/extract_delta_tajima_d_outlier_variants.{dataset}.{species}.{pair}.{method}.{window}_{step}.top_{cutoff}.log",
+        "logs/positive_selection/extract_delta_tajima_d_outlier_variants.{species}.{dataset}.{pair}.{method}.{window}_{step}.top_{cutoff}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -141,17 +140,17 @@ rule annotate_delta_tajima_d_outliers:
     input:
         outliers=rules.extract_delta_tajima_d_outlier_variants.output.variants,
         annotation=lambda wc: expand(
-            "results/annotated_data/{dataset}/{species}/all/{i}.biallelic.snps.{ref_genome}_multianno.txt",
-            dataset=wc.dataset, species=wc.species,
+            "results/annotated_data/{species}/{dataset}/all/{i}.biallelic.snps.{ref_genome}_multianno.txt",
             i=get_chromosomes(wc),
             ref_genome=get_ref_genome(wc),
+            allow_missing=True,
         ),
     output:
-        annotated_outliers="results/positive_selection/scikit-allel/{dataset}/{species}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.annotated.outliers",
+        annotated_outliers="results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.annotated.outliers",
     resources:
         mem_gb=32,
     log:
-        "logs/positive_selection/annotate_delta_tajima_d_outliers.{dataset}.{species}.{pair}.{method}.{window}_{step}.top_{cutoff}.log",
+        "logs/positive_selection/annotate_delta_tajima_d_outliers.{species}.{dataset}.{pair}.{method}.{window}_{step}.top_{cutoff}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
@@ -162,9 +161,9 @@ rule get_delta_tajima_d_outlier_genes:
     input:
         delta_outliers=rules.annotate_delta_tajima_d_outliers.output.annotated_outliers,
     output:
-        delta_genes="results/positive_selection/scikit-allel/{dataset}/{species}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.outlier.genes",
+        delta_genes="results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.outlier.genes",
     log:
-        "logs/positive_selection/get_delta_tajima_d_outlier_genes.{dataset}.{species}.{pair}.{method}.{window}_{step}.top_{cutoff}.log",
+        "logs/positive_selection/get_delta_tajima_d_outlier_genes.{species}.{dataset}.{pair}.{method}.{window}_{step}.top_{cutoff}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -179,7 +178,7 @@ rule delta_tajima_d_outlier_genes_table_html:
         tsv=rules.get_delta_tajima_d_outlier_genes.output.delta_genes,
     output:
         html=report(
-            "results/positive_selection/scikit-allel/{dataset}/{species}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.outlier.genes.html",
+            "results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.outlier.genes.html",
             category="Positive Selection",
             subcategory="{method}",
             labels=lambda wildcards: delta_tajima_d_labels(
@@ -189,7 +188,7 @@ rule delta_tajima_d_outlier_genes_table_html:
     params:
         title=add_scikit_allel_title,
     log:
-        "logs/positive_selection/delta_tajima_d_outlier_genes_table_html.{dataset}.{species}.{pair}.{method}.{window}_{step}.top_{cutoff}.log", 
+        "logs/positive_selection/delta_tajima_d_outlier_genes_table_html.{species}.{dataset}.{pair}.{method}.{window}_{step}.top_{cutoff}.log", 
     conda:
         "../envs/selscape-env.yaml"
     script:
@@ -203,19 +202,19 @@ rule enrichment_delta_tajima_d_gowinda:
         gtf=rules.convert_ncbi_gtf.output.gtf,
         outliers=rules.annotate_delta_tajima_d_outliers.output.annotated_outliers,
         total=lambda wc: expand(
-            "results/processed_data/{dataset}/{species}/2pop/{pair}/{pair}.{i}.biallelic.snps.vcf.gz",
-            dataset=wc.dataset, species=wc.species, pair=wc.pair,
+            "results/processed_data/{species}/{dataset}/2pop/{pair}/{pair}.{i}.biallelic.snps.vcf.gz",
             i=get_chromosomes(wc),
+            allow_missing=True,
         ),
     output:
-        outlier_snps="results/positive_selection/scikit-allel/{dataset}/{species}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.outlier.snps.tsv",
-        total_snps="results/positive_selection/scikit-allel/{dataset}/{species}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.total.snps.tsv",
-        enrichment="results/positive_selection/scikit-allel/{dataset}/{species}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.gowinda.enrichment.tsv",
+        outlier_snps="results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.outlier.snps.tsv",
+        total_snps="results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.total.snps.tsv",
+        enrichment="results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.gowinda.enrichment.tsv",
     resources:
         mem_gb=32,
         cpus=8,
     log:
-        "logs/positive_selection/enrichment_delta_tajima_d_gowinda.{dataset}.{species}.{pair}.{method}.{window}_{step}.top_{cutoff}.log",
+        "logs/positive_selection/enrichment_delta_tajima_d_gowinda.{species}.{dataset}.{pair}.{method}.{window}_{step}.top_{cutoff}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -248,7 +247,7 @@ rule delta_tajima_d_enrichment_results_table_html:
         tsv=rules.enrichment_delta_tajima_d_gowinda.output.enrichment,
     output:
         html=report(
-            "results/positive_selection/scikit-allel/{dataset}/{species}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.gowinda.enrichment.html",
+            "results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.gowinda.enrichment.html",
             category="Positive Selection",
             subcategory="{method}",
             labels=lambda wildcards: delta_tajima_d_labels(
@@ -258,7 +257,7 @@ rule delta_tajima_d_enrichment_results_table_html:
     params:
         title=add_scikit_allel_title,
     log:
-        "logs/positive_selection/delta_tajima_d_enrichment_results_table_html.{dataset}.{species}.{pair}.{method}.{window}_{step}.top_{cutoff}.log",
+        "logs/positive_selection/delta_tajima_d_enrichment_results_table_html.{species}.{dataset}.{pair}.{method}.{window}_{step}.top_{cutoff}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
@@ -270,7 +269,7 @@ rule plot_gowinda_enrichment_delta_tajima_d:
         enrichment=rules.enrichment_delta_tajima_d_gowinda.output.enrichment,
     output:
         plot=report(
-            "results/positive_selection/scikit-allel/{dataset}/{species}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.gowinda.enrichment.png",
+            "results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.gowinda.enrichment.png",
             category="Positive Selection",
             subcategory="{method}",
             labels=lambda wildcards: delta_tajima_d_labels(wildcards, type="Enrichment Plot"),
@@ -280,7 +279,7 @@ rule plot_gowinda_enrichment_delta_tajima_d:
     resources:
         mem_gb=8,
     log:
-        "logs/positive_selection/plot_gowinda_enrichment_delta_tajima_d.{dataset}.{species}.{pair}.{method}.{window}_{step}.top_{cutoff}.log",
+        "logs/positive_selection/plot_gowinda_enrichment_delta_tajima_d.{species}.{dataset}.{pair}.{method}.{window}_{step}.top_{cutoff}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:

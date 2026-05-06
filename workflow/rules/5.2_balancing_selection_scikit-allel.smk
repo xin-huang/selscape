@@ -23,13 +23,13 @@ rule calc_tajima_d_balancing:
         vcf=rules.remove_repeats.output.vcf,
     output:
         scores=temp(
-            "results/balancing_selection/scikit-allel/{dataset}/{species}/{method}/{ppl}/{window}_{step}/{i}.{method}.scores.txt"
+            "results/balancing_selection/scikit-allel/{species}/{dataset}/{method}/{ppl}/{window}_{step}/{i}.{method}.scores.txt"
         ),
     params:
         window_size="{window}",
         step_size_ratio="{step}",
     log:
-        "logs/balancing_selection/calc_tajima_d_balancing.{dataset}.{species}.{ppl}.{method}.{window}_{step}.{i}.log",
+        "logs/balancing_selection/calc_tajima_d_balancing.{species}.{dataset}.{ppl}.{method}.{window}_{step}.{i}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
@@ -41,13 +41,13 @@ rule format_tajima_d_balancing:
         scores=rules.calc_tajima_d_balancing.output.scores,
     output:
         formatted=temp(
-            "results/balancing_selection/scikit-allel/{dataset}/{species}/{method}/{ppl}/{window}_{step}/{i}.{method}.tajima_d.formatted.txt"
+            "results/balancing_selection/scikit-allel/{species}/{dataset}/{method}/{ppl}/{window}_{step}/{i}.{method}.tajima_d.formatted.txt"
         ),
     params:
         chrom="{i}",
         method="{method}",
     log:
-        "logs/balancing_selection/format_tajima_d_balancing.{dataset}.{species}.{ppl}.{method}.{window}_{step}.{i}.log",
+        "logs/balancing_selection/format_tajima_d_balancing.{species}.{dataset}.{ppl}.{method}.{window}_{step}.{i}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -62,15 +62,14 @@ rule format_tajima_d_balancing:
 rule merge_tajima_d_balancing_scores:
     input:
         scores=lambda wc: expand(
-            "results/balancing_selection/scikit-allel/{dataset}/{species}/{method}/{ppl}/{window}_{step}/{i}.{method}.tajima_d.formatted.txt",
-            dataset=wc.dataset, species=wc.species, ppl=wc.ppl,
-            method=wc.method, window=wc.window, step=wc.step,
+            "results/balancing_selection/scikit-allel/{species}/{dataset}/{method}/{ppl}/{window}_{step}/{i}.{method}.tajima_d.formatted.txt",
             i=get_chromosomes(wc),
+            allow_missing=True,
         ),
     output:
-        merged_scores="results/balancing_selection/scikit-allel/{dataset}/{species}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.merged.scores",
+        merged_scores="results/balancing_selection/scikit-allel/{species}/{dataset}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.merged.scores",
     log:
-        "logs/balancing_selection/merge_tajima_d_balancing_scores.{dataset}.{species}.{ppl}.{method}.{window}_{step}.log",
+        "logs/balancing_selection/merge_tajima_d_balancing_scores.{species}.{dataset}.{ppl}.{method}.{window}_{step}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -87,12 +86,12 @@ rule plot_tajima_d_balancing:
         scores=rules.merge_tajima_d_balancing_scores.output.merged_scores,
     output:
         plot=report(
-            "results/balancing_selection/scikit-allel/{dataset}/{species}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.top_{cutoff}.scores.png",
+            "results/balancing_selection/scikit-allel/{species}/{dataset}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.top_{cutoff}.scores.png",
             category="Balancing Selection",
             subcategory="{method}",
             labels=lambda wildcards: tajima_d_labels(wildcards, type="Manhattan Plot"),
         ),
-        outliers="results/balancing_selection/scikit-allel/{dataset}/{species}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.top_{cutoff}.outliers.scores",
+        outliers="results/balancing_selection/scikit-allel/{species}/{dataset}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.top_{cutoff}.outliers.scores",
     params:
         title=add_scikit_allel_title,
         score_column="tajima_d",
@@ -104,7 +103,7 @@ rule plot_tajima_d_balancing:
         color1=scikit_allel_config["manhattan_plot_color1"],
         color2=scikit_allel_config["manhattan_plot_color2"],
     log:
-        "logs/balancing_selection/plot_tajima_d_balancing.{dataset}.{species}.{ppl}.{method}.{window}_{step}.top_{cutoff}.log",
+        "logs/balancing_selection/plot_tajima_d_balancing.{species}.{dataset}.{ppl}.{method}.{window}_{step}.top_{cutoff}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
@@ -115,15 +114,15 @@ rule extract_tajima_d_balancing_outlier_variants:
     input:
         scores=rules.plot_tajima_d_balancing.output.outliers,
         vcfs=lambda wc: expand(
-            "results/processed_data/{dataset}/{species}/1pop/{ppl}/{ppl}.{i}.biallelic.snps.vcf.gz",
-            dataset=wc.dataset, species=wc.species, ppl=wc.ppl,
+            "results/processed_data/{species}/{dataset}/1pop/{ppl}/{ppl}.{i}.biallelic.snps.vcf.gz",
             i=get_chromosomes(wc),
+            allow_missing=True,
         ),
     output:
-        regions=temp("results/balancing_selection/scikit-allel/{dataset}/{species}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.top_{cutoff}.outliers.bed"),
-        variants=temp("results/balancing_selection/scikit-allel/{dataset}/{species}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.top_{cutoff}.outliers.variants"),
+        regions=temp("results/balancing_selection/scikit-allel/{species}/{dataset}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.top_{cutoff}.outliers.bed"),
+        variants=temp("results/balancing_selection/scikit-allel/{species}/{dataset}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.top_{cutoff}.outliers.variants"),
     log:
-        "logs/balancing_selection/extract_tajima_d_balancing_outlier_variants.{dataset}.{species}.{ppl}.{method}.{window}_{step}.top_{cutoff}.log",
+        "logs/balancing_selection/extract_tajima_d_balancing_outlier_variants.{species}.{dataset}.{ppl}.{method}.{window}_{step}.top_{cutoff}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -141,17 +140,17 @@ rule annotate_tajima_d_balancing_outliers:
     input:
         outliers=rules.extract_tajima_d_balancing_outlier_variants.output.variants,
         annotation=lambda wc: expand(
-            "results/annotated_data/{dataset}/{species}/all/{i}.biallelic.snps.{ref_genome}_multianno.txt",
-            dataset=wc.dataset, species=wc.species,
+            "results/annotated_data/{species}/{dataset}/all/{i}.biallelic.snps.{ref_genome}_multianno.txt",
             i=get_chromosomes(wc),
             ref_genome=get_ref_genome(wc),
+            allow_missing=True,
         ),
     output:
-        annotated_outliers="results/balancing_selection/scikit-allel/{dataset}/{species}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.top_{cutoff}.annotated.outliers",
+        annotated_outliers="results/balancing_selection/scikit-allel/{species}/{dataset}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.top_{cutoff}.annotated.outliers",
     resources:
         mem_gb=32,
     log:
-        "logs/balancing_selection/annotate_tajima_d_balancing_outliers.{dataset}.{species}.{ppl}.{method}.{window}_{step}.top_{cutoff}.log",
+        "logs/balancing_selection/annotate_tajima_d_balancing_outliers.{species}.{dataset}.{ppl}.{method}.{window}_{step}.top_{cutoff}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
@@ -162,9 +161,9 @@ rule get_tajima_d_balancing_outlier_genes:
     input:
         tajima_d_outliers=rules.annotate_tajima_d_balancing_outliers.output.annotated_outliers,
     output:
-        tajima_d_genes="results/balancing_selection/scikit-allel/{dataset}/{species}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.top_{cutoff}.outlier.genes",
+        tajima_d_genes="results/balancing_selection/scikit-allel/{species}/{dataset}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.top_{cutoff}.outlier.genes",
     log:
-        "logs/balancing_selection/get_tajima_d_balancing_outlier_genes.{dataset}.{species}.{ppl}.{method}.{window}_{step}.top_{cutoff}.log",
+        "logs/balancing_selection/get_tajima_d_balancing_outlier_genes.{species}.{dataset}.{ppl}.{method}.{window}_{step}.top_{cutoff}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -179,7 +178,7 @@ rule tajima_d_balancing_outlier_genes_table_html:
         tsv=rules.get_tajima_d_balancing_outlier_genes.output.tajima_d_genes,
     output:
         html=report(
-            "results/balancing_selection/scikit-allel/{dataset}/{species}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.top_{cutoff}.outlier.genes.html",
+            "results/balancing_selection/scikit-allel/{species}/{dataset}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.top_{cutoff}.outlier.genes.html",
             category="Balancing Selection",
             subcategory="{method}",
             labels=lambda wildcards: tajima_d_labels(wildcards, type="Gene List"),
@@ -187,7 +186,7 @@ rule tajima_d_balancing_outlier_genes_table_html:
     params:
         title=add_scikit_allel_title,
     log:
-        "logs/balancing_selection/tajima_d_balancing_outlier_genes_table_html.{dataset}.{species}.{ppl}.{method}.{window}_{step}.top_{cutoff}.log",
+        "logs/balancing_selection/tajima_d_balancing_outlier_genes_table_html.{species}.{dataset}.{ppl}.{method}.{window}_{step}.top_{cutoff}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
@@ -201,19 +200,19 @@ rule enrichment_tajima_d_balancing_gowinda:
         gtf=rules.convert_ncbi_gtf.output.gtf,
         outliers=rules.annotate_tajima_d_balancing_outliers.output.annotated_outliers,
         total=lambda wc: expand(
-            "results/processed_data/{dataset}/{species}/1pop/{ppl}/{ppl}.{i}.biallelic.snps.vcf.gz",
-            dataset=wc.dataset, species=wc.species, ppl=wc.ppl,
+            "results/processed_data/{species}/{dataset}/1pop/{ppl}/{ppl}.{i}.biallelic.snps.vcf.gz",
             i=get_chromosomes(wc),
+            allow_missing=True,
         ),
     output:
-        outlier_snps="results/balancing_selection/scikit-allel/{dataset}/{species}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.top_{cutoff}.outlier.snps.tsv",
-        total_snps="results/balancing_selection/scikit-allel/{dataset}/{species}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.top_{cutoff}.total.snps.tsv",
-        enrichment="results/balancing_selection/scikit-allel/{dataset}/{species}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.top_{cutoff}.gowinda.enrichment.tsv",
+        outlier_snps="results/balancing_selection/scikit-allel/{species}/{dataset}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.top_{cutoff}.outlier.snps.tsv",
+        total_snps="results/balancing_selection/scikit-allel/{species}/{dataset}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.top_{cutoff}.total.snps.tsv",
+        enrichment="results/balancing_selection/scikit-allel/{species}/{dataset}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.top_{cutoff}.gowinda.enrichment.tsv",
     resources:
         mem_gb=32,
         cpus=8,
     log:
-        "logs/balancing_selection/enrichment_tajima_d_balancing_gowinda.{dataset}.{species}.{ppl}.{method}.{window}_{step}.top_{cutoff}.log",
+        "logs/balancing_selection/enrichment_tajima_d_balancing_gowinda.{species}.{dataset}.{ppl}.{method}.{window}_{step}.top_{cutoff}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -246,7 +245,7 @@ rule tajima_d_balancing_enrichment_results_table_html:
         tsv=rules.enrichment_tajima_d_balancing_gowinda.output.enrichment,
     output:
         html=report(
-            "results/balancing_selection/scikit-allel/{dataset}/{species}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.top_{cutoff}.gowinda.enrichment.html",
+            "results/balancing_selection/scikit-allel/{species}/{dataset}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.top_{cutoff}.gowinda.enrichment.html",
             category="Balancing Selection",
             subcategory="{method}",
             labels=lambda wildcards: tajima_d_labels(
@@ -256,7 +255,7 @@ rule tajima_d_balancing_enrichment_results_table_html:
     params:
         title=add_scikit_allel_title,
     log:
-        "logs/balancing_selection/tajima_d_balancing_enrichment_results_table_html.{dataset}.{species}.{ppl}.{method}.{window}_{step}.top_{cutoff}.log",
+        "logs/balancing_selection/tajima_d_balancing_enrichment_results_table_html.{species}.{dataset}.{ppl}.{method}.{window}_{step}.top_{cutoff}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
@@ -268,7 +267,7 @@ rule plot_gowinda_enrichment_tajima_d_balancing:
         enrichment=rules.enrichment_tajima_d_balancing_gowinda.output.enrichment,
     output:
         plot=report(
-            "results/balancing_selection/scikit-allel/{dataset}/{species}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.top_{cutoff}.gowinda.enrichment.png",
+            "results/balancing_selection/scikit-allel/{species}/{dataset}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.top_{cutoff}.gowinda.enrichment.png",
             category="Balancing Selection",
             subcategory="{method}",
             labels=lambda wildcards: tajima_d_labels(wildcards, type="Enrichment Plot"),
@@ -278,7 +277,7 @@ rule plot_gowinda_enrichment_tajima_d_balancing:
     resources:
         mem_gb=8,
     log:
-        "logs/balancing_selection/plot_gowinda_enrichment_tajima_d_balancing.{dataset}.{species}.{ppl}.{method}.{window}_{step}.top_{cutoff}.log",
+        "logs/balancing_selection/plot_gowinda_enrichment_tajima_d_balancing.{species}.{dataset}.{ppl}.{method}.{window}_{step}.top_{cutoff}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:

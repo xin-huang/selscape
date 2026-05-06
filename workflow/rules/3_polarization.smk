@@ -23,12 +23,12 @@ rule polarize_1pop:
         vcf=rules.extract_pop_data.output.vcf,
         anc_alleles=get_anc_allele_bed,
     output:
-        vcf=temp("results/polarized_data/{dataset}/{species}/1pop/{ppl}/{ppl}.{i}.biallelic.snps.vcf.gz"),
-        idx=temp("results/polarized_data/{dataset}/{species}/1pop/{ppl}/{ppl}.{i}.biallelic.snps.vcf.gz.tbi"),
+        vcf=temp("results/polarized_data/{species}/{dataset}/1pop/{ppl}/{ppl}.{i}.biallelic.snps.vcf.gz"),
+        idx=temp("results/polarized_data/{species}/{dataset}/1pop/{ppl}/{ppl}.{i}.biallelic.snps.vcf.gz.tbi"),
     resources:
         mem_gb=32,
     log:
-        "logs/polarization/polarize_1pop.{dataset}.{species}.{ppl}.{i}.log",
+        "logs/polarization/polarize_1pop.{species}.{dataset}.{ppl}.{i}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
@@ -40,12 +40,12 @@ rule polarize_2pop:
         vcf=rules.extract_pair_data.output.vcf,
         anc_alleles=get_anc_allele_bed,
     output:
-        vcf=temp("results/polarized_data/{dataset}/{species}/2pop/{pair}/{pair}.{i}.biallelic.snps.vcf.gz"),
-        idx=temp("results/polarized_data/{dataset}/{species}/2pop/{pair}/{pair}.{i}.biallelic.snps.vcf.gz.tbi"),
+        vcf=temp("results/polarized_data/{species}/{dataset}/2pop/{pair}/{pair}.{i}.biallelic.snps.vcf.gz"),
+        idx=temp("results/polarized_data/{species}/{dataset}/2pop/{pair}/{pair}.{i}.biallelic.snps.vcf.gz.tbi"),
     resources:
         mem_gb=32,
     log:
-        "logs/polarization/polarize_2pop.{dataset}.{species}.{pair}.{i}.log",
+        "logs/polarization/polarize_2pop.{species}.{dataset}.{pair}.{i}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
@@ -57,12 +57,12 @@ rule polarize_1pop_exonic_data:
         vcf=rules.extract_1pop_exonic_data.output.vcf,
         anc_alleles=get_anc_allele_bed,
     output:
-        vcf=temp("results/polarized_data/{dataset}/{species}/1pop/{ppl}/{ppl}.{i}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz"),
-        idx=temp("results/polarized_data/{dataset}/{species}/1pop/{ppl}/{ppl}.{i}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz.tbi"),
+        vcf=temp("results/polarized_data/{species}/{dataset}/1pop/{ppl}/{ppl}.{i}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz"),
+        idx=temp("results/polarized_data/{species}/{dataset}/1pop/{ppl}/{ppl}.{i}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz.tbi"),
     resources:
         mem_gb=32,
     log:
-        "logs/polarization/polarize_1pop_exonic_data.{dataset}.{species}.{ppl}.{i}.{mut_type}.{ref_genome}.log",
+        "logs/polarization/polarize_1pop_exonic_data.{species}.{dataset}.{ppl}.{i}.{mut_type}.{ref_genome}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
@@ -74,12 +74,12 @@ rule polarize_2pop_exonic_data:
         vcf=rules.extract_2pop_exonic_data.output.vcf,
         anc_alleles=get_anc_allele_bed,
     output:
-        vcf=temp("results/polarized_data/{dataset}/{species}/2pop/{pair}/{pair}.{i}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz"),
-        idx=temp("results/polarized_data/{dataset}/{species}/2pop/{pair}/{pair}.{i}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz.tbi"),
+        vcf=temp("results/polarized_data/{species}/{dataset}/2pop/{pair}/{pair}.{i}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz"),
+        idx=temp("results/polarized_data/{species}/{dataset}/2pop/{pair}/{pair}.{i}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz.tbi"),
     resources:
         mem_gb=32,
     log:
-        "logs/polarization/polarize_2pop_exonic_data.{dataset}.{species}.{pair}.{i}.{mut_type}.{ref_genome}.log",
+        "logs/polarization/polarize_2pop_exonic_data.{species}.{dataset}.{pair}.{i}.{mut_type}.{ref_genome}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
@@ -89,16 +89,15 @@ rule polarize_2pop_exonic_data:
 rule concat_polarized_1pop_exonic_data:
     input:
         vcfs=lambda wc: expand(
-            "results/polarized_data/{dataset}/{species}/1pop/{ppl}/{ppl}.{i}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz",
-            dataset=wc.dataset, species=wc.species, ppl=wc.ppl,
-            mut_type=wc.mut_type, ref_genome=wc.ref_genome,
+            "results/polarized_data/{species}/{dataset}/1pop/{ppl}/{ppl}.{i}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz",
             i=get_chromosomes(wc),
-        ),
+            allow_missing=True,
+    ),
     output:
-        vcf="results/polarized_data/{dataset}/{species}/1pop/{ppl}/{ppl}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz",
-        idx="results/polarized_data/{dataset}/{species}/1pop/{ppl}/{ppl}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz.tbi",
+        vcf="results/polarized_data/{species}/{dataset}/1pop/{ppl}/{ppl}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz",
+        idx="results/polarized_data/{species}/{dataset}/1pop/{ppl}/{ppl}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz.tbi",
     log:
-        "logs/polarization/concat_polarized_1pop_exonic_data.{dataset}.{species}.{ppl}.{mut_type}.{ref_genome}.log",
+        "logs/polarization/concat_polarized_1pop_exonic_data.{species}.{dataset}.{ppl}.{mut_type}.{ref_genome}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -111,16 +110,15 @@ rule concat_polarized_1pop_exonic_data:
 rule concat_polarized_2pop_exonic_data:
     input:
         vcfs=lambda wc: expand(
-            "results/polarized_data/{dataset}/{species}/2pop/{pair}/{pair}.{i}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz",
-            dataset=wc.dataset, species=wc.species, pair=wc.pair,
-            mut_type=wc.mut_type, ref_genome=wc.ref_genome,
+            "results/polarized_data/{species}/{dataset}/2pop/{pair}/{pair}.{i}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz",
             i=get_chromosomes(wc),
+            allow_missing=True,
         ),
     output:
-        vcf="results/polarized_data/{dataset}/{species}/2pop/{pair}/{pair}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz",
-        idx="results/polarized_data/{dataset}/{species}/2pop/{pair}/{pair}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz.tbi",
+        vcf="results/polarized_data/{species}/{dataset}/2pop/{pair}/{pair}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz",
+        idx="results/polarized_data/{species}/{dataset}/2pop/{pair}/{pair}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz.tbi",
     log:
-        "logs/polarization/concat_polarized_2pop_exonic_data.{dataset}.{species}.{pair}.{mut_type}.{ref_genome}.log",
+        "logs/polarization/concat_polarized_2pop_exonic_data.{species}.{dataset}.{pair}.{mut_type}.{ref_genome}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -135,13 +133,13 @@ rule test_hwe_polarized:
         vcf=rules.polarize_1pop.output.vcf,
     output:
         hwe_outliers=temp(
-            "results/polarized_data/{dataset}/{species}/1pop/{ppl}/{ppl}.{i}.biallelic.snps.hwe.outliers"
+            "results/polarized_data/{species}/{dataset}/1pop/{ppl}/{ppl}.{i}.biallelic.snps.hwe.outliers"
         ),
     params:
-        output_prefix="results/polarized_data/{dataset}/{species}/1pop/{ppl}/{ppl}.{i}.biallelic.snps",
+        output_prefix="results/polarized_data/{species}/{dataset}/1pop/{ppl}/{ppl}.{i}.biallelic.snps",
         hwe_threshold=get_hwe_pvalue,
     log:
-        "logs/polarization/test_hwe_polarized.{dataset}.{species}.{ppl}.{i}.log",
+        "logs/polarization/test_hwe_polarized.{species}.{dataset}.{ppl}.{i}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -159,14 +157,14 @@ rule remove_repeats_polarized:
         vcf=rules.polarize_1pop.output.vcf,
         hwe_outliers=rules.test_hwe_polarized.output.hwe_outliers,
     output:
-        vcf=temp("results/polarized_data/{dataset}/{species}/1pop/{ppl}/{ppl}.{i}.biallelic.snps.repeats.removed.vcf.gz"),
-        idx=temp("results/polarized_data/{dataset}/{species}/1pop/{ppl}/{ppl}.{i}.biallelic.snps.repeats.removed.vcf.gz.tbi"),
+        vcf=temp("results/polarized_data/{species}/{dataset}/1pop/{ppl}/{ppl}.{i}.biallelic.snps.repeats.removed.vcf.gz"),
+        idx=temp("results/polarized_data/{species}/{dataset}/1pop/{ppl}/{ppl}.{i}.biallelic.snps.repeats.removed.vcf.gz.tbi"),
     params:
         rmsk=get_rmsk,
         seg_dup=get_seg_dup,
         sim_rep=get_sim_rep,
     log:
-        "logs/polarization/remove_repeats_polarized.{dataset}.{species}.{ppl}.{i}.log",
+        "logs/polarization/remove_repeats_polarized.{species}.{dataset}.{ppl}.{i}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
