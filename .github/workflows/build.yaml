@@ -1,15 +1,5 @@
 name: Tests
-on:
-  push:
-    branches:
-    - main
-    - dev
-    paths:
-      - "**/Snakefile"
-      - "**/*.smk"
-      - "**/*.py"
-      - "**/*.yaml"
-      - ".github/workflows/*"
+on: [push, pull_request]
 jobs:
   Testing_dry_run:
     runs-on: ubuntu-latest
@@ -20,7 +10,7 @@ jobs:
       with:
         directory: .
         snakefile: workflow/Snakefile
-        args: "--configfile .test/ci/config/main.yaml --use-conda --show-failed-logs -j 2 --dry-run --conda-frontend conda"
+        args: "--configfile .tests/ci/config/main.yaml --use-conda --show-failed-logs -j 2 --dry-run --conda-frontend conda"
         stagein: "conda config --set channel_priority strict"
 
   Testing_human_minimal:
@@ -32,7 +22,7 @@ jobs:
       with:
         directory: .
         snakefile: workflow/Snakefile
-        args: "--configfile .test/ci/config/main.yaml --use-conda --show-failed-logs -j 2 --dry-run --conda-frontend conda"
+        args: "--configfile .tests/ci/config/main.yaml --use-conda --show-failed-logs -j 2 --dry-run --conda-frontend conda"
 
   Testing_selscan_module:
     runs-on: ubuntu-latest
@@ -43,7 +33,7 @@ jobs:
       with:
         directory: .
         snakefile: workflow/Snakefile
-        args: "--configfile .test/ci/config/main.yaml --use-conda --show-failed-logs -j 2 --dry-run --conda-frontend conda --until merge_selscan_scores"
+        args: "--configfile .tests/ci/config/main.yaml --use-conda --show-failed-logs -j 2 --dry-run --conda-frontend conda --until merge_selscan_scores"
 
   Testing_betascan_module:
     runs-on: ubuntu-latest
@@ -54,5 +44,4 @@ jobs:
       with:
         directory: .
         snakefile: workflow/Snakefile
-        args: "--configfile .test/ci/config/main.yaml --use-conda --show-failed-logs -j 2 --dry-run --conda-frontend conda --until merge_b1_scores"
-
+        args: "--configfile .tests/ci/config/main.yaml --use-conda --show-failed-logs -j 2 --dry-run --conda-frontend conda --until merge_b1_scores"
