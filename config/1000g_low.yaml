@@ -39,3 +39,7 @@ metadata: "examples/data/Human/1kg_low/metadata.txt"
 # Chromosome range to analyze
 chromosomes:
   - chr21
+
+
+chr_bed: "examples/data/Human/genome/hg38.chrom.sizes.bed"
+cytoband: "examples/data/Human/genome/hg38.cytoBand.txt.gz"

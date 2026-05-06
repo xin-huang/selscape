@@ -65,3 +65,5 @@ chromosomes:
   #- chrX    
   #- chrY 
 
+chr_bed: "examples/data/Human/genome/hg38.chrom.sizes.bed"
+cytoband: "examples/data/Human/genome/hg38.cytoBand.txt.gz"

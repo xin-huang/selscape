@@ -29,3 +29,6 @@ metadata: "examples/data/greatape/metadata.txt"
 
 chromosomes:
   - chr21
+
+chr_bed: "examples/data/Human/genome/hg38.chrom.sizes.bed"
+cytoband: "examples/data/Human/genome/hg38.cytoBand.txt.gz"

@@ -467,3 +467,13 @@ def add_dfe_title(wildcards, input):
         return f"{base} (Top 10 Bestfits, {dadi_config['optimizations']} optimizations)"
     
     return f"{base} Model Fit"
+
+def get_chr_bed(wildcards):
+    """Get chromosome sizes BED path for the given dataset (empty string if null)."""
+    return get_dataset_cfg(wildcards).get("chr_bed") or ""
+
+
+def get_cytoband(wildcards):
+    """Get cytoband annotation path for the given dataset (empty string if null)."""
+    return get_dataset_cfg(wildcards).get("cytoband") or ""
+

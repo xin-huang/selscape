@@ -35,7 +35,7 @@ include: "rules/4.4_positive_selection_scikit-allel_xp.smk"
 include: "rules/5.1_balancing_selection_betascan.smk"
 include: "rules/5.2_balancing_selection_scikit-allel.smk"
 include: "rules/6_deleterious_dfe_dadi.smk"
-#include: "rules/7_plot_results.smk"
+include: "rules/7_plot_results.smk"
 
 #report: "report/workflow.rst"
 
@@ -126,20 +126,20 @@ rule all:
             **TAJIMAD_WINDOWED_KW, type=["outlier.genes", "gowinda.enrichment"],
         ),
         # delta tajima d
- #       expand_2pop(
- #           "results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.{type}.png",
- #           **DELTA_TAJIMAD_KW, type=["scores", "gowinda.enrichment"],
- #       ),
- #       expand_2pop(
- #           "results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.{type}.html",
- #           **DELTA_TAJIMAD_KW, type=["outlier.genes", "gowinda.enrichment"],
- #       ),
+        expand_2pop(
+            "results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.{type}.png",
+            **DELTA_TAJIMAD_KW, type=["scores", "gowinda.enrichment"],
+        ),
+        expand_2pop(
+            "results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.{type}.html",
+            **DELTA_TAJIMAD_KW, type=["outlier.genes", "gowinda.enrichment"],
+        ),
         # circos plots
- #       expand_1pop(
- #           "results/plots/circos/{species}/{dataset}/{ppl}/{ppl}_positive_selection_circos_scores.png",
- #       ),
- #       expand_1pop(
- #           "results/plots/circos/{species}/{dataset}/{ppl}/{ppl}_balancing_selection_circos_scores.png",
- #       ),
+        expand_1pop(
+            "results/plots/circos/{species}/{dataset}/{ppl}/{ppl}_positive_selection_circos_scores.png",
+        ),
+        expand_1pop(
+            "results/plots/circos/{species}/{dataset}/{ppl}/{ppl}_balancing_selection_circos_scores.png",
+        ),
         # dfe confidence intervals
- #       "results/plots/dfe/combined.dfe_params.svg",
+        "results/plots/dfe/combined.dfe_params.svg",

@@ -44,6 +44,9 @@ rule create_examples:
         expand("examples/data/greatape/Pan/{i}.filteranno.vcf.gz", i=example_chr_ape),
         expand("examples/data/greatape/Pan/{i}.filteranno.vcf.gz.tbi", i=example_chr_ape),
         "examples/data/greatape/metadata.txt",
+        # circos
+        "examples/data/Human/genome/hg38.chrom.sizes.bed",
+        "examples/data/Human/genome/hg19.chrom.sizes.bed",
 
 rule download_1KG_genomes:
     output:
@@ -317,4 +320,37 @@ rule create_greatape_metadata:
         """
         grep -v captive {input.metadata} | awk 'NR>1 {{print $4"\\t"$2}}' > {output.metadata}
         sed -i '1iSample\\tPopulation' {output.metadata}
+        """
+
+
+rule download_hg38_genome_files:
+    output:
+        chrom_sizes=temp("examples/data/Human/genome/hg38.chrom.sizes"),
+        cytoband="examples/data/Human/genome/hg38.cytoBand.txt.gz",
+    shell:
+        """
+        wget -c https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.chrom.sizes -O {output.chrom_sizes}
+        wget -c https://hgdownload.soe.ucsc.edu/goldenPath/hg38/database/cytoBand.txt.gz -O {output.cytoband}
+        """
+
+
+rule download_hg19_genome_files:
+    output:
+        chrom_sizes=temp("examples/data/Human/genome/hg19.chrom.sizes"),
+        cytoband="examples/data/Human/genome/hg19.cytoBand.txt.gz",
+    shell:
+        """
+        wget -c https://hgdownload.soe.ucsc.edu/goldenPath/hg19/bigZips/hg19.chrom.sizes -O {output.chrom_sizes}
+        wget -c https://hgdownload.soe.ucsc.edu/goldenPath/hg19/database/cytoBand.txt.gz -O {output.cytoband}
+        """
+
+
+rule convert_chrom_sizes_to_bed:
+    input:
+        chrom_sizes="examples/data/Human/genome/{genome}.chrom.sizes",
+    output:
+        bed="examples/data/Human/genome/{genome}.chrom.sizes.bed",
+    shell:
+        """
+        awk 'BEGIN{{OFS="\\t"}}{{print $1, 0, $2}}' {input.chrom_sizes} > {output.bed}
         """
