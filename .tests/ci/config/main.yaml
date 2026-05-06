@@ -5,11 +5,11 @@ tax_id: 9606
 
 ref_genome: "hg19"
 anc_alleles: 
-  path: ".test/ci/data"
+  path: ".tests/ci/data"
   prefix: "test.chr"
 
-genome_annotation: ".test/ci/data/test.gtf.gz"
-gene2go: ".test/ci/data/test.gene2go.gz"
+genome_annotation: ".tests/ci/data/test.gtf.gz"
+gene2go: ".tests/ci/data/test.gene2go.gz"
 
 # Quality control filters
 # Hardy-Weinberg equilibrium p-value threshold for balancing selection
@@ -24,20 +24,20 @@ populations:
 
 # Data file configuration
 # Base folder for resources
-data_folder: ".test/ci/data"
+data_folder: ".tests/ci/data"
   
 # VCF file naming convention: {file_prefix}chr{chr_name}{file_suffix}
 vcf_prefix: "chr"
 vcf_suffix: ".hg19.test.vcf.gz"
     
 # Sample metadata file
-metadata: ".test/ci/data/test_metadata.txt"
+metadata: ".tests/ci/data/test_metadata.txt"
   
 # Chromosome range to analyze
 chromosomes:
   - 21
 
-selscan_config: ".test/ci/config/selscan.yaml"
-betascan_config: ".test/ci/config/betascan.yaml"
-dadi_config: ".test/ci/config/dadi-cli.yaml"
-scikit_allel_config: ".test/ci/config/scikit-allel.yaml"
+selscan_config: ".tests/ci/config/selscan.yaml"
+betascan_config: ".tests/ci/config/betascan.yaml"
+dadi_config: ".tests/ci/config/dadi-cli.yaml"
+scikit_allel_config: ".tests/ci/config/scikit-allel.yaml"
