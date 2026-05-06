@@ -1,8 +1,0 @@
-# Main configuration: links to individual dataset configs
-datasets:
-  - .test/ci/config/ci_test.yaml
-
-selscan_config: ".test/ci/config/selscan.yaml"
-betascan_config: ".test/ci/config/betascan.yaml"
-dadi_config: ".test/ci/config/dadi-cli.yaml"
-scikit_allel_config: ".test/ci/config/scikit-allel.yaml"
