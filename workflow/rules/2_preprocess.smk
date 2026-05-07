@@ -298,7 +298,7 @@ rule convert_ncbi_gtf:
     conda:
         "../envs/selscape-env.yaml"
     script:
-        "../scripts/ncbi_gtf2gowinda.py"
+        "../scripts/preprocessing/ncbi_gtf2gowinda.py"
 
 
 rule convert_ncbi_go:
@@ -314,4 +314,4 @@ rule convert_ncbi_go:
     conda:
         "../envs/selscape-env.yaml"
     script:
-        "../scripts/ncbi_go2gowinda.py"
+        "../scripts/preprocessing/ncbi_go2gowinda.py"
