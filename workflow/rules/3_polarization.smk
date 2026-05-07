@@ -32,7 +32,7 @@ rule polarize_1pop:
     conda:
         "../envs/selscape-env.yaml"
     script:
-        "../scripts/polarize_snps.py"
+        "../scripts/preprocessing/polarize_snps.py"
 
 
 rule polarize_2pop:
@@ -49,7 +49,7 @@ rule polarize_2pop:
     conda:
         "../envs/selscape-env.yaml"
     script:
-        "../scripts/polarize_snps.py"
+        "../scripts/preprocessing/polarize_snps.py"
 
 
 rule polarize_1pop_exonic_data:
@@ -66,7 +66,7 @@ rule polarize_1pop_exonic_data:
     conda:
         "../envs/selscape-env.yaml"
     script:
-        "../scripts/polarize_snps.py"
+        "../scripts/preprocessing/polarize_snps.py"
 
 
 rule polarize_2pop_exonic_data:
@@ -83,7 +83,7 @@ rule polarize_2pop_exonic_data:
     conda:
         "../envs/selscape-env.yaml"
     script:
-        "../scripts/polarize_snps.py"
+        "../scripts/preprocessing/polarize_snps.py"
 
 
 rule concat_polarized_1pop_exonic_data:

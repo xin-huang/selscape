@@ -33,7 +33,7 @@ rule calc_tajima_d:
     conda:
         "../envs/selscape-env.yaml"
     script:
-        "../scripts/calc_tajima_d.py"
+        "../scripts/selection_analysis/calc_tajima_d.py"
 
 
 rule format_tajima_d:
@@ -110,7 +110,7 @@ rule plot_tajima_d:
     conda:
         "../envs/selscape-env.yaml"
     script:
-        "../scripts/manhattan.R"
+        "../scripts/visualization/manhattan.R"
 
 
 rule extract_tajima_d_outlier_variants:
@@ -156,7 +156,7 @@ rule annotate_tajima_d_outliers:
     conda:
         "../envs/selscape-env.yaml"
     script:
-        "../scripts/get_annotated_outliers.py"
+        "../scripts/functional_enrichment/get_annotated_outliers.py"
 
 
 rule get_tajima_d_outlier_genes:
@@ -192,7 +192,7 @@ rule tajima_d_outlier_genes_table_html:
     conda:
         "../envs/selscape-env.yaml"
     script:
-        "../scripts/tsv2html.R"
+        "../scripts/visualization/tsv2html.R"
 
 
 rule enrichment_tajima_d_gowinda:
@@ -260,7 +260,7 @@ rule tajima_d_enrichment_results_table_html:
     conda:
         "../envs/selscape-env.yaml"
     script:
-        "../scripts/tsv2html.R"
+        "../scripts/visualization/tsv2html.R"
 
 
 rule plot_gowinda_enrichment_tajima_d:
@@ -282,4 +282,4 @@ rule plot_gowinda_enrichment_tajima_d:
     conda:
         "../envs/selscape-env.yaml"
     script:
-        "../scripts/plot_gowinda_enrichment.py"
+        "../scripts/visualization/plot_gowinda_enrichment.py"

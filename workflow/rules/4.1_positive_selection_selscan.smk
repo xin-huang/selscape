@@ -143,7 +143,7 @@ rule plot_selscan:
     conda:
         "../envs/selscape-env.yaml"
     script:
-        "../scripts/manhattan.R"
+        "../scripts/visualization/manhattan.R"
 
 
 rule annotate_selscan_outliers:
@@ -164,7 +164,7 @@ rule annotate_selscan_outliers:
     conda:
         "../envs/selscape-env.yaml"
     script:
-        "../scripts/get_annotated_outliers.py"
+        "../scripts/functional_enrichment/get_annotated_outliers.py"
 
 
 rule get_selscan_outlier_genes:
@@ -200,7 +200,7 @@ rule selscan_outlier_genes_table_html:
     conda:
         "../envs/selscape-env.yaml"
     script:
-        "../scripts/tsv2html.R"
+        "../scripts/visualization/tsv2html.R"
 
 
 rule enrichment_selscan_gowinda:
@@ -268,7 +268,7 @@ rule selscan_enrichment_results_table_html:
     conda:
         "../envs/selscape-env.yaml"
     script:
-        "../scripts/tsv2html.R"
+        "../scripts/visualization/tsv2html.R"
 
 
 rule plot_gowinda_enrichment_selscan:
@@ -290,4 +290,4 @@ rule plot_gowinda_enrichment_selscan:
     conda:
         "../envs/selscape-env.yaml"
     script:
-        "../scripts/plot_gowinda_enrichment.py"
+        "../scripts/visualization/plot_gowinda_enrichment.py"
