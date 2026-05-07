@@ -22,10 +22,10 @@ rule extract_biallelic_snps:
     input:
         vcf=get_vcf_input_path,
     output:
-        vcf=temp("results/processed_data/{species}/all/chr{i}.biallelic.snps.vcf.gz"),
-        idx=temp("results/processed_data/{species}/all/chr{i}.biallelic.snps.vcf.gz.tbi"),
+        vcf=temp("results/processed_data/{species}/{dataset}/all/{i}.biallelic.snps.vcf.gz"),
+        idx=temp("results/processed_data/{species}/{dataset}/all/{i}.biallelic.snps.vcf.gz.tbi"),
     log:
-        "logs/preprocess/extract_biallelic_snps.{species}.chr{i}.log",
+        "logs/preprocess/extract_biallelic_snps.{species}.{dataset}.{i}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -37,11 +37,11 @@ rule extract_biallelic_snps:
 
 rule create_pair_info:
     input:
-        metadata=main_config["metadata"],
+        metadata=get_metadata,
     output:
-        pair_info="results/samples/{species}/{pair}/{pair}.list",
+        pair_info="results/samples/{species}/{dataset}/{pair}/{pair}.list",
     log:
-        "logs/preprocess/create_pair_info.{species}.{pair}.log",
+        "logs/preprocess/create_pair_info.{species}.{dataset}.{pair}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -59,16 +59,16 @@ rule annotate_biallelic_snps:
         vcf=rules.extract_biallelic_snps.output.vcf,
         ref_gene=rules.download_annovar_db.output.ref_gene,
     output:
-        avinput=temp("results/annotated_data/{species}/all/chr{i}.biallelic.snps.{ref_genome}.avinput"),
-        txt="results/annotated_data/{species}/all/chr{i}.biallelic.snps.{ref_genome}_multianno.txt",
+        avinput=temp("results/annotated_data/{species}/{dataset}/all/{i}.biallelic.snps.{ref_genome}.avinput"),
+        txt="results/annotated_data/{species}/{dataset}/all/{i}.biallelic.snps.{ref_genome}_multianno.txt",
     resources:
         cpus=8,
         mem_gb=32,
     params:
-        output_prefix="results/annotated_data/{species}/all/chr{i}.biallelic.snps",
+        output_prefix="results/annotated_data/{species}/{dataset}/all/{i}.biallelic.snps",
         db_dir="resources/tools/annovar/{ref_genome}_db",
     log:
-        "logs/preprocess/annotate_biallelic_snps.{species}.chr{i}.{ref_genome}.log",
+        "logs/preprocess/annotate_biallelic_snps.{species}.{dataset}.{i}.{ref_genome}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -89,19 +89,18 @@ rule annotate_biallelic_snps:
 rule extract_pop_data:
     input:
         vcf=rules.extract_biallelic_snps.output.vcf,
-        metadata=main_config["metadata"],
+        metadata=get_metadata,
     output:
-        vcf=temp("results/processed_data/{species}/1pop/{ppl}/{ppl}.chr{i}.biallelic.snps.vcf.gz"),
-        idx=temp("results/processed_data/{species}/1pop/{ppl}/{ppl}.chr{i}.biallelic.snps.vcf.gz.tbi"),
+        vcf=temp("results/processed_data/{species}/{dataset}/1pop/{ppl}/{ppl}.{i}.biallelic.snps.vcf.gz"),
+        idx=temp("results/processed_data/{species}/{dataset}/1pop/{ppl}/{ppl}.{i}.biallelic.snps.vcf.gz.tbi"),
     log:
-        "logs/preprocess/extract_pop_data.{species}.{ppl}.chr{i}.log",
+        "logs/preprocess/extract_pop_data.{species}.{dataset}.{ppl}.{i}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
         """
         ( bcftools view {input.vcf} -S <(sed '1d' {input.metadata} | grep -w {wildcards.ppl} | awk '{{print $1}}') --force-samples | \
         bcftools view -i "AC>0 && AC<AN" | \
-        bcftools annotate -x ^FORMAT/GT | \
         bgzip -c > {output.vcf} ) 2> {log}
         tabix -p vcf {output.vcf} 2>> {log}
         """
@@ -112,17 +111,16 @@ rule extract_pair_data:
         vcf=rules.extract_biallelic_snps.output.vcf,
         samples=rules.create_pair_info.output.pair_info,
     output:
-        vcf=temp("results/processed_data/{species}/2pop/{pair}/{pair}.chr{i}.biallelic.snps.vcf.gz"),
-        idx=temp("results/processed_data/{species}/2pop/{pair}/{pair}.chr{i}.biallelic.snps.vcf.gz.tbi"),
+        vcf=temp("results/processed_data/{species}/{dataset}/2pop/{pair}/{pair}.{i}.biallelic.snps.vcf.gz"),
+        idx=temp("results/processed_data/{species}/{dataset}/2pop/{pair}/{pair}.{i}.biallelic.snps.vcf.gz.tbi"),
     log:
-        "logs/preprocess/extract_pair_data.{species}.{pair}.chr{i}.log",
+        "logs/preprocess/extract_pair_data.{species}.{dataset}.{pair}.{i}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
         """
         ( bcftools view {input.vcf} -S <(awk '{{print $1}}' {input.samples}) --force-samples | \
         bcftools view -i "AC>0 && AC<AN" | \
-        bcftools annotate -x ^FORMAT/GT | \
         bgzip -c > {output.vcf} ) 2> {log}
         tabix -p vcf {output.vcf} 2>> {log}
         """
@@ -133,8 +131,8 @@ rule extract_1pop_exonic_data:
         vcf=rules.extract_pop_data.output.vcf,
         anno=rules.annotate_biallelic_snps.output.txt,
     output:
-        vcf=temp("results/processed_data/{species}/1pop/{ppl}/{ppl}.chr{i}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz"),
-        idx=temp("results/processed_data/{species}/1pop/{ppl}/{ppl}.chr{i}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz.tbi"),
+        vcf=temp("results/processed_data/{species}/{dataset}/1pop/{ppl}/{ppl}.{i}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz"),
+        idx=temp("results/processed_data/{species}/{dataset}/1pop/{ppl}/{ppl}.{i}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz.tbi"),
     params:
         condition=lambda wildcards: (
             "$9~/^synonymous/"
@@ -144,7 +142,7 @@ rule extract_1pop_exonic_data:
     resources:
         mem_gb=32,
     log:
-        "logs/preprocess/extract_1pop_exonic_data.{species}.{ppl}.chr{i}.{mut_type}.{ref_genome}.log",
+        "logs/preprocess/extract_1pop_exonic_data.{species}.{dataset}.{ppl}.{i}.{mut_type}.{ref_genome}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -157,16 +155,16 @@ rule extract_1pop_exonic_data:
 
 rule concat_1pop_exonic_data:
     input:
-        vcfs=expand(
-            "results/processed_data/{species}/1pop/{ppl}/{ppl}.chr{i}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz",
-            i=main_config["chromosomes"],
+        vcfs=lambda wc: expand(
+            rules.extract_1pop_exonic_data.output.vcf,
+            i=get_chromosomes(wc),
             allow_missing=True,
         ),
     output:
-        vcf="results/processed_data/{species}/1pop/{ppl}/{ppl}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz",
-        idx="results/processed_data/{species}/1pop/{ppl}/{ppl}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz.tbi",
+        vcf="results/processed_data/{species}/{dataset}/1pop/{ppl}/{ppl}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz",
+        idx="results/processed_data/{species}/{dataset}/1pop/{ppl}/{ppl}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz.tbi",
     log:
-        "logs/preprocess/concat_1pop_exonic_data.{species}.{ppl}.{mut_type}.{ref_genome}.log",
+        "logs/preprocess/concat_1pop_exonic_data.{species}.{dataset}.{ppl}.{mut_type}.{ref_genome}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -181,8 +179,8 @@ rule extract_2pop_exonic_data:
         vcf=rules.extract_pair_data.output.vcf,
         anno=rules.annotate_biallelic_snps.output.txt,
     output:
-        vcf=temp("results/processed_data/{species}/2pop/{pair}/{pair}.chr{i}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz"),
-        idx=temp("results/processed_data/{species}/2pop/{pair}/{pair}.chr{i}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz.tbi"),
+        vcf=temp("results/processed_data/{species}/{dataset}/2pop/{pair}/{pair}.{i}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz"),
+        idx=temp("results/processed_data/{species}/{dataset}/2pop/{pair}/{pair}.{i}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz.tbi"),
     params:
         condition=lambda wildcards: (
             "$9~/^synonymous/"
@@ -192,7 +190,7 @@ rule extract_2pop_exonic_data:
     resources:
         mem_gb=32,
     log:
-        "logs/preprocess/extract_2pop_exonic_data.{species}.{pair}.chr{i}.{mut_type}.{ref_genome}.log",
+        "logs/preprocess/extract_2pop_exonic_data.{species}.{dataset}.{pair}.{i}.{mut_type}.{ref_genome}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -205,16 +203,16 @@ rule extract_2pop_exonic_data:
 
 rule concat_2pop_exonic_data:
     input:
-        vcfs=expand(
-            "results/processed_data/{species}/2pop/{pair}/{pair}.chr{i}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz",
-            i=main_config["chromosomes"],
+        vcfs=lambda wc: expand(
+            rules.extract_2pop_exonic_data.output.vcf,
+            i=get_chromosomes(wc),
             allow_missing=True,
         ),
     output:
-        vcf="results/processed_data/{species}/2pop/{pair}/{pair}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz",
-        idx="results/processed_data/{species}/2pop/{pair}/{pair}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz.tbi",
+        vcf="results/processed_data/{species}/{dataset}/2pop/{pair}/{pair}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz",
+        idx="results/processed_data/{species}/{dataset}/2pop/{pair}/{pair}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz.tbi",
     log:
-        "logs/preprocess/concat_2pop_exonic_data.{species}.{pair}.{mut_type}.{ref_genome}.log",
+        "logs/preprocess/concat_2pop_exonic_data.{species}.{dataset}.{pair}.{mut_type}.{ref_genome}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -229,18 +227,19 @@ rule test_hwe:
         vcf=rules.extract_pop_data.output.vcf,
     output:
         hwe_outliers=temp(
-            "results/processed_data/{species}/1pop/{ppl}/{ppl}.chr{i}.biallelic.snps.hwe.outliers"
+            "results/processed_data/{species}/{dataset}/1pop/{ppl}/{ppl}.{i}.biallelic.snps.hwe.outliers"
         ),
     params:
-        output_prefix="results/processed_data/{species}/1pop/{ppl}/{ppl}.chr{i}.biallelic.snps",
-        hwe_threshold=main_config["hwe_pvalue"],
+        output_prefix="results/processed_data/{species}/{dataset}/1pop/{ppl}/{ppl}.{i}.biallelic.snps",
+        hwe_threshold=get_hwe_pvalue,
     log:
-        "logs/preprocess/test_hwe.{species}.{ppl}.chr{i}.log",
+        "logs/preprocess/test_hwe.{species}.{dataset}.{ppl}.{i}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
         """
-        plink --vcf {input.vcf} --hardy --out {params.output_prefix} --set-missing-var-ids @:# 2> {log}
+        ( bcftools annotate --set-id '%CHROM:%POS' {input.vcf} | \
+        plink --vcf /dev/stdin --hardy --out {params.output_prefix} ) 2> {log}
         ( awk '$7>$8' {params.output_prefix}.hwe | \
         sed '1d' | \
         awk -v threshold={params.hwe_threshold} '$9<threshold{{print $2}}' | \
@@ -253,14 +252,14 @@ rule remove_repeats:
         vcf=rules.extract_pop_data.output.vcf,
         hwe_outliers=rules.test_hwe.output.hwe_outliers,
     output:
-        vcf=temp("results/processed_data/{species}/1pop/{ppl}/{ppl}.chr{i}.biallelic.snps.repeats.removed.vcf.gz"),
-        idx=temp("results/processed_data/{species}/1pop/{ppl}/{ppl}.chr{i}.biallelic.snps.repeats.removed.vcf.gz.tbi"),
+        vcf=temp("results/processed_data/{species}/{dataset}/1pop/{ppl}/{ppl}.{i}.biallelic.snps.repeats.removed.vcf.gz"),
+        idx=temp("results/processed_data/{species}/{dataset}/1pop/{ppl}/{ppl}.{i}.biallelic.snps.repeats.removed.vcf.gz.tbi"),
     params:
-        rmsk=main_config["rmsk"] if "rmsk" in main_config else "",
-        seg_dup=main_config["seg_dup"] if "seg_dup" in main_config else "",
-        sim_rep=main_config["sim_rep"] if "sim_rep" in main_config else "",
+        rmsk=get_rmsk,
+        seg_dup=get_seg_dup,
+        sim_rep=get_sim_rep,
     log:
-        "logs/preprocess/remove_repeats.{species}.{ppl}.chr{i}.log",
+        "logs/preprocess/remove_repeats.{species}.{dataset}.{ppl}.{i}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -290,11 +289,11 @@ rule remove_repeats:
 
 rule convert_ncbi_gtf:
     input:
-        gtf=main_config["genome_annotation"],
+        gtf=get_genome_annotation,
     output:
-        gtf="results/annotated_data/{species}.gowinda.gtf",
+        gtf="results/annotated_data/{species}/{dataset}.gowinda.gtf",
     log:
-        "logs/gene_enrichment/convert_ncbi_gtf.{species}.log",
+        "logs/gene_enrichment/convert_ncbi_gtf.{species}.{dataset}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
@@ -303,14 +302,14 @@ rule convert_ncbi_gtf:
 
 rule convert_ncbi_go:
     input:
-        gtf=main_config["genome_annotation"],
-        gene2go=main_config["gene2go"],
+        gtf=get_genome_annotation,
+        gene2go=get_gene2go,
     output:
-        go2gene="results/annotated_data/{species}.gowinda.go2gene",
+        go2gene="results/annotated_data/{species}/{dataset}.gowinda.go2gene",
     params:
-        tax_id=main_config["tax_id"],
+        tax_id=get_tax_id,
     log:
-        "logs/gene_enrichment/convert_ncbi_go.{species}.log",
+        "logs/gene_enrichment/convert_ncbi_go.{species}.{dataset}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:

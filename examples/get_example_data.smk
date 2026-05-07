@@ -127,7 +127,7 @@ rule compress_anc_info:
     input:
         bed=rules.extract_anc_info.output.bed,
     output:
-        bed="examples/data/Human/ancestral_alleles/homo_sapiens_ancestor_GRCh38/homo_sapiens_ancestor_chr{i}.bed.gz",
+        bed="examples/data/Human/ancestral_alleles/homo_sapiens_ancestor_GRCh38/homo_sapiens_ancestor.{i}.bed.gz",
     shell:
         """
         bgzip -c {input.bed} > {output.bed}

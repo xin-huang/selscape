@@ -1,0 +1,33 @@
+species: "Human"
+tax_id: 9606
+
+dataset: "ci_test"
+ref_genome: "hg19"
+anc_alleles:
+  path: ".tests/ci/data"
+  prefix: "test.chr"
+
+genome_annotation: ".tests/ci/data/test.gtf.gz"
+gene2go: ".tests/ci/data/test.gene2go.gz"
+
+hwe_pvalue: 0.001
+
+rmsk: null
+seg_dup: null
+sim_rep: null
+
+ploidy: 2
+
+populations:
+  - YRI
+  - CHS
+
+data_folder: ".tests/ci/data"
+
+vcf_prefix: "chr"
+vcf_suffix: ".hg19.test.vcf.gz"
+
+metadata: ".tests/ci/data/test_metadata.txt"
+
+chromosomes:
+  - 21

@@ -20,7 +20,7 @@
 
 import pandas as pd
 import os
-
+import sys
 
 log_fh = open(snakemake.log[0], "w")
 sys.stderr = log_fh
@@ -34,55 +34,40 @@ with open(output_file, "w"):
 
 outlier_df = pd.read_csv(outlier_file, sep="\t")
 
-#value_col_name = outlier_df.columns[3]
+if outlier_df.empty:
+    log_fh.close()
+    sys.exit(0)
 
 multianno_dict = {
-    os.path.basename(f).split("chr")[1].split(".")[0]: f for f in annotation_files
+    os.path.basename(f).split(".")[0].removeprefix("chr"): f
+    for f in annotation_files
 }
 
-outlier_positions = set()
-#position_to_value = {}
-
-for _, row in outlier_df.iterrows():
-    chrom = str(row["CHR"]).removeprefix("chr")
-    pos = int(row["BP"])
-    #value = row[value_col_name]
-    outlier_positions.add((chrom, pos))
-    #position_to_value[(chrom, pos)] = value
+outlier_df["CHR"] = outlier_df["CHR"].astype(str).str.removeprefix("chr")
+outlier_df["BP"] = outlier_df["BP"].astype(int)
 
 filtered_variants = []
-
-for chrom in set(chrom for chrom, _ in outlier_positions):
+for chrom, group in outlier_df.groupby("CHR"):
     print(f"Processing chromosome {chrom}...")
-
     if chrom not in multianno_dict:
         print(f"No annotation file for chromosome: {chrom}")
         continue
 
-    multianno_file = multianno_dict[chrom]
-    print(f"Reading annotation file: {multianno_file}")
-
-    multianno_df = pd.read_csv(multianno_file, sep="\t")
-
-    multianno_df["Chr"] = multianno_df["Chr"].astype(str).apply(lambda x: x.removeprefix("chr"))
+    print(f"Reading annotation file: {multianno_dict[chrom]}")
+    multianno_df = pd.read_csv(multianno_dict[chrom], sep="\t")
+    multianno_df["Chr"] = multianno_df["Chr"].astype(str).str.removeprefix("chr")
     multianno_df["Start"] = multianno_df["Start"].astype(int)
     multianno_df["End"] = multianno_df["End"].astype(int)
 
-    positions_for_chrom = {pos for c, pos in outlier_positions if c == chrom}
-
-    variants_in_region = multianno_df[multianno_df["Start"].isin(positions_for_chrom)]
-
-    print(f"Filtered {len(variants_in_region)} variants for chromosome {chrom}.")
-
-    if not variants_in_region.empty:
-        variants_in_region = variants_in_region.iloc[:, :11].copy()
-        #variants_in_region[value_col_name] = variants_in_region["Start"].apply(
-        #    lambda pos: position_to_value.get((chrom, pos), None)
-        #)
-        filtered_variants.append(variants_in_region)
+    variants = multianno_df[multianno_df["Start"].isin(set(group["BP"]))]
+    print(f"Filtered {len(variants)} variants for chromosome {chrom}.")
+    if not variants.empty:
+        filtered_variants.append(variants.iloc[:, :11].copy())
 
 if filtered_variants:
     result_df = pd.concat(filtered_variants, ignore_index=True)
     result_df["Chr"] = result_df["Chr"].astype(int)
-    result_df = result_df.sort_values(by=["Chr", "Start", "End"], ascending=[True, True, True])
+    result_df = result_df.sort_values(by=["Chr", "Start", "End"])
     result_df.to_csv(output_file, sep="\t", index=False)
+
+log_fh.close()
