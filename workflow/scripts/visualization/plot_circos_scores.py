@@ -20,11 +20,12 @@
 
 import os
 import sys
+import gzip
+import shutil
 import pandas as pd
 import matplotlib
 import matplotlib.pyplot as plt
 from pycirclize import Circos
-from pycirclize.utils import load_eukaryote_example_dataset
 
 matplotlib.use("Agg")
 
@@ -34,7 +35,7 @@ sys.stdout = log_fh
 
 population = snakemake.params.population
 ref_genome = snakemake.params.ref_genome
-tracks_cfg = snakemake.params.tracks  # list of dicts from rule params
+tracks_cfg = snakemake.params.tracks
 
 STATS = {
     "iHS":  "iHS",
@@ -55,7 +56,6 @@ def load_score_file(score_file, score_column):
     return df[["chr", "pos", "score"]]
 
 
-# Load all track data from params
 track_data = []
 for t in tracks_cfg:
     score_file = getattr(snakemake.input, t["file"])
@@ -63,10 +63,9 @@ for t in tracks_cfg:
     vmin, vmax = df["score"].min(), df["score"].max()
     track_data.append((t["name"], df, t["r_range"], t["color"], vmin, vmax))
 
-# Load chromosome bed
 chr_bed_file = snakemake.input.chr_bed
 cytoband_file = snakemake.input.cytoband
-# chr_bed_file, cytoband_file, _ = load_eukaryote_example_dataset(ref_genome)
+
 chr_bed_df = pd.read_csv(chr_bed_file, sep="\t", header=None)
 autosomes = [f"chr{i}" for i in range(1, 23)]
 chr_bed_df = chr_bed_df[chr_bed_df[0].isin(autosomes)]
@@ -75,6 +74,13 @@ temp_dir = os.path.dirname(snakemake.output.plot)
 os.makedirs(temp_dir, exist_ok=True)
 filtered_chr_bed = os.path.join(temp_dir, f"{population}_chr.bed")
 chr_bed_df.to_csv(filtered_chr_bed, sep="\t", header=False, index=False)
+
+# Decompress cytoband if gzipped
+if cytoband_file.endswith(".gz"):
+    cytoband_unzipped = os.path.join(temp_dir, f"{population}_cytoband.txt")
+    with gzip.open(cytoband_file, "rb") as f_in, open(cytoband_unzipped, "wb") as f_out:
+        shutil.copyfileobj(f_in, f_out)
+    cytoband_file = cytoband_unzipped
 
 # Setup circos
 circos = Circos.initialize_from_bed(filtered_chr_bed, start=-80, end=260, space=3, endspace=False)
@@ -92,6 +98,8 @@ for sector in circos.sectors:
         chr_data = df[df["chr"] == sector.name].sort_values("pos")
         if chr_data.empty:
             continue
+        # Clip positions to sector bounds
+        chr_data = chr_data[chr_data["pos"] < sector.end]
         track.line(
             chr_data["pos"].values,
             chr_data["score"].values,
