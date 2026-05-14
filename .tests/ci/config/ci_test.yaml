@@ -5,7 +5,7 @@ dataset: "ci_test"
 ref_genome: "hg19"
 anc_alleles:
   path: ".tests/ci/data"
-  prefix: "test.chr"
+  prefix: "test"
 
 genome_annotation: ".tests/ci/data/test.gtf.gz"
 gene2go: ".tests/ci/data/test.gene2go.gz"
