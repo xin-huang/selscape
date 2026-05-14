@@ -1,5 +1,6 @@
 datasets:
-  - config/1000g_high.yaml
+#  - config/1kg_high_cov.yaml
+  - config/1kg_low_cov.yaml
 
 selscan_config: "config/selscan.yaml"
 betascan_config: "config/betascan.yaml"
