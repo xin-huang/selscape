@@ -1,10 +1,10 @@
 .snakemake
 *.out
 *.sh
-examples*
 logs
 logs_slurm
 resources*
 results*
 *__pycache__*
 site*
+examples/data/*
