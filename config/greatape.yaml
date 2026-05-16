@@ -1,0 +1,31 @@
+species: "Pan"
+tax_id: 9598
+
+dataset: "greatape"
+ref_genome: "hg38"
+
+genome_annotation: "examples/data/Human/annotation/Human.gtf.gz"
+gene2go: "examples/data/Human/annotation/gene2go.gz"
+anc_alleles: null
+
+
+hwe_pvalue: 0.001
+
+rmsk: null
+seg_dup: null
+sim_rep: null
+
+ploidy: 2
+
+populations:
+  - PPA
+
+data_folder: "examples/data/greatape/Pan"
+vcf_prefix: ""
+vcf_suffix: ".filteranno.vcf.gz"
+
+metadata: "examples/data/greatape/metadata.txt"
+
+chromosomes:
+  - 21
+
