@@ -45,12 +45,12 @@ colors = [c if c is not None else auto_colors[i]
           for i, c in enumerate(pop_colors)]
 
 
-# Sort by population order
-df = df[df["Pop"].isin(populations)].copy()
-df = df.sort_values(
-    by="Pop",
-    key=lambda col: col.map(lambda p: populations.index(p) if p in populations else len(populations))
-).reset_index(drop=True)
+assert len(df) == len(populations), (
+    f"Row count mismatch: TSV has {len(df)} rows, expected {len(populations)}"
+)
+assert list(df["Pop"]) == populations, (
+    f"Population order mismatch: TSV has {list(df['Pop'])}, expected {populations}"
+)
 
 x = list(range(len(populations)))
 

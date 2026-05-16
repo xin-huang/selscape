@@ -60,11 +60,12 @@ def parse_bestfit_file(bestfit_file):
         for line in f:
             if line.startswith('# Converged results'):
                 next(f)
-                data_line = next(f)
-                values = data_line.strip().split()
-                return float(values[1]), float(values[2]), float(values[3])
+                values = next(f).strip().split()
+                log_mu    = float(values[1])
+                log_sigma = float(values[2])
+                misid     = float(values[3]) if len(values) > 3 else None
+                return log_mu, log_sigma, misid
     return None, None, None
-
 
 data = []
 for pop, bestfit_file, ci_file in zip(populations, bestfit_files, ci_files):
@@ -79,8 +80,8 @@ for pop, bestfit_file, ci_file in zip(populations, bestfit_files, ci_files):
         'sigma_lb': lower_bounds[1],
         'sigma_ub': upper_bounds[1],
         'misid':    misid,
-        'misid_lb': lower_bounds[2],
-        'misid_ub': upper_bounds[2],
+        'misid_lb': lower_bounds[2] if len(lower_bounds) > 2 else None,
+        'misid_ub': upper_bounds[2] if len(upper_bounds) > 2 else None,
     })
 
 df = pd.DataFrame(data)
