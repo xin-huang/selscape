@@ -20,7 +20,7 @@
 
 rule calc_delta_tajima_d:
     input:
-        vcf=rules.polarize_2pop.output.vcf,
+        vcf=rules.extract_pair_data.output.vcf,
         pair_info=rules.create_pair_info.output.pair_info,
     output:
         scores=temp(
