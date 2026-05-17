@@ -53,22 +53,7 @@ rule plot_dfe_confidence_intervals:
         ),
     params:
         populations=expand_1pop("{ppl}"),
-        pop_colors=lambda _: [
-            next(
-                (grp["color"] for grp in main_config.get("population_groups", {}).values()
-                 if pop in grp["populations"]),
-                None,
-            )
-            for pop in expand_1pop("{ppl}")
-        ],
-        pop_labels=lambda _: [
-            next(
-                (label for label, grp in main_config.get("population_groups", {}).items()
-                 if pop in grp["populations"]),
-                pop,
-            )
-            for pop in expand_1pop("{ppl}")
-        ],
+        population_groups=lambda _: main_config.get("population_groups", {}),
         mu_ylim=None,
         sigma_ylim=None,
     log:

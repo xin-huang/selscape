@@ -33,13 +33,27 @@ sys.stdout = log_fh
 df = pd.read_csv(snakemake.input.data, sep="\t")
 
 populations     = snakemake.params.populations
-pop_colors      = snakemake.params.pop_colors
-pop_labels      = snakemake.params.pop_labels
 mu_ylim         = snakemake.params.mu_ylim
 sigma_ylim      = snakemake.params.sigma_ylim
+population_groups = snakemake.params.population_groups
+
+pop_colors = []
+pop_labels = []
+for pop in populations:
+    label = next(
+        (lbl for lbl, grp in population_groups.items() if pop in grp["populations"]),
+        pop,
+    )
+    color = next(
+        (grp["color"] for grp in population_groups.values() if pop in grp["populations"]),
+        None,
+    )
+    pop_labels.append(label)
+    pop_colors.append(color)
 
 # Fallback: auto colors wenn None
 n = len(populations)
+assert n > 0, "No populations provided; cannot generate DFE parameter plot."
 auto_colors = [cm.tab20(i / n) for i in range(n)]
 colors = [c if c is not None else auto_colors[i]
           for i, c in enumerate(pop_colors)]
@@ -73,8 +87,14 @@ def plot_param(ax, param, ylim):
     if param == "sigma":
         current = ax.get_ylim()
         ax.set_ylim(bottom=0, top=current[1])
+    if ylim is not None:
+        if isinstance(ylim, (list, tuple)) and len(ylim) == 2:
+            ax.set_ylim(ylim[0], ylim[1])
+        else:
+            raise ValueError(
+                f"Invalid ylim for {param}: {ylim}. Expected [min, max] or null."
+            )
     ax.set_xticks(x, populations, rotation=90)
-
 
 plot_param(axs[0, 0], "mu",    mu_ylim)
 plot_param(axs[1, 0], "sigma", sigma_ylim)
