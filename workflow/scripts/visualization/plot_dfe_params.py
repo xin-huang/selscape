@@ -84,7 +84,7 @@ axs[1, 0].set_ylabel(r"$\sigma$")
 # Legend — unique groups from pop_labels
 subfig = fig.add_subfigure(gridspec[:, 1])
 seen = {}
-for label, color in zip(pop_labels, pop_colors):
+for label, color in zip(pop_labels, colors):
     if label not in seen:
         seen[label] = color
 handles = [

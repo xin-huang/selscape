@@ -32,6 +32,7 @@ rule merge_dfe_confidence_intervals:
         merged="results/plots/dfe/combined.dfe_params.tsv",
     params:
         populations=expand_1pop("{ppl}"),
+        datasets=expand_1pop("{dataset}"),
     log:
         "logs/deleterious_dfe/merge_dfe_confidence_intervals.log",
     conda:

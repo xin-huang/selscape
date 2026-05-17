@@ -31,7 +31,7 @@ populations   = snakemake.params.populations
 bestfit_files = snakemake.input.bestfit_files
 ci_files      = snakemake.input.ci_files
 output_file   = snakemake.output.merged
-
+datasets = snakemake.params.datasets
 
 def parse_ci_file(ci_file):
     with open(ci_file, 'r') as f:
@@ -68,11 +68,12 @@ def parse_bestfit_file(bestfit_file):
     return None, None, None
 
 data = []
-for pop, bestfit_file, ci_file in zip(populations, bestfit_files, ci_files):
+for pop, dataset, bestfit_file, ci_file in zip(populations, datasets, bestfit_files, ci_files):
     log_mu, log_sigma, misid = parse_bestfit_file(bestfit_file)
     lower_bounds, upper_bounds = parse_ci_file(ci_file)
     data.append({
         'Pop':      pop,
+        'Dataset': dataset, 
         'mu':       log_mu,
         'mu_lb':    lower_bounds[0],
         'mu_ub':    upper_bounds[0],
