@@ -57,6 +57,7 @@ rule create_pair_info:
 rule annotate_biallelic_snps:
     input:
         vcf=rules.extract_biallelic_snps.output.vcf,
+        idx=rules.extract_biallelic_snps.output.idx,
         ref_gene=rules.download_annovar_db.output.ref_gene,
     output:
         avinput=temp("results/annotated_data/{species}/{dataset}/all/{i}.biallelic.snps.{ref_genome}.avinput"),
@@ -89,6 +90,7 @@ rule annotate_biallelic_snps:
 rule extract_pop_data:
     input:
         vcf=rules.extract_biallelic_snps.output.vcf,
+        idx=rules.extract_biallelic_snps.output.idx,
         metadata=get_metadata,
     output:
         vcf=temp("results/processed_data/{species}/{dataset}/1pop/{ppl}/{ppl}.{i}.biallelic.snps.vcf.gz"),
@@ -109,6 +111,7 @@ rule extract_pop_data:
 rule extract_pair_data:
     input:
         vcf=rules.extract_biallelic_snps.output.vcf,
+        idx=rules.extract_biallelic_snps.output.idx,
         samples=rules.create_pair_info.output.pair_info,
     output:
         vcf=temp("results/processed_data/{species}/{dataset}/2pop/{pair}/{pair}.{i}.biallelic.snps.vcf.gz"),
@@ -129,6 +132,7 @@ rule extract_pair_data:
 rule extract_1pop_exonic_data:
     input:
         vcf=rules.extract_pop_data.output.vcf,
+        idx=rules.extract_pop_data.output.idx,
         anno=rules.annotate_biallelic_snps.output.txt,
     output:
         vcf=temp("results/processed_data/{species}/{dataset}/1pop/{ppl}/{ppl}.{i}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz"),
@@ -160,6 +164,11 @@ rule concat_1pop_exonic_data:
             i=get_chromosomes(wc),
             allow_missing=True,
         ),
+        idxs=lambda wc: expand(
+            rules.extract_1pop_exonic_data.output.idx,
+            i=get_chromosomes(wc),
+            allow_missing=True,
+        ),
     output:
         vcf="results/processed_data/{species}/{dataset}/1pop/{ppl}/{ppl}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz",
         idx="results/processed_data/{species}/{dataset}/1pop/{ppl}/{ppl}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz.tbi",
@@ -177,6 +186,7 @@ rule concat_1pop_exonic_data:
 rule extract_2pop_exonic_data:
     input:
         vcf=rules.extract_pair_data.output.vcf,
+        idx=rules.extract_pair_data.output.idx,
         anno=rules.annotate_biallelic_snps.output.txt,
     output:
         vcf=temp("results/processed_data/{species}/{dataset}/2pop/{pair}/{pair}.{i}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz"),
@@ -208,6 +218,11 @@ rule concat_2pop_exonic_data:
             i=get_chromosomes(wc),
             allow_missing=True,
         ),
+        idxs=lambda wc: expand(
+            rules.extract_2pop_exonic_data.output.idx,
+            i=get_chromosomes(wc),
+            allow_missing=True,
+        ),
     output:
         vcf="results/processed_data/{species}/{dataset}/2pop/{pair}/{pair}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz",
         idx="results/processed_data/{species}/{dataset}/2pop/{pair}/{pair}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz.tbi",
@@ -225,6 +240,7 @@ rule concat_2pop_exonic_data:
 rule test_hwe:
     input:
         vcf=rules.extract_pop_data.output.vcf,
+        idx=rules.extract_pop_data.output.idx,
     output:
         hwe_outliers=temp(
             "results/processed_data/{species}/{dataset}/1pop/{ppl}/{ppl}.{i}.biallelic.snps.hwe.outliers"
@@ -250,6 +266,7 @@ rule test_hwe:
 rule remove_repeats:
     input:
         vcf=rules.extract_pop_data.output.vcf,
+        idx=rules.extract_pop_data.output.idx,
         hwe_outliers=rules.test_hwe.output.hwe_outliers,
     output:
         vcf=temp("results/processed_data/{species}/{dataset}/1pop/{ppl}/{ppl}.{i}.biallelic.snps.repeats.removed.vcf.gz"),

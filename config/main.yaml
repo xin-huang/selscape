@@ -1,5 +1,5 @@
 datasets:
-  - config/1kg_high_cov.yaml
+  #  - config/1kg_high_cov.yaml
   - config/1kg_low_cov.yaml
   - config/greatape.yaml
 
