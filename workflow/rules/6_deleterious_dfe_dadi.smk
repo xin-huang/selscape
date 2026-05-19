@@ -291,7 +291,6 @@ rule dfe_godambe_ci:
         chunk_size=dadi_config["chunk_size"],
         polarized_flag=get_polarization_flag,
         mask_singletons_flag=f"{mask_singletons_flag}",
-        nomisid_flag=get_nomisid_flag,
     log:
         "logs/deleterious_dfe/dfe_godambe_ci.{species}.{dataset}.{ppl}.{ref_genome}.{demog}.{dfe}.log",
     conda:
@@ -302,7 +301,7 @@ rule dfe_godambe_ci:
         ( [ -d {params.nonsyn_dir} ] || mkdir -p {params.nonsyn_dir} ) 2>> {log}
         dadi-cli GenerateFs --vcf {input.syn_vcf} --pop-info {input.pop_info} --pop-ids {wildcards.ppl} --projections $(awk 'END {{print NR * 2}}' {input.pop_info}) {params.polarized_flag} {params.mask_singletons_flag} --bootstrap {params.bootstrap_reps} --chunk-size {params.chunk_size} --output {params.syn_output_prefix} 2>> {log}
         dadi-cli GenerateFs --vcf {input.nonsyn_vcf} --pop-info {input.pop_info} --pop-ids {wildcards.ppl} --projections $(awk 'END {{print NR * 2}}' {input.pop_info}) {params.polarized_flag} {params.mask_singletons_flag} --bootstrap {params.bootstrap_reps} --chunk-size {params.chunk_size} --output {params.nonsyn_output_prefix} 2>> {log}
-        dadi-cli StatDFE --fs {input.nonsyn_fs} --dfe-popt {input.dfe_bestfit} --cache1d {input.cache} --pdf1d {wildcards.dfe} --bootstrapping-nonsynonymous-dir {params.nonsyn_dir} --bootstrapping-synonymous-dir {params.syn_dir} --output {output.dfe_godambe_ci} {params.nomisid_flag} 2>> {log}
+        dadi-cli StatDFE --fs {input.nonsyn_fs} --dfe-popt {input.dfe_bestfit} --cache1d {input.cache} --pdf1d {wildcards.dfe} --bootstrapping-nonsynonymous-dir {params.nonsyn_dir} --bootstrapping-synonymous-dir {params.syn_dir} --output {output.dfe_godambe_ci}  2>> {log}
         """
 
 
