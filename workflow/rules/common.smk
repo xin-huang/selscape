@@ -73,11 +73,21 @@ DATASET_2POP = [
     for pair in combinations(cfg["populations"], 2)
 ]
 
-# Datasets that have ancestral allele information (required for selscan/polarization)
-datasets_with_anc = [
+# Ancestral allele gating policy: all datasets must provide anc_alleles, otherwise disable anc-only globally.
+datasets_without_anc = [
     ds for ds, cfg in dataset_configs.items()
-    if cfg.get("anc_alleles")
+    if not cfg.get("anc_alleles")
 ]
+if datasets_without_anc:
+    print(
+        "Missing anc_alleles for dataset(s): "
+        + ", ".join(datasets_without_anc)
+        + ". Running workflow in no-ancestral-alleles mode (anc-only rules disabled for all datasets).",
+        file=sys.stderr,
+    )
+    datasets_with_anc = []
+else:
+    datasets_with_anc = list(dataset_configs.keys())
 
 
 DATASET_1POP_ANC = [(ds, sp, pop, rg) for ds, sp, pop, rg in DATASET_1POP if ds in datasets_with_anc]
@@ -464,3 +474,29 @@ def add_dfe_title(wildcards, input):
         return f"{base} (Top 10 Bestfits, {dadi_config['optimizations']} optimizations)"
 
     return f"{base} Model Fit"
+
+
+def get_nomisid_flag(wildcards):
+    """Return --nomisid if dataset has no ancestral alleles or dadi is folded."""
+    cfg = get_dataset_cfg(wildcards)
+    if not cfg.get("anc_alleles") or not dadi_config["unfolded"]:
+        return "--nomisid"
+    return ""
+
+
+def get_dadi_bounds(bounds_key, wildcards):
+    """Return dadi bounds, stripping misid bound for folded datasets."""
+    cfg = get_dataset_cfg(wildcards)
+    bounds = dadi_config[bounds_key]
+    if not cfg.get("anc_alleles") or not dadi_config["unfolded"]:
+        bounds = " ".join(bounds.split()[:-1])
+    return bounds
+
+
+def get_dadi_p0(p0_key, wildcards):
+    """Return dadi p0, stripping misid value for folded datasets."""
+    cfg = get_dataset_cfg(wildcards)
+    p0 = dadi_config[p0_key]
+    if not cfg.get("anc_alleles") or not dadi_config["unfolded"]:
+        p0 = " ".join(p0.split()[:-1])
+    return p0
