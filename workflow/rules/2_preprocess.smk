@@ -129,6 +129,7 @@ rule extract_pair_data:
 rule extract_1pop_exonic_data:
     input:
         vcf=rules.extract_pop_data.output.vcf,
+        idx=rules.extract_pop_data.output.idx,
         anno=rules.annotate_biallelic_snps.output.txt,
     output:
         vcf=temp("results/processed_data/{species}/{dataset}/1pop/{ppl}/{ppl}.{i}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz"),
@@ -177,6 +178,7 @@ rule concat_1pop_exonic_data:
 rule extract_2pop_exonic_data:
     input:
         vcf=rules.extract_pair_data.output.vcf,
+        idx=rules.extract_pair_data.output.idx,
         anno=rules.annotate_biallelic_snps.output.txt,
     output:
         vcf=temp("results/processed_data/{species}/{dataset}/2pop/{pair}/{pair}.{i}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz"),

@@ -118,6 +118,11 @@ rule extract_tajima_d_balancing_outlier_variants:
             i=get_chromosomes(wc),
             allow_missing=True,
         ),
+        idxs=lambda wc: expand(
+            rules.extract_pop_data.output.idx,
+            i=get_chromosomes(wc),
+            allow_missing=True,
+        ),
     output:
         regions=temp("results/balancing_selection/scikit-allel/{species}/{dataset}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.top_{cutoff}.outliers.bed"),
         variants=temp("results/balancing_selection/scikit-allel/{species}/{dataset}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.top_{cutoff}.outliers.variants"),

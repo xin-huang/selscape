@@ -119,6 +119,11 @@ rule extract_delta_tajima_d_outlier_variants:
             i=get_chromosomes(wc),
             allow_missing=True,
         ),
+        idxs=lambda wc: expand(
+            rules.extract_pair_data.output.idx,
+            i=get_chromosomes(wc),
+            allow_missing=True,
+        ),
     output:
         regions=temp("results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.outliers.bed"),
         variants=temp("results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.outliers.variants"),
