@@ -52,9 +52,9 @@ rule format_delta_tajima_d:
         "../envs/selscape-env.yaml"
     shell:
         """
-        awk -v chr="{params.chrom}" 'BEGIN{{OFS="\\t"; chrom_num=(substr(chr,1,3)=="chr")?substr(chr,4):chr}}
+        awk -v chr="{params.chrom}" 'BEGIN{{OFS="\\t"}}
             NR==1{{print "SNP", "CHR", "BP", "delta_tajima_d", "window_start", "window_end", "n_snps"}}
-            NR>1 {{print chr":"$1, chrom_num, $1, $4, $1, $2, $3}}' \
+            NR>1 {{print chr":"$1, chr, $1, $4, $1, $2, $3}}' \
         {input.scores} > {output.formatted} 2> {log}
         """
 
@@ -119,6 +119,11 @@ rule extract_delta_tajima_d_outlier_variants:
             i=get_chromosomes(wc),
             allow_missing=True,
         ),
+        idxs=lambda wc: expand(
+            rules.extract_pair_data.output.idx,
+            i=get_chromosomes(wc),
+            allow_missing=True,
+        ),
     output:
         regions=temp("results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.outliers.bed"),
         variants=temp("results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.outliers.variants"),
@@ -149,7 +154,7 @@ rule annotate_delta_tajima_d_outliers:
     output:
         annotated_outliers="results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.annotated.outliers",
     resources:
-        mem_gb=32,
+        mem_mb=32000,
     log:
         "logs/positive_selection/annotate_delta_tajima_d_outliers.{species}.{dataset}.{pair}.{method}.{window}_{step}.top_{cutoff}.log",
     conda:
@@ -212,7 +217,7 @@ rule enrichment_delta_tajima_d_gowinda:
         total_snps="results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.total.snps.tsv",
         enrichment="results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.gowinda.enrichment.tsv",
     resources:
-        mem_gb=32,
+        mem_mb=32000,
         cpus=8,
     log:
         "logs/positive_selection/enrichment_delta_tajima_d_gowinda.{species}.{dataset}.{pair}.{method}.{window}_{step}.top_{cutoff}.log",
@@ -226,7 +231,7 @@ rule enrichment_delta_tajima_d_gowinda:
             bcftools query -f "%CHROM\t%POS\n" $i
         done > {output.total_snps} 2>> {log}
 
-        java -Xmx{resources.mem_gb}g -jar {input.gowinda} \
+        java -Xmx{resources.mem_mb}m -jar {input.gowinda} \
             --snp-file {output.total_snps} \
             --candidate-snp-file {output.outlier_snps} \
             --gene-set-file {input.go2gene} \
@@ -278,7 +283,7 @@ rule plot_gowinda_enrichment_delta_tajima_d:
     params:
         title=add_scikit_allel_title,
     resources:
-        mem_gb=8,
+        mem_mb=8000,
     log:
         "logs/positive_selection/plot_gowinda_enrichment_delta_tajima_d.{species}.{dataset}.{pair}.{method}.{window}_{step}.top_{cutoff}.log",
     conda:

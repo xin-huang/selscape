@@ -1,24 +1,24 @@
 species: "Human"
 tax_id: 9606
 
-dataset: "1000g_low"
+dataset: "1kg_low_cov"
 ref_genome: "hg19"
 anc_alleles:
-  path: "examples/data/Human/ancestral_alleles/homo_sapiens_ancestor_GRCh37"
+  path: "examples/data/Human/1kg_low_cov/ancestral_alleles/homo_sapiens_ancestor_GRCh37_e71"
   prefix: "homo_sapiens_ancestor"
 
 
 genome_annotation: "examples/data/Human/annotation/Human.hg19.gtf.gz"
-gene2go: "examples/data/Human/annotation/gene2go.gz"
+gene2go: "examples/data/Human/gene2go.gz"
 
 # Quality control filters
 # Hardy-Weinberg equilibrium p-value threshold for balancing selection
 hwe_pvalue: 0.001
 
 # Repeat filters
-rmsk:    "examples/data/Human/repeats/hg19.rmsk.autosomes.bed"
-seg_dup: "examples/data/Human/repeats/hg19.seg.dups.autosomes.bed"
-sim_rep: "examples/data/Human/repeats/hg19.simple.repeats.autosomes.bed"
+rmsk:    "examples/data/Human/1kg_low_cov/repeats/hg19.rmsk.autosomes.bed"
+seg_dup: "examples/data/Human/1kg_low_cov/repeats/hg19.seg.dups.autosomes.bed"
+sim_rep: "examples/data/Human/1kg_low_cov/repeats/hg19.simple.repeats.autosomes.bed"
 
 ploidy: 2
 
@@ -28,12 +28,12 @@ populations:
   - CHS
 
 # Data file configuration
-data_folder: "examples/data/Human/1kg_low"
+data_folder: "examples/data/Human/1kg_low_cov"
 # VCF file naming convention: {file_prefix}chr{chr_name}{file_suffix}
-vcf_prefix: "chr"
+vcf_prefix: "" 
 vcf_suffix: ".vcf.gz"
 # Sample metadata file
-metadata: "examples/data/Human/1kg_low/metadata.txt"
+metadata: "examples/data/Human/1kg_low_cov/metadata.txt"
 
 # Chromosome range to analyze
 chromosomes:
