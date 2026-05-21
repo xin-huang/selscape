@@ -484,19 +484,11 @@ def get_nomisid_flag(wildcards):
     return ""
 
 
-def get_dadi_bounds(bounds_key, wildcards):
-    """Return dadi bounds, stripping misid bound for folded datasets."""
+def get_dadi_param(key, wildcards):
+    """Return dadi parameter string, stripping misid value for folded datasets."""
     cfg = get_dataset_cfg(wildcards)
-    bounds = dadi_config[bounds_key]
+    value = dadi_config[key]
     if not cfg.get("anc_alleles") or not dadi_config["unfolded"]:
-        bounds = " ".join(bounds.split()[:-1])
-    return bounds
+        value = " ".join(value.split()[:-1])
+    return value
 
-
-def get_dadi_p0(p0_key, wildcards):
-    """Return dadi p0, stripping misid value for folded datasets."""
-    cfg = get_dataset_cfg(wildcards)
-    p0 = dadi_config[p0_key]
-    if not cfg.get("anc_alleles") or not dadi_config["unfolded"]:
-        p0 = " ".join(p0.split()[:-1])
-    return p0
