@@ -52,9 +52,9 @@ rule format_tajima_d_balancing:
         "../envs/selscape-env.yaml"
     shell:
         """
-        awk -v chr="{params.chrom}" 'BEGIN{{OFS="\\t"; chrom_num=(substr(chr,1,3)=="chr")?substr(chr,4):chr}}
+        awk -v chr="{params.chrom}" 'BEGIN{{OFS="\\t"}}
             NR==1{{print "SNP", "CHR", "BP", "tajima_d", "window_start", "window_end", "n_snps"}}
-            NR>1 && $4>0 {{print chr":"$1, chrom_num, $1, $4, $1, $2, $3}}' \
+            NR>1 && $4>0 {{print chr":"$1, chr, $1, $4, $1, $2, $3}}' \
         {input.scores} > {output.formatted} 2> {log}
         """
 
