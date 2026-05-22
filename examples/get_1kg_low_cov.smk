@@ -87,7 +87,7 @@ rule download_ensembl_ancestral_alleles_hg19:
         """
         wget -c https://ftp.ensembl.org/pub/release-75/fasta/ancestral_alleles/homo_sapiens_ancestor_GRCh37_e71.tar.bz2 \
             -O {output.anc_alleles}
-        tar -xjf {output.anc_alleles} -C examples/data/Human/ancestral_alleles
+        tar -xjf {output.anc_alleles} -C examples/data/Human/1kg_low_cov/ancestral_alleles
         """
 
 
@@ -97,7 +97,7 @@ rule extract_anc_info_hg19:
     output:
         bed=temp("examples/data/Human/1kg_low_cov/ancestral_alleles/homo_sapiens_ancestor_GRCh37_e71/homo_sapiens_ancestor.{i}.bed"),
     params:
-        fasta="examples/data/Human/1kg_low_cov/ancestral_alleles/homo_sapiens_ancestor_GRCh37_e71/homo_sapiens_ancestor_chr{i}.fa",
+        fasta="examples/data/Human/1kg_low_cov/ancestral_alleles/homo_sapiens_ancestor_GRCh37_e71/homo_sapiens_ancestor_{i}.fa",
     run:
         import pysam
         import re
