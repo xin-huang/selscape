@@ -252,6 +252,7 @@ rule test_hwe:
 rule remove_repeats:
     input:
         vcf=rules.extract_pop_data.output.vcf,
+        idx=rules.extract_pop_data.output.idx,
         hwe_outliers=rules.test_hwe.output.hwe_outliers,
     output:
         vcf=temp("results/processed_data/{species}/{dataset}/1pop/{ppl}/{ppl}.{i}.biallelic.snps.repeats.removed.vcf.gz"),
