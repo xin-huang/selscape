@@ -27,5 +27,4 @@ vcf_suffix: ".filteranno.vcf.gz"
 metadata: "examples/data/greatape/metadata.txt"
 
 chromosomes:
-  - 21
-
+  - chr21

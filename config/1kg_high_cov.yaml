@@ -23,10 +23,10 @@ populations:
   - CHS
 
 data_folder: "examples/data/Human/raw"
-vcf_prefix: "full_chr"
+vcf_prefix: "full_"
 vcf_suffix: ".vcf.gz"
 
 metadata: "examples/data/Human/metadata/example_metadata.txt"
 
 chromosomes:
-  - 21
+  - chr21
