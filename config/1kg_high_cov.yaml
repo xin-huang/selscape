@@ -29,4 +29,4 @@ vcf_suffix: ".vcf.gz"
 metadata: "examples/data/Human/metadata/example_metadata.txt"
 
 chromosomes:
-  - 21
+  - chr21
