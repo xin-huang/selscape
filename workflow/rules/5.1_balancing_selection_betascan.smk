@@ -102,7 +102,7 @@ rule plot_betascan:
         color1=betascan_config["manhattan_plot_color1"],
         color2=betascan_config["manhattan_plot_color2"],
     resources:
-        mem_gb=16,
+        mem_mb=16000,
     log:
         "logs/balancing_selection/plot_betascan.{species}.{dataset}.{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.log",
     conda:
@@ -123,7 +123,7 @@ rule annotate_betascan_outliers:
     output:
         annotated_outliers="results/balancing_selection/betascan/{species}/{dataset}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.annotated.outliers",
     resources:
-        mem_gb=32,
+        mem_mb=32000,
     log:
         "logs/balancing_selection/annotate_betascan_outliers.{species}.{dataset}.{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.log",
     conda:
@@ -184,7 +184,7 @@ rule enrichment_betascan_gowinda:
         total_snps="results/balancing_selection/betascan/{species}/{dataset}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.total.snps.tsv",
         enrichment="results/balancing_selection/betascan/{species}/{dataset}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.gowinda.enrichment.tsv",
     resources:
-        mem_gb=32,
+        mem_mb=32000,
         cpus=8,
     log:
         "logs/balancing_selection/enrichment_betascan_gowinda.{species}.{dataset}.{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.log",
@@ -198,7 +198,7 @@ rule enrichment_betascan_gowinda:
             bcftools query -f "%CHROM\\t%POS\\n" $i
         done > {output.total_snps} 2>> {log}
 
-        java -Xmx{resources.mem_gb}g -jar {input.gowinda} \
+        java -Xmx{resources.mem_mb}m -jar {input.gowinda} \
             --snp-file {output.total_snps} \
             --candidate-snp-file {output.outlier_snps} \
             --gene-set-file {input.go2gene} \
@@ -250,7 +250,7 @@ rule plot_gowinda_enrichment_betascan:
     params:
         title=add_betascan_title,
     resources:
-        mem_gb=8,
+        mem_mb=8000,
     log:
         "logs/balancing_selection/plot_gowinda_enrichment_betascan.{species}.{dataset}.{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.log",
     conda:

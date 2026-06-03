@@ -64,7 +64,7 @@ rule annotate_biallelic_snps:
         txt="results/annotated_data/{species}/{dataset}/all/{i}.biallelic.snps.{ref_genome}_multianno.txt",
     resources:
         cpus=8,
-        mem_gb=32,
+        mem_mb=32000,
     params:
         output_prefix="results/annotated_data/{species}/{dataset}/all/{i}.biallelic.snps",
         db_dir="resources/tools/annovar/{ref_genome}_db",
@@ -144,7 +144,7 @@ rule extract_1pop_exonic_data:
             else "$9~/^nonsynonymous/"
         ),
     resources:
-        mem_gb=32,
+        mem_mb=32000,
     log:
         "logs/preprocess/extract_1pop_exonic_data.{species}.{dataset}.{ppl}.{i}.{mut_type}.{ref_genome}.log",
     conda:
@@ -198,7 +198,7 @@ rule extract_2pop_exonic_data:
             else "$9~/^nonsynonymous/"
         ),
     resources:
-        mem_gb=32,
+        mem_mb=32000,
     log:
         "logs/preprocess/extract_2pop_exonic_data.{species}.{dataset}.{pair}.{i}.{mut_type}.{ref_genome}.log",
     conda:
