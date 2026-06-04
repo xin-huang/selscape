@@ -52,8 +52,6 @@ create_no_results <- function() {
 
 data <- read.table(input_file, header = TRUE)
 
-data$CHR <- as.numeric(sub("^chr", "", data$CHR, ignore.case = TRUE))
-
 if (nrow(data) == 0) {
   create_no_results()
 }
@@ -99,9 +97,11 @@ y <- data[[score_used_col]]
 ymin <- min(y, 0, na.rm = TRUE)
 ymax <- max(y, 0, na.rm = TRUE)
 
+plot_data <- data
+plot_data$CHR <- as.numeric(sub("^chr", "", plot_data$CHR, ignore.case = TRUE))
 
 png(output_plot, width = plot_width, height = plot_height, units = "px")
-manhattan(data, p = score_used_col, logp = FALSE, genomewideline = threshold,
+manhattan(plot_data, p = score_used_col, logp = FALSE, genomewideline = threshold,
           suggestiveline = FALSE, col = c(color1, color2),
           main = plot_title,
           ylab = ylab_text, ylim = c(ymin, ymax))
