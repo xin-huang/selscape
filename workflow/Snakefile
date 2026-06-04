@@ -35,6 +35,7 @@ include: "rules/4.4_positive_selection_scikit-allel_xp.smk"
 include: "rules/5.1_balancing_selection_betascan.smk"
 include: "rules/5.2_balancing_selection_scikit-allel.smk"
 include: "rules/6_deleterious_dfe_dadi.smk"
+include: "rules/7_plot_results.smk"
 
 
 #report: "report/workflow.rst"
@@ -134,3 +135,5 @@ rule all:
             "results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.{type}.html",
             **DELTA_TAJIMAD_KW, type=["outlier.genes", "gowinda.enrichment"],
         ),
+        # dfe confidence intervals
+        "results/plots/dfe/combined.dfe_params.svg",

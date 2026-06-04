@@ -73,11 +73,21 @@ DATASET_2POP = [
     for pair in combinations(cfg["populations"], 2)
 ]
 
-# Datasets that have ancestral allele information (required for selscan/polarization)
-datasets_with_anc = [
+# Ancestral allele gating policy: all datasets must provide anc_alleles, otherwise disable anc-only globally.
+datasets_without_anc = [
     ds for ds, cfg in dataset_configs.items()
-    if cfg.get("anc_alleles")
+    if not cfg.get("anc_alleles")
 ]
+if datasets_without_anc:
+    print(
+        "Missing anc_alleles for dataset(s): "
+        + ", ".join(datasets_without_anc)
+        + ". Running workflow in no-ancestral-alleles mode (anc-only rules disabled for all datasets).",
+        file=sys.stderr,
+    )
+    datasets_with_anc = []
+else:
+    datasets_with_anc = list(dataset_configs.keys())
 
 
 DATASET_1POP_ANC = [(ds, sp, pop, rg) for ds, sp, pop, rg in DATASET_1POP if ds in datasets_with_anc]
@@ -319,7 +329,6 @@ def delta_tajima_d_labels(wildcards, type: str = "Plot") -> dict[str, str]:
 
 def get_betascan_vcf_dir(wildcards):
     """Return polarized_data or processed_data depending on anc_alleles config."""
-    cfg = get_dataset_cfg(wildcards)
     if cfg.get("anc_alleles") and betascan_config["unfolded"]:
         return "polarized_data"
     return "processed_data"
@@ -327,24 +336,21 @@ def get_betascan_vcf_dir(wildcards):
 
 def get_folding_flag(wildcards):
     """Return -fold flag if dataset has no ancestral alleles or betascan is folded."""
-    cfg = get_dataset_cfg(wildcards)
-    if cfg.get("anc_alleles") and betascan_config["unfolded"]:
+    if wildcards.dataset in datasets_with_anc and betascan_config["unfolded"]:
         return "-fold"
     return ""
 
 
 def get_dadi_vcf_dir(wildcards):
     """Return polarized_data or processed_data depending on dadi unfolded config."""
-    cfg = get_dataset_cfg(wildcards)
-    if cfg.get("anc_alleles") and dadi_config["unfolded"]:
+    if wildcards.dataset in datasets_with_anc and dadi_config["unfolded"]:
         return "polarized_data"
     return "processed_data"
 
 
 def get_polarization_flag(wildcards):
     """Return --polarized flag if dataset has ancestral alleles and dadi is unfolded."""
-    cfg = get_dataset_cfg(wildcards)
-    if cfg.get("anc_alleles") and dadi_config["unfolded"]:
+    if wildcards.dataset in datasets_with_anc and dadi_config["unfolded"]:
         return "--polarized"
     return ""
 
@@ -464,3 +470,18 @@ def add_dfe_title(wildcards, input):
         return f"{base} (Top 10 Bestfits, {dadi_config['optimizations']} optimizations)"
 
     return f"{base} Model Fit"
+
+
+def get_nomisid_flag(wildcards):
+    """Return --nomisid if dataset has no ancestral alleles or dadi is folded."""
+    if wildcards.dataset not in datasets_with_anc or not dadi_config["unfolded"]:
+        return "--nomisid"
+    return ""
+
+
+def get_dadi_param(key, wildcards):
+    """Return dadi parameter string, stripping misid value for folded datasets."""
+    value = dadi_config[key]
+    if wildcards.dataset not in datasets_with_anc or not dadi_config["unfolded"]:
+        value = " ".join(value.split()[:-1])
+    return value

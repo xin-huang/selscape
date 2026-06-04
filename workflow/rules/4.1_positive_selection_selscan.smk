@@ -131,7 +131,7 @@ rule plot_selscan:
         color1=selscan_config["manhattan_plot_color1"],
         color2=selscan_config["manhattan_plot_color2"],
     resources:
-        mem_gb=16,
+        mem_mb=16000,
     log:
         "logs/positive_selection/plot_selscan.{species}.{dataset}.{ppl}.normalized.{method}.maf_{maf}.top_{cutoff}.log",
     conda:
@@ -152,7 +152,7 @@ rule annotate_selscan_outliers:
     output:
         annotated_outliers="results/positive_selection/selscan/{species}/{dataset}/1pop/{ppl}/{method}_{maf}/{ppl}.normalized.{method}.maf_{maf}.top_{cutoff}.annotated.outliers",
     resources:
-        mem_gb=32,
+        mem_mb=32000,
     log:
         "logs/positive_selection/annotate_selscan_outliers.{species}.{dataset}.{ppl}.normalized.{method}.maf_{maf}.top_{cutoff}.log",
     conda:
@@ -213,7 +213,7 @@ rule enrichment_selscan_gowinda:
         total_snps="results/positive_selection/selscan/{species}/{dataset}/1pop/{ppl}/{method}_{maf}/{ppl}.normalized.{method}.maf_{maf}.top_{cutoff}.total.snps.tsv",
         enrichment="results/positive_selection/selscan/{species}/{dataset}/1pop/{ppl}/{method}_{maf}/{ppl}.normalized.{method}.maf_{maf}.top_{cutoff}.gowinda.enrichment.tsv",
     resources:
-        mem_gb=32,
+        mem_mb=32000,
         cpus=8,
     log:
         "logs/positive_selection/enrichment_selscan_gowinda.{species}.{dataset}.{ppl}.normalized.{method}.maf_{maf}.top_{cutoff}.log",
@@ -227,7 +227,7 @@ rule enrichment_selscan_gowinda:
             bcftools query -f "%CHROM\\t%POS\\n" $i
         done > {output.total_snps} 2>> {log}
 
-        java -Xmx{resources.mem_gb}g -jar {input.gowinda} \
+        java -Xmx{resources.mem_mb}m -jar {input.gowinda} \
             --snp-file {output.total_snps} \
             --candidate-snp-file {output.outlier_snps} \
             --gene-set-file {input.go2gene} \
@@ -278,7 +278,7 @@ rule plot_gowinda_enrichment_selscan:
     params:
         title=add_selscan_title,
     resources:
-        mem_gb=8,
+        mem_mb=8000,
     log:
         "logs/positive_selection/plot_gowinda_enrichment_selscan.{species}.{dataset}.{ppl}.normalized.{method}.maf_{maf}.top_{cutoff}.log",
     conda:

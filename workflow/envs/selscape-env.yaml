@@ -7,7 +7,7 @@ dependencies:
   - bedtools=2.31.1
   - cyvcf2=0.31.0
   - dadi=2.4.3
-  - dadi-cli=0.9.13
+  - dadi-cli=0.9.14
   - matplotlib=3.9.4
   - nlopt=2.10.0
   - numpy=1.26.4

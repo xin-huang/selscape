@@ -57,13 +57,14 @@ rule create_pair_info:
 rule annotate_biallelic_snps:
     input:
         vcf=rules.extract_biallelic_snps.output.vcf,
+        idx=rules.extract_biallelic_snps.output.idx,
         ref_gene=rules.download_annovar_db.output.ref_gene,
     output:
         avinput=temp("results/annotated_data/{species}/{dataset}/all/{i}.biallelic.snps.{ref_genome}.avinput"),
         txt="results/annotated_data/{species}/{dataset}/all/{i}.biallelic.snps.{ref_genome}_multianno.txt",
     resources:
         cpus=8,
-        mem_gb=32,
+        mem_mb=32000,
     params:
         output_prefix="results/annotated_data/{species}/{dataset}/all/{i}.biallelic.snps",
         db_dir="resources/tools/annovar/{ref_genome}_db",
@@ -89,6 +90,7 @@ rule annotate_biallelic_snps:
 rule extract_pop_data:
     input:
         vcf=rules.extract_biallelic_snps.output.vcf,
+        idx=rules.extract_biallelic_snps.output.idx,
         metadata=get_metadata,
     output:
         vcf=temp("results/processed_data/{species}/{dataset}/1pop/{ppl}/{ppl}.{i}.biallelic.snps.vcf.gz"),
@@ -109,6 +111,7 @@ rule extract_pop_data:
 rule extract_pair_data:
     input:
         vcf=rules.extract_biallelic_snps.output.vcf,
+        idx=rules.extract_biallelic_snps.output.idx,
         samples=rules.create_pair_info.output.pair_info,
     output:
         vcf=temp("results/processed_data/{species}/{dataset}/2pop/{pair}/{pair}.{i}.biallelic.snps.vcf.gz"),
@@ -141,7 +144,7 @@ rule extract_1pop_exonic_data:
             else "$9~/^nonsynonymous/"
         ),
     resources:
-        mem_gb=32,
+        mem_mb=32000,
     log:
         "logs/preprocess/extract_1pop_exonic_data.{species}.{dataset}.{ppl}.{i}.{mut_type}.{ref_genome}.log",
     conda:
@@ -158,6 +161,11 @@ rule concat_1pop_exonic_data:
     input:
         vcfs=lambda wc: expand(
             rules.extract_1pop_exonic_data.output.vcf,
+            i=get_chromosomes(wc),
+            allow_missing=True,
+        ),
+        idxs=lambda wc: expand(
+            rules.extract_1pop_exonic_data.output.idx,
             i=get_chromosomes(wc),
             allow_missing=True,
         ),
@@ -190,7 +198,7 @@ rule extract_2pop_exonic_data:
             else "$9~/^nonsynonymous/"
         ),
     resources:
-        mem_gb=32,
+        mem_mb=32000,
     log:
         "logs/preprocess/extract_2pop_exonic_data.{species}.{dataset}.{pair}.{i}.{mut_type}.{ref_genome}.log",
     conda:
@@ -207,6 +215,11 @@ rule concat_2pop_exonic_data:
     input:
         vcfs=lambda wc: expand(
             rules.extract_2pop_exonic_data.output.vcf,
+            i=get_chromosomes(wc),
+            allow_missing=True,
+        ),
+        idxs=lambda wc: expand(
+            rules.extract_2pop_exonic_data.output.idx,
             i=get_chromosomes(wc),
             allow_missing=True,
         ),
@@ -227,6 +240,7 @@ rule concat_2pop_exonic_data:
 rule test_hwe:
     input:
         vcf=rules.extract_pop_data.output.vcf,
+        idx=rules.extract_pop_data.output.idx,
     output:
         hwe_outliers=temp(
             "results/processed_data/{species}/{dataset}/1pop/{ppl}/{ppl}.{i}.biallelic.snps.hwe.outliers"
