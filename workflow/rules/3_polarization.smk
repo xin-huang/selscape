@@ -157,6 +157,7 @@ rule test_hwe_polarized:
 rule remove_repeats_polarized:
     input:
         vcf=rules.polarize_1pop.output.vcf,
+        idx=rules.polarize_1pop.output.idx,
         hwe_outliers=rules.test_hwe_polarized.output.hwe_outliers,
     output:
         vcf=temp("results/polarized_data/{species}/{dataset}/1pop/{ppl}/{ppl}.{i}.biallelic.snps.repeats.removed.vcf.gz"),

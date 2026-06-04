@@ -20,7 +20,7 @@
 
 rule download_gene2go:
     output:
-        gene2go="examples/data/Human/annotation/gene2go.gz",
+        gene2go="examples/data/Human/gene2go.gz",
     shell:
         """
         wget -c https://ftp.ncbi.nih.gov/gene/DATA/gene2go.gz -O {output.gene2go}

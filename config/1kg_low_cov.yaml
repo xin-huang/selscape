@@ -30,7 +30,7 @@ populations:
 # Data file configuration
 data_folder: "examples/data/Human/1kg_low"
 # VCF file naming convention: {file_prefix}chr{chr_name}{file_suffix}
-vcf_prefix: "chr"
+vcf_prefix: "chr" 
 vcf_suffix: ".vcf.gz"
 # Sample metadata file
 metadata: "examples/data/Human/1kg_low/metadata.txt"
