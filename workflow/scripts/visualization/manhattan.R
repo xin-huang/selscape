@@ -52,6 +52,8 @@ create_no_results <- function() {
 
 data <- read.table(input_file, header = TRUE)
 
+data$CHR <- as.numeric(sub("^chr", "", data$CHR, ignore.case = TRUE))
+
 if (nrow(data) == 0) {
   create_no_results()
 }
