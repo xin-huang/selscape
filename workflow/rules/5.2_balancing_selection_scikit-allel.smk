@@ -52,9 +52,9 @@ rule format_tajima_d_balancing:
         "../envs/selscape-env.yaml"
     shell:
         """
-        awk -v chr="{params.chrom}" 'BEGIN{{OFS="\\t"; chrom_num=(substr(chr,1,3)=="chr")?substr(chr,4):chr}}
+        awk -v chr="{params.chrom}" 'BEGIN{{OFS="\\t"}}
             NR==1{{print "SNP", "CHR", "BP", "tajima_d", "window_start", "window_end", "n_snps"}}
-            NR>1 && $4>0 {{print chr":"$1, chrom_num, $1, $4, $1, $2, $3}}' \
+            NR>1 && $4>0 {{print chr":"$1, chr, $1, $4, $1, $2, $3}}' \
         {input.scores} > {output.formatted} 2> {log}
         """
 
@@ -118,6 +118,11 @@ rule extract_tajima_d_balancing_outlier_variants:
             i=get_chromosomes(wc),
             allow_missing=True,
         ),
+        idxs=lambda wc: expand(
+            rules.extract_pop_data.output.idx,
+            i=get_chromosomes(wc),
+            allow_missing=True,
+        ),
     output:
         regions=temp("results/balancing_selection/scikit-allel/{species}/{dataset}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.top_{cutoff}.outliers.bed"),
         variants=temp("results/balancing_selection/scikit-allel/{species}/{dataset}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.top_{cutoff}.outliers.variants"),
@@ -148,7 +153,7 @@ rule annotate_tajima_d_balancing_outliers:
     output:
         annotated_outliers="results/balancing_selection/scikit-allel/{species}/{dataset}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.top_{cutoff}.annotated.outliers",
     resources:
-        mem_gb=32,
+        mem_mb=32000,
     log:
         "logs/balancing_selection/annotate_tajima_d_balancing_outliers.{species}.{dataset}.{ppl}.{method}.{window}_{step}.top_{cutoff}.log",
     conda:
@@ -209,7 +214,7 @@ rule enrichment_tajima_d_balancing_gowinda:
         total_snps="results/balancing_selection/scikit-allel/{species}/{dataset}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.top_{cutoff}.total.snps.tsv",
         enrichment="results/balancing_selection/scikit-allel/{species}/{dataset}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.top_{cutoff}.gowinda.enrichment.tsv",
     resources:
-        mem_gb=32,
+        mem_mb=32000,
         cpus=8,
     log:
         "logs/balancing_selection/enrichment_tajima_d_balancing_gowinda.{species}.{dataset}.{ppl}.{method}.{window}_{step}.top_{cutoff}.log",
@@ -223,7 +228,7 @@ rule enrichment_tajima_d_balancing_gowinda:
             bcftools query -f "%CHROM\t%POS\n" $i
         done > {output.total_snps} 2>> {log}
 
-        java -Xmx{resources.mem_gb}g -jar {input.gowinda} \
+        java -Xmx{resources.mem_mb}m -jar {input.gowinda} \
             --snp-file {output.total_snps} \
             --candidate-snp-file {output.outlier_snps} \
             --gene-set-file {input.go2gene} \
@@ -275,7 +280,7 @@ rule plot_gowinda_enrichment_tajima_d_balancing:
     params:
         title=add_scikit_allel_title,
     resources:
-        mem_gb=8,
+        mem_mb=8000,
     log:
         "logs/balancing_selection/plot_gowinda_enrichment_tajima_d_balancing.{species}.{dataset}.{ppl}.{method}.{window}_{step}.top_{cutoff}.log",
     conda:

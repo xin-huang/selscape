@@ -1,20 +1,20 @@
 species: "Human"
 tax_id: 9606
 
-dataset: "1000g_high"
+dataset: "1kg_high_cov"
 ref_genome: "hg38"
 anc_alleles:
-  path: "examples/data/Human/ancestral_alleles/homo_sapiens_ancestor_GRCh38"
+  path: "examples/data/Human/1kg_high_cov/ancestral_alleles/homo_sapiens_ancestor_GRCh38"
   prefix: "homo_sapiens_ancestor"
 
-genome_annotation: "examples/data/Human/annotation/Human.gtf.gz"
-gene2go: "examples/data/Human/annotation/gene2go.gz"
+genome_annotation: "examples/data/Human/1kg_high_cov/annotation/Human.hg38.gtf.gz"
+gene2go: "examples/data/Human/gene2go.gz"
 
 hwe_pvalue: 0.001
 
-rmsk: "examples/data/Human/repeats/hg38.rmsk.autosomes.bed"
-seg_dup: "examples/data/Human/repeats/hg38.seg.dups.autosomes.bed"
-sim_rep: "examples/data/Human/repeats/hg38.simple.repeats.autosomes.bed"
+rmsk: "examples/data/Human/1kg_high_cov/repeats/hg38.rmsk.autosomes.bed"
+seg_dup: "examples/data/Human/1kg_high_cov/repeats/hg38.seg.dups.autosomes.bed"
+sim_rep: "examples/data/Human/1kg_high_cov/repeats/hg38.simple.repeats.autosomes.bed"
 
 ploidy: 2
 
@@ -22,11 +22,11 @@ populations:
   - YRI
   - CHS
 
-data_folder: "examples/data/Human/raw"
-vcf_prefix: "full_chr"
+data_folder: "examples/data/Human/1kg_high_cov"
+vcf_prefix: "full_"
 vcf_suffix: ".vcf.gz"
 
-metadata: "examples/data/Human/metadata/example_metadata.txt"
+metadata: "examples/data/Human/1kg_high_cov/metadata/metadata.txt"
 
 chromosomes:
-  - 21
+  - chr21

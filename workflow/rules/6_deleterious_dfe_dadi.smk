@@ -67,11 +67,12 @@ rule infer_1pop_dm_warm_up:
         p0="results/dadi/{species}/{dataset}/dfe/{ppl}/InferDM/{ppl}.{ref_genome}.{demog}.InferDM.opts.0",
     params:
         output_prefix="results/dadi/{species}/{dataset}/dfe/{ppl}/InferDM/{ppl}.{ref_genome}.{demog}",
-        p0=dadi_config["demog_1d_p0"],
-        ubounds=dadi_config["demog_1d_ub"],
-        lbounds=dadi_config["demog_1d_lb"],
+        p0=lambda wc: get_dadi_param("demog_1d_p0", wc),
+        ubounds=lambda wc: get_dadi_param("demog_1d_ub", wc),
+        lbounds=lambda wc: get_dadi_param("demog_1d_lb", wc),
         grid_size=dadi_config["dm_grid_size"],
         optimizations=dadi_config["optimizations"],
+        nomisid_flag=get_nomisid_flag,
     resources:
         time=720,
         cpus=16,
@@ -81,7 +82,7 @@ rule infer_1pop_dm_warm_up:
         "../envs/selscape-env.yaml"
     shell:
         """
-        dadi-cli InferDM --fs {input.fs} --model {wildcards.demog} --p0 {params.p0} --ubounds {params.ubounds} --lbounds {params.lbounds} --grids {params.grid_size} --output-prefix {params.output_prefix} --cpus {resources.cpus} --optimizations {params.optimizations} 2> {log}
+        dadi-cli InferDM --fs {input.fs} --model {wildcards.demog} --p0 {params.p0} --ubounds {params.ubounds} --lbounds {params.lbounds} --grids {params.grid_size} --output-prefix {params.output_prefix} --cpus {resources.cpus} --optimizations {params.optimizations} {params.nomisid_flag} 2> {log}
         """
 
 
@@ -93,10 +94,11 @@ rule infer_1pop_dm_fine_tune:
         bestfit="results/dadi/{species}/{dataset}/dfe/{ppl}/InferDM/{ppl}.{ref_genome}.{demog}.InferDM.bestfits",
     params:
         output_prefix="results/dadi/{species}/{dataset}/dfe/{ppl}/InferDM/{ppl}.{ref_genome}.{demog}",
-        ubounds=dadi_config["dfe_1d_ub"],
-        lbounds=dadi_config["dfe_1d_lb"],
+        ubounds=lambda wc: get_dadi_param("demog_1d_ub", wc),
+        lbounds=lambda wc: get_dadi_param("demog_1d_lb", wc),
         grid_size=dadi_config["dm_grid_size"],
         optimizations=dadi_config["optimizations"],
+        nomisid_flag=get_nomisid_flag,
     resources:
         time=720,
         cpus=16,
@@ -106,7 +108,7 @@ rule infer_1pop_dm_fine_tune:
         "../envs/selscape-env.yaml"
     shell:
         """
-        dadi-cli InferDM --fs {input.fs} --model {wildcards.demog} --bestfit-p0-file {input.p0} --ubounds {params.ubounds} --lbounds {params.lbounds} --grids {params.grid_size} --output-prefix {params.output_prefix} --cpus {resources.cpus}  --force-convergence {params.optimizations} 2> {log}
+        dadi-cli InferDM --fs {input.fs} --model {wildcards.demog} --bestfit-p0-file {input.p0} --ubounds {params.ubounds} --lbounds {params.lbounds} --grids {params.grid_size} --output-prefix {params.output_prefix} --cpus {resources.cpus}  --force-convergence {params.optimizations} {params.nomisid_flag} 2> {log}
         """
 
 
@@ -182,11 +184,12 @@ rule infer_dfe_warm_up:
         p0="results/dadi/{species}/{dataset}/dfe/{ppl}/InferDFE/{ppl}.{ref_genome}.{demog}.{dfe}.InferDFE.opts.0",
     params:
         output_prefix="results/dadi/{species}/{dataset}/dfe/{ppl}/InferDFE/{ppl}.{ref_genome}.{demog}.{dfe}",
-        p0=dadi_config["dfe_1d_p0"],
-        ubounds=dadi_config["dfe_1d_ub"],
-        lbounds=dadi_config["dfe_1d_lb"],
+        p0=lambda wc: get_dadi_param("dfe_1d_p0", wc),
+        ubounds=lambda wc: get_dadi_param("dfe_1d_ub", wc),
+        lbounds=lambda wc: get_dadi_param("dfe_1d_lb", wc),
         ratio=dadi_config["ratio"],
         optimizations=dadi_config["optimizations"],
+        nomisid_flag=get_nomisid_flag,
     resources:
         time=720,
         cpus=16,
@@ -196,7 +199,7 @@ rule infer_dfe_warm_up:
         "../envs/selscape-env.yaml"
     shell:
         """
-        dadi-cli InferDFE --fs {input.fs} --cache1d {input.cache} --demo-popt {input.dm_bestfit} --output-prefix {params.output_prefix} --pdf1d {wildcards.dfe} --p0 {params.p0} --ubounds {params.ubounds} --lbounds {params.lbounds} --ratio {params.ratio} --cpus {resources.cpus} --optimizations {params.optimizations} 2> {log}
+        dadi-cli InferDFE --fs {input.fs} --cache1d {input.cache} --demo-popt {input.dm_bestfit} --output-prefix {params.output_prefix} --pdf1d {wildcards.dfe} --p0 {params.p0} --ubounds {params.ubounds} --lbounds {params.lbounds} --ratio {params.ratio} --cpus {resources.cpus} --optimizations {params.optimizations} {params.nomisid_flag} 2> {log}
         """
 
 
@@ -210,10 +213,11 @@ rule infer_dfe_fine_tune:
         bestfit="results/dadi/{species}/{dataset}/dfe/{ppl}/InferDFE/{ppl}.{ref_genome}.{demog}.{dfe}.InferDFE.bestfits",
     params:
         output_prefix="results/dadi/{species}/{dataset}/dfe/{ppl}/InferDFE/{ppl}.{ref_genome}.{demog}.{dfe}",
-        ubounds=dadi_config["dfe_1d_ub"],
-        lbounds=dadi_config["dfe_1d_lb"],
+        ubounds=lambda wc: get_dadi_param("dfe_1d_ub", wc),
+        lbounds=lambda wc: get_dadi_param("dfe_1d_lb", wc),
         ratio=dadi_config["ratio"],
         optimizations=dadi_config["optimizations"],
+        nomisid_flag=get_nomisid_flag,
     resources:
         time=720,
         cpus=16,
@@ -223,7 +227,7 @@ rule infer_dfe_fine_tune:
         "../envs/selscape-env.yaml"
     shell:
         """
-        dadi-cli InferDFE --fs {input.fs} --cache1d {input.cache} --demo-popt {input.dm_bestfit} --output-prefix {params.output_prefix} --pdf1d {wildcards.dfe} --bestfit-p0-file {input.p0} --ubounds {params.ubounds} --lbounds {params.lbounds} --ratio {params.ratio} --cpus {resources.cpus} --force-convergence {params.optimizations} 2> {log}
+        dadi-cli InferDFE --fs {input.fs} --cache1d {input.cache} --demo-popt {input.dm_bestfit} --output-prefix {params.output_prefix} --pdf1d {wildcards.dfe} --bestfit-p0-file {input.p0} --ubounds {params.ubounds} --lbounds {params.lbounds} --ratio {params.ratio} --cpus {resources.cpus} --force-convergence {params.optimizations} {params.nomisid_flag} 2> {log}
         """
 
 
@@ -297,7 +301,7 @@ rule dfe_godambe_ci:
         ( [ -d {params.nonsyn_dir} ] || mkdir -p {params.nonsyn_dir} ) 2>> {log}
         dadi-cli GenerateFs --vcf {input.syn_vcf} --pop-info {input.pop_info} --pop-ids {wildcards.ppl} --projections $(awk 'END {{print NR * 2}}' {input.pop_info}) {params.polarized_flag} {params.mask_singletons_flag} --bootstrap {params.bootstrap_reps} --chunk-size {params.chunk_size} --output {params.syn_output_prefix} 2>> {log}
         dadi-cli GenerateFs --vcf {input.nonsyn_vcf} --pop-info {input.pop_info} --pop-ids {wildcards.ppl} --projections $(awk 'END {{print NR * 2}}' {input.pop_info}) {params.polarized_flag} {params.mask_singletons_flag} --bootstrap {params.bootstrap_reps} --chunk-size {params.chunk_size} --output {params.nonsyn_output_prefix} 2>> {log}
-        dadi-cli StatDFE --fs {input.nonsyn_fs} --dfe-popt {input.dfe_bestfit} --cache1d {input.cache} --pdf1d {wildcards.dfe} --bootstrapping-nonsynonymous-dir {params.nonsyn_dir} --bootstrapping-synonymous-dir {params.syn_dir} --output {output.dfe_godambe_ci} 2>> {log}
+        dadi-cli StatDFE --fs {input.nonsyn_fs} --dfe-popt {input.dfe_bestfit} --cache1d {input.cache} --pdf1d {wildcards.dfe} --bootstrapping-nonsynonymous-dir {params.nonsyn_dir} --bootstrapping-synonymous-dir {params.syn_dir} --output {output.dfe_godambe_ci}  2>> {log}
         """
 
 

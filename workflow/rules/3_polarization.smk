@@ -26,7 +26,7 @@ rule polarize_1pop:
         vcf=temp("results/polarized_data/{species}/{dataset}/1pop/{ppl}/{ppl}.{i}.biallelic.snps.vcf.gz"),
         idx=temp("results/polarized_data/{species}/{dataset}/1pop/{ppl}/{ppl}.{i}.biallelic.snps.vcf.gz.tbi"),
     resources:
-        mem_gb=32,
+        mem_mb=32000,
     log:
         "logs/polarization/polarize_1pop.{species}.{dataset}.{ppl}.{i}.log",
     conda:
@@ -43,7 +43,7 @@ rule polarize_2pop:
         vcf=temp("results/polarized_data/{species}/{dataset}/2pop/{pair}/{pair}.{i}.biallelic.snps.vcf.gz"),
         idx=temp("results/polarized_data/{species}/{dataset}/2pop/{pair}/{pair}.{i}.biallelic.snps.vcf.gz.tbi"),
     resources:
-        mem_gb=32,
+        mem_mb=32000,
     log:
         "logs/polarization/polarize_2pop.{species}.{dataset}.{pair}.{i}.log",
     conda:
@@ -60,7 +60,7 @@ rule polarize_1pop_exonic_data:
         vcf=temp("results/polarized_data/{species}/{dataset}/1pop/{ppl}/{ppl}.{i}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz"),
         idx=temp("results/polarized_data/{species}/{dataset}/1pop/{ppl}/{ppl}.{i}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz.tbi"),
     resources:
-        mem_gb=32,
+        mem_mb=32000,
     log:
         "logs/polarization/polarize_1pop_exonic_data.{species}.{dataset}.{ppl}.{i}.{mut_type}.{ref_genome}.log",
     conda:
@@ -77,7 +77,7 @@ rule polarize_2pop_exonic_data:
         vcf=temp("results/polarized_data/{species}/{dataset}/2pop/{pair}/{pair}.{i}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz"),
         idx=temp("results/polarized_data/{species}/{dataset}/2pop/{pair}/{pair}.{i}.biallelic.{mut_type}.snps.{ref_genome}.vcf.gz.tbi"),
     resources:
-        mem_gb=32,
+        mem_mb=32000,
     log:
         "logs/polarization/polarize_2pop_exonic_data.{species}.{dataset}.{pair}.{i}.{mut_type}.{ref_genome}.log",
     conda:
@@ -157,6 +157,7 @@ rule test_hwe_polarized:
 rule remove_repeats_polarized:
     input:
         vcf=rules.polarize_1pop.output.vcf,
+        idx=rules.polarize_1pop.output.idx,
         hwe_outliers=rules.test_hwe_polarized.output.hwe_outliers,
     output:
         vcf=temp("results/polarized_data/{species}/{dataset}/1pop/{ppl}/{ppl}.{i}.biallelic.snps.repeats.removed.vcf.gz"),
