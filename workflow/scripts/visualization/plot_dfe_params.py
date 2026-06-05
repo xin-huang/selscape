@@ -20,6 +20,7 @@
 
 import sys
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
@@ -32,9 +33,9 @@ sys.stdout = log_fh
 
 df = pd.read_csv(snakemake.input.data, sep="\t")
 
-populations     = snakemake.params.populations
-mu_ylim         = snakemake.params.mu_ylim
-sigma_ylim      = snakemake.params.sigma_ylim
+populations = snakemake.params.populations
+mu_ylim = snakemake.params.mu_ylim
+sigma_ylim = snakemake.params.sigma_ylim
 population_groups = snakemake.params.population_groups
 
 pop_colors = []
@@ -45,7 +46,11 @@ for pop in populations:
         pop,
     )
     color = next(
-        (grp["color"] for grp in population_groups.values() if pop in grp["populations"]),
+        (
+            grp["color"]
+            for grp in population_groups.values()
+            if pop in grp["populations"]
+        ),
         None,
     )
     pop_labels.append(label)
@@ -55,20 +60,22 @@ for pop in populations:
 n = len(populations)
 assert n > 0, "No populations provided; cannot generate DFE parameter plot."
 auto_colors = [cm.tab20(i / n) for i in range(n)]
-colors = [c if c is not None else auto_colors[i]
-          for i, c in enumerate(pop_colors)]
+colors = [c if c is not None else auto_colors[i] for i, c in enumerate(pop_colors)]
 
 
-assert len(df) == len(populations), (
-    f"Row count mismatch: TSV has {len(df)} rows, expected {len(populations)}"
-)
-assert list(df["Pop"]) == populations, (
-    f"Population order mismatch: TSV has {list(df['Pop'])}, expected {populations}"
-)
+assert len(df) == len(
+    populations
+), f"Row count mismatch: TSV has {len(df)} rows, expected {len(populations)}"
+assert (
+    list(df["Pop"]) == populations
+), f"Population order mismatch: TSV has {list(df['Pop'])}, expected {populations}"
 
 x = list(range(len(populations)))
+x_tick_labels = [f"{dataset}_{pop}" for pop, dataset in zip(df["Pop"], df["Dataset"])]
 
-fig, axs = plt.subplots(nrows=2, ncols=2, constrained_layout=True, figsize=(10, 4), dpi=350)
+fig, axs = plt.subplots(
+    nrows=2, ncols=2, constrained_layout=True, figsize=(10, 4), dpi=350
+)
 gridspec = axs[0, 0].get_subplotspec().get_gridspec()
 for a in axs[:, 1]:
     a.remove()
@@ -80,10 +87,20 @@ def plot_param(ax, param, ylim):
     ax.scatter(x, df[lb].values, marker="_", color="grey")
     ax.scatter(x, df[ub].values, marker="_", color="grey")
     for i in range(len(populations)):
-        ax.plot([i, i], [df[param].values[i], df[ub].values[i]],
-                linestyle="dashed", color="grey", zorder=1)
-        ax.plot([i, i], [df[lb].values[i], df[param].values[i]],
-                linestyle="dashed", color="grey", zorder=1)
+        ax.plot(
+            [i, i],
+            [df[param].values[i], df[ub].values[i]],
+            linestyle="dashed",
+            color="grey",
+            zorder=1,
+        )
+        ax.plot(
+            [i, i],
+            [df[lb].values[i], df[param].values[i]],
+            linestyle="dashed",
+            color="grey",
+            zorder=1,
+        )
     if param == "sigma":
         current = ax.get_ylim()
         ax.set_ylim(bottom=0, top=current[1])
@@ -94,9 +111,10 @@ def plot_param(ax, param, ylim):
             raise ValueError(
                 f"Invalid ylim for {param}: {ylim}. Expected [min, max] or null."
             )
-    ax.set_xticks(x, populations, rotation=90)
+    ax.set_xticks(x, x_tick_labels, rotation=90)
 
-plot_param(axs[0, 0], "mu",    mu_ylim)
+
+plot_param(axs[0, 0], "mu", mu_ylim)
 plot_param(axs[1, 0], "sigma", sigma_ylim)
 axs[0, 0].set_ylabel(r"$\mu$")
 axs[1, 0].set_ylabel(r"$\sigma$")
@@ -107,10 +125,7 @@ seen = {}
 for label, color in zip(pop_labels, colors):
     if label not in seen:
         seen[label] = color
-handles = [
-    mpatches.Patch(color=color, label=label)
-    for label, color in seen.items()
-]
+handles = [mpatches.Patch(color=color, label=label) for label, color in seen.items()]
 subfig.legend(handles=handles, fontsize=8, handlelength=1.5, loc="upper left")
 
 fig.set_constrained_layout_pads(w_pad=4 / 72, h_pad=4 / 72, hspace=0, wspace=0.1)
