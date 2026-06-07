@@ -4,8 +4,8 @@ tax_id: 9598
 dataset: "greatape"
 ref_genome: "hg38"
 
-genome_annotation: "examples/data/Human/annotation/Human.gtf.gz"
-gene2go: "examples/data/Human/annotation/gene2go.gz"
+genome_annotation: "examples/data/Human/1kg_high_cov/annotation/Human.hg38.gtf.gz"
+gene2go: "examples/data/Human/gene2go.gz"
 anc_alleles: null
 
 
@@ -28,3 +28,6 @@ metadata: "examples/data/greatape/metadata.txt"
 
 chromosomes:
   - chr21
+
+chr_bed: null
+cytoband: null

@@ -39,7 +39,10 @@ rule create_examples_low:
         "examples/data/Human/1kg_low_cov/metadata.txt",
         "examples/data/Human/1kg_low_cov/annotation/Human.hg19.gtf.gz",
         rules.download_gene2go.output.gene2go,
-
+        "examples/data/Human/genome/hg19.chrom.sizes.bed",
+        "examples/data/Human/genome/hg19.cytoBand.txt.gz",
+        "examples/data/Human/genome/hg19.chrom.sizes.bed",
+        "examples/data/Human/genome/hg19.cytoBand.txt.gz",
 
 rule download_1kg_low_vcf:
     output:
@@ -156,4 +159,25 @@ rule convert_hg19_repeat_files:
         zcat {input.rmsk}   | awk 'BEGIN{{OFS="\\t"}}$6!~/chr(X|Y|Un|M|[0-9]_|[0-9][0-9]_)/{{print $6,$7,$8,$11,$2,$10}}' | sed 's/^chr//' | sort -k1,1n -k2,2n -k3,3n > {output.rmsk}
         zcat {input.segdup} | awk 'BEGIN{{OFS="\\t"}}$2!~/chr(X|Y|Un|M|[0-9]_|[0-9][0-9]_)/{{print $2,$3,$4,$5,$6,$7}}'   | sed 's/^chr//' | sort -k1,1n -k2,2n -k3,3n > {output.segdup}
         zcat {input.simrep} | awk 'BEGIN{{OFS="\\t"}}$2!~/chr(X|Y|Un|M|[0-9]_|[0-9][0-9]_)/{{print $2,$3,$4,$5,$11}}'     | sed 's/^chr//' | sort -k1,1n -k2,2n -k3,3n > {output.simrep}
+        """
+
+
+rule download_hg19_genome_files:
+    output:
+        chrom_sizes=temp("examples/data/Human/genome/hg19.chrom.sizes"),
+        cytoband="examples/data/Human/genome/hg19.cytoBand.txt.gz",
+    shell:
+        """
+        wget -c https://hgdownload.soe.ucsc.edu/goldenPath/hg19/bigZips/hg19.chrom.sizes -O {output.chrom_sizes}
+        wget -c https://hgdownload.soe.ucsc.edu/goldenPath/hg19/database/cytoBand.txt.gz -O {output.cytoband}
+        """
+
+rule convert_hg19_chrom_sizes_to_bed:
+    input:
+        chrom_sizes="examples/data/Human/genome/hg19.chrom.sizes",
+    output:
+        bed="examples/data/Human/genome/hg19.chrom.sizes.bed",
+    shell:
+        """
+        awk 'BEGIN{{OFS="\\t"}}{{print $1, 0, $2}}' {input.chrom_sizes} > {output.bed}
         """

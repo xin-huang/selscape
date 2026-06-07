@@ -8,7 +8,7 @@ anc_alleles:
   prefix: "homo_sapiens_ancestor"
 
 
-genome_annotation: "examples/data/Human/annotation/Human.hg19.gtf.gz"
+genome_annotation: "examples/data/Human/1kg_low_cov/annotation/Human.hg19.gtf.gz"
 gene2go: "examples/data/Human/gene2go.gz"
 
 # Quality control filters
@@ -38,3 +38,6 @@ metadata: "examples/data/Human/1kg_low_cov/metadata.txt"
 # Chromosome range to analyze
 chromosomes:
   - 21
+
+chr_bed: "examples/data/Human/genome/hg19.chrom.sizes.bed"
+cytoband: "examples/data/Human/genome/hg19.cytoBand.txt.gz"

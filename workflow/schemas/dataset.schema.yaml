@@ -98,6 +98,15 @@ properties:
     minItems: 1
     description: "List of chromosomes to analyze"
 
+  chr_bed:
+    type: ["string", "null"]
+    description: "Path to chromosome sizes BED file for circos plots"
+
+  cytoband:
+    type: ["string", "null"]
+    description: "Path to cytoband annotation file for circos plots"
+
+
 required:
   - dataset
   - species
