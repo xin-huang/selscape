@@ -30,6 +30,9 @@ properties:
       prefix:
         type: string
         description: "Ancestral allele information filename prefix"
+      chr_prefix:
+        type: string
+        description: "Optional chromosome prefix for ancestral allele filenames (e.g. 'chr')"
     description: "Ancestral allele information for polarization"
 
   genome_annotation:
