@@ -179,7 +179,8 @@ def get_anc_allele_bed(wildcards):
     """Get ancestral allele bed files."""
     cfg = get_dataset_cfg(wildcards)
     anc = cfg["anc_alleles"]
-    return f"{anc['path']}/{anc['prefix']}.{wildcards.i}.bed.gz"
+    chr_prefix = anc.get("chr_prefix", "")
+    return f"{anc['path']}/{anc['prefix']}.{chr_prefix}{wildcards.i}.bed.gz"
 
 
 def get_vcf_input_path(wildcards):
@@ -485,3 +486,5 @@ def get_dadi_param(key, wildcards):
     if wildcards.dataset not in datasets_with_anc or not dadi_config["unfolded"]:
         value = " ".join(value.split()[:-1])
     return value
+
+
