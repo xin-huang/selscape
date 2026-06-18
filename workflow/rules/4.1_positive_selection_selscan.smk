@@ -75,13 +75,9 @@ rule normalize_selscan_scores:
             allow_missing=True,
         ),
     output:
-        scores=temp(
-            expand(
-                "results/positive_selection/selscan/{species}/{dataset}/1pop/{ppl}/{method}_{maf}/{ppl}.chr{i}.{method}.formatted.out.100bins.norm",
-                i=all_chromosomes,
-                allow_missing=True,
-            )
-        ),
+        done=temp(touch(
+            "results/positive_selection/selscan/{species}/{dataset}/1pop/{ppl}/{method}_{maf}/{ppl}.{method}.normalized.done"
+        )),
         log=temp(
             "results/positive_selection/selscan/{species}/{dataset}/1pop/{ppl}/{method}_{maf}/{ppl}.{method}.log"
         ),
@@ -97,7 +93,18 @@ rule normalize_selscan_scores:
 
 rule merge_selscan_scores:
     input:
-        scores=rules.normalize_selscan_scores.output.scores,
+        done=rules.normalize_selscan_scores.output.done,
+    params:
+        scores=lambda wc: expand(
+            "results/positive_selection/selscan/{species}/{dataset}/1pop/{ppl}/{method}_{maf}/{ppl}.chr{i}.{method}.formatted.out.100bins.norm",
+            i=get_chromosomes(wc),
+            species=wc.species,
+            dataset=wc.dataset,
+            ppl=wc.ppl,
+            method=wc.method,
+            maf=wc.maf,
+            allow_missing=True,
+        ),
     output:
         merged_scores="results/positive_selection/selscan/{species}/{dataset}/1pop/{ppl}/{method}_{maf}/{ppl}.normalized.{method}.scores",
     log:
@@ -106,9 +113,8 @@ rule merge_selscan_scores:
         "../envs/selscape-env.yaml"
     shell:
         """
-        cat {input.scores} | awk '{{print $1":"$2"\\t"$1"\\t"$2"\\t"$7}}' | sed '1iSNP\\tCHR\\tBP\\tnormalized_{wildcards.method}' > {output.merged_scores} 2> {log}
+        cat {params.scores} | awk '{{print $1":"$2"\\t"$1"\\t"$2"\\t"$7}}' | sed '1iSNP\\tCHR\\tBP\\tnormalized_{wildcards.method}' > {output.merged_scores} 2> {log}
         """
-
 
 rule plot_selscan:
     input:
