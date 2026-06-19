@@ -24,22 +24,22 @@ rule extract_pair_snps:
         pair_info=rules.create_pair_info.output.pair_info,
     output:
         vcf1=temp(
-            "results/polarized_data/{species}/{dataset}/2pop/{pair}/pop1.chr{i}.biallelic.snps.vcf.gz"
+            "results/polarized_data/{species}/{dataset}/2pop/{pair}/pop1.{i}.biallelic.snps.vcf.gz"
         ),
         vcf2=temp(
-            "results/polarized_data/{species}/{dataset}/2pop/{pair}/pop2.chr{i}.biallelic.snps.vcf.gz"
+            "results/polarized_data/{species}/{dataset}/2pop/{pair}/pop2.{i}.biallelic.snps.vcf.gz"
         ),
         idx1=temp(
-            "results/polarized_data/{species}/{dataset}/2pop/{pair}/pop1.chr{i}.biallelic.snps.vcf.gz.tbi"
+            "results/polarized_data/{species}/{dataset}/2pop/{pair}/pop1.{i}.biallelic.snps.vcf.gz.tbi"
         ),
         idx2=temp(
-            "results/polarized_data/{species}/{dataset}/2pop/{pair}/pop2.chr{i}.biallelic.snps.vcf.gz.tbi"
+            "results/polarized_data/{species}/{dataset}/2pop/{pair}/pop2.{i}.biallelic.snps.vcf.gz.tbi"
         ),
         map=temp(
-            "results/polarized_data/{species}/{dataset}/2pop/{pair}/chr{i}.biallelic.snps.map"
+            "results/polarized_data/{species}/{dataset}/2pop/{pair}/{i}.biallelic.snps.map"
         ),
     log:
-        "logs/positive_selection/extract_pair_snps.{species}.{dataset}.{pair}.chr{i}.log",
+        "logs/positive_selection/extract_pair_snps.{species}.{dataset}.{pair}.{i}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -63,21 +63,21 @@ rule estimate_selscan_xp_scores:
         map=rules.extract_pair_snps.output.map,
     output:
         out=temp(
-            "results/positive_selection/selscan/{species}/{dataset}/2pop/{pair}/{method}_{maf}/{pair}.chr{i}.{method}.out"
+            "results/positive_selection/selscan/{species}/{dataset}/2pop/{pair}/{method}_{maf}/{pair}.{i}.{method}.out"
         ),
         formatted_out=temp(
-            "results/positive_selection/selscan/{species}/{dataset}/2pop/{pair}/{method}_{maf}/{pair}.chr{i}.{method}.formatted.out"
+            "results/positive_selection/selscan/{species}/{dataset}/2pop/{pair}/{method}_{maf}/{pair}.{i}.{method}.formatted.out"
         ),
         log=temp(
-            "results/positive_selection/selscan/{species}/{dataset}/2pop/{pair}/{method}_{maf}/{pair}.chr{i}.{method}.log"
+            "results/positive_selection/selscan/{species}/{dataset}/2pop/{pair}/{method}_{maf}/{pair}.{i}.{method}.log"
         ),
     params:
-        output_prefix="results/positive_selection/selscan/{species}/{dataset}/2pop/{pair}/{method}_{maf}/{pair}.chr{i}",
+        output_prefix="results/positive_selection/selscan/{species}/{dataset}/2pop/{pair}/{method}_{maf}/{pair}.{i}",
         phasing_flag=get_phasing_flag,
     resources:
         cpus=8,
     log:
-        "logs/positive_selection/estimate_selscan_xp_scores.{species}.{dataset}.{pair}.{method}.{maf}.chr{i}.log",
+        "logs/positive_selection/estimate_selscan_xp_scores.{species}.{dataset}.{pair}.{method}.{maf}.{i}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -118,7 +118,7 @@ rule merge_selscan_xp_scores:
         done=rules.normalize_selscan_xp_scores.output.done,
     params:
         scores=lambda wc: expand(
-            "results/positive_selection/selscan/{species}/{dataset}/2pop/{pair}/{method}_{maf}/{pair}.chr{i}.{method}.formatted.out.norm",
+            "results/positive_selection/selscan/{species}/{dataset}/2pop/{pair}/{method}_{maf}/{pair}.{i}.{method}.formatted.out.norm",
             i=get_chromosomes(wc),
             species=wc.species,
             dataset=wc.dataset,
