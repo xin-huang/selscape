@@ -7,8 +7,10 @@ docs_dir: 'docs'
 theme:
   name: material
   palette:
-    primary: teal
-    accent: indigo
+    primary: cyan
+    accent: cyan
+  features:
+    - content.code.copy
 
 plugins:
   - search
