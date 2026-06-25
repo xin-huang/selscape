@@ -23,13 +23,13 @@ rule calc_tajima_d:
         vcf=rules.extract_pop_data.output.vcf,
     output:
         scores=temp(
-            "results/positive_selection/scikit-allel/{species}/{dataset}/1pop/{ppl}/{method}/{window}_{step}/chr{i}.{method}.scores.txt"
+            "results/positive_selection/scikit-allel/{species}/{dataset}/1pop/{ppl}/{method}/{window}_{step}/{i}.{method}.scores.txt"
         ),
     params:
         window_size="{window}",
         step_size_ratio="{step}",
     log:
-        "logs/positive_selection/calc_tajima_d.{species}.{dataset}.{ppl}.{method}.{window}_{step}.chr{i}.log",
+        "logs/positive_selection/calc_tajima_d.{species}.{dataset}.{ppl}.{method}.{window}_{step}.{i}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
@@ -41,13 +41,13 @@ rule format_tajima_d:
         scores=rules.calc_tajima_d.output.scores,
     output:
         formatted=temp(
-            "results/positive_selection/scikit-allel/{species}/{dataset}/1pop/{ppl}/{method}/{window}_{step}/chr{i}.{method}.formatted.txt"
+            "results/positive_selection/scikit-allel/{species}/{dataset}/1pop/{ppl}/{method}/{window}_{step}/{i}.{method}.formatted.txt"
         ),
     params:
         chrom="{i}",
         method="{method}",
     log:
-        "logs/positive_selection/format_tajima_d.{species}.{dataset}.{ppl}.{method}.{window}_{step}.chr{i}.log",
+        "logs/positive_selection/format_tajima_d.{species}.{dataset}.{ppl}.{method}.{window}_{step}.{i}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:

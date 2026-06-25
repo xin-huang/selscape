@@ -23,10 +23,10 @@ rule extract_snp_pos:
         vcf=rules.polarize_1pop.output.vcf,
     output:
         map=temp(
-            "results/polarized_data/{species}/{dataset}/1pop/{ppl}/chr{i}.biallelic.snps.map"
+            "results/polarized_data/{species}/{dataset}/1pop/{ppl}/{i}.biallelic.snps.map"
         ),
     log:
-        "logs/positive_selection/extract_snp_pos.{species}.{dataset}.{ppl}.chr{i}.log",
+        "logs/positive_selection/extract_snp_pos.{species}.{dataset}.{ppl}.{i}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -42,21 +42,21 @@ rule estimate_selscan_scores:
         map=rules.extract_snp_pos.output.map,
     output:
         out=temp(
-            "results/positive_selection/selscan/{species}/{dataset}/1pop/{ppl}/{method}_{maf}/{ppl}.chr{i}.{method}.out"
+            "results/positive_selection/selscan/{species}/{dataset}/1pop/{ppl}/{method}_{maf}/{ppl}.{i}.{method}.out"
         ),
         formatted_out=temp(
-            "results/positive_selection/selscan/{species}/{dataset}/1pop/{ppl}/{method}_{maf}/{ppl}.chr{i}.{method}.formatted.out"
+            "results/positive_selection/selscan/{species}/{dataset}/1pop/{ppl}/{method}_{maf}/{ppl}.{i}.{method}.formatted.out"
         ),
         log=temp(
-            "results/positive_selection/selscan/{species}/{dataset}/1pop/{ppl}/{method}_{maf}/{ppl}.chr{i}.{method}.log"
+            "results/positive_selection/selscan/{species}/{dataset}/1pop/{ppl}/{method}_{maf}/{ppl}.{i}.{method}.log"
         ),
     params:
-        output_prefix="results/positive_selection/selscan/{species}/{dataset}/1pop/{ppl}/{method}_{maf}/{ppl}.chr{i}",
+        output_prefix="results/positive_selection/selscan/{species}/{dataset}/1pop/{ppl}/{method}_{maf}/{ppl}.{i}",
         phasing_flag=get_phasing_flag,
     resources:
         cpus=8,
     log:
-        "logs/positive_selection/estimate_selscan_scores.{species}.{dataset}.{ppl}.{method}.{maf}.chr{i}.log",
+        "logs/positive_selection/estimate_selscan_scores.{species}.{dataset}.{ppl}.{method}.{maf}.{i}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -96,7 +96,7 @@ rule merge_selscan_scores:
         done=rules.normalize_selscan_scores.output.done,
     params:
         scores=lambda wc: expand(
-            "results/positive_selection/selscan/{species}/{dataset}/1pop/{ppl}/{method}_{maf}/{ppl}.chr{i}.{method}.formatted.out.100bins.norm",
+            "results/positive_selection/selscan/{species}/{dataset}/1pop/{ppl}/{method}_{maf}/{ppl}.{i}.{method}.formatted.out.100bins.norm",
             i=get_chromosomes(wc),
             species=wc.species,
             dataset=wc.dataset,
