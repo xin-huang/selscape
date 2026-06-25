@@ -143,7 +143,7 @@ rule get_betascan_outlier_genes:
         "../envs/selscape-env.yaml"
     shell:
         """
-        ( sed '1d' {input.betascan_outliers} | grep -v ";" | awk '{{print $7}}' | sort | uniq > {output.betascan_genes} ) 2> {log} || true
+        ( sed '1d' {input.betascan_outliers} | awk '{{print $7}}' | grep -v ";" | sort | uniq > {output.betascan_genes} ) 2> {log} || true
         sed -i '1iGene' {output.betascan_genes} 2>> {log}
         """
 
