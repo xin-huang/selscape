@@ -174,7 +174,7 @@ rule get_delta_tajima_d_outlier_genes:
         "../envs/selscape-env.yaml"
     shell:
         """
-        ( sed '1d' {input.delta_outliers} | grep -v ";" | awk '{{print $7}}' | sort | uniq > {output.delta_genes} ) 2> {log} || true
+        ( sed '1d' {input.delta_outliers} | awk '{{print $7}}' | grep -v ";" | sort | uniq > {output.delta_genes} ) 2> {log} || true
         sed -i '1iGene' {output.delta_genes} 2>> {log}
         """
 
