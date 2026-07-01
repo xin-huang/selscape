@@ -85,6 +85,7 @@ if datasets_without_anc:
         + ". Running workflow in no-ancestral-alleles mode (anc-only rules disabled for all datasets).",
         file=sys.stderr,
     )
+    print(f"Circos plots for positive selection will not be generated for: {', '.join(datasets_without_anc)}. To generate them, add anc_alleles to the dataset config.", file=sys.stderr)
     datasets_with_anc = []
 else:
     datasets_with_anc = list(dataset_configs.keys())
@@ -488,3 +489,26 @@ def get_dadi_param(key, wildcards):
     return value
 
 
+def expand_1pop_circos(pattern, anc_only=False):
+    source = DATASET_1POP_ANC if anc_only else DATASET_1POP
+    return [
+        f
+        for ds, sp, pop, rg in source
+        if ds in datasets_with_circos
+        for f in expand(pattern, dataset=ds, species=sp, ppl=pop, ref_genome=rg)
+    ]
+
+datasets_with_circos = [
+    ds for ds, cfg in dataset_configs.items()
+    if cfg.get("chr_bed") and cfg.get("cytoband")
+]
+
+
+def get_chr_bed(wildcards):
+    """Get chromosome sizes BED path for the given dataset (empty string if null)."""
+    return get_dataset_cfg(wildcards).get("chr_bed") or ""
+
+
+def get_cytoband(wildcards):
+    """Get cytoband annotation path for the given dataset (empty string if null)."""
+    return get_dataset_cfg(wildcards).get("cytoband") or ""

@@ -26,7 +26,7 @@ example_chrs_high = ["21"]
 
 rule create_examples_high:
     input:
-        expand("examples/data/Human/1kg_high_cov/full_chr{i}.vcf.gz", i=example_chrs_high),
+        expand("examples/data/Human/1kg_high_cov/chr{i}.vcf.gz", i=example_chrs_high),
         expand(
             "examples/data/Human/1kg_high_cov/ancestral_alleles/homo_sapiens_ancestor_GRCh38/homo_sapiens_ancestor.chr{i}.bed.gz",
             i=example_chrs_high,
@@ -38,12 +38,13 @@ rule create_examples_high:
         "examples/data/Human/1kg_high_cov/metadata/metadata.txt",
         "examples/data/Human/1kg_high_cov/annotation/Human.hg38.gtf.gz",
         rules.download_gene2go.output.gene2go,
-
+        "examples/data/Human/genome/hg38.chrom.sizes.bed",
+        "examples/data/Human/genome/hg38.cytoBand.txt.gz",
 
 rule download_1KG_genomes:
     output:
-        vcf="examples/data/Human/1kg_high_cov/full_chr{i}.vcf.gz",
-        idx="examples/data/Human/1kg_high_cov/full_chr{i}.vcf.gz.tbi",
+        vcf="examples/data/Human/1kg_high_cov/chr{i}.vcf.gz",
+        idx="examples/data/Human/1kg_high_cov/chr{i}.vcf.gz.tbi",
     shell:
         """
         wget -c https://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/1000G_2504_high_coverage/working/20190425_NYGC_GATK/CCDG_13607_B01_GRM_WGS_2019-02-19_chr{wildcards.i}.recalibrated_variants.vcf.gz \
@@ -157,4 +158,25 @@ rule convert_hg38_repeat_files:
         zcat {input.rmsk}   | awk 'BEGIN{{OFS="\\t"}}$6!~/chr(X|Y|Un|M|[0-9]_|[0-9][0-9]_)/{{print $6,$7,$8,$11,$2,$10}}' | sed 's/^chr//' | sort -k1,1n -k2,2n -k3,3n > {output.rmsk}
         zcat {input.segdup} | awk 'BEGIN{{OFS="\\t"}}$2!~/chr(X|Y|Un|M|[0-9]_|[0-9][0-9]_)/{{print $2,$3,$4,$5,$6,$7}}'   | sed 's/^chr//' | sort -k1,1n -k2,2n -k3,3n > {output.segdup}
         zcat {input.simrep} | awk 'BEGIN{{OFS="\\t"}}$2!~/chr(X|Y|Un|M|[0-9]_|[0-9][0-9]_)/{{print $2,$3,$4,$5,$11}}'     | sed 's/^chr//' | sort -k1,1n -k2,2n -k3,3n > {output.simrep}
+        """
+
+
+rule download_hg38_genome_files:
+    output:
+        chrom_sizes=temp("examples/data/Human/genome/hg38.chrom.sizes"),
+        cytoband="examples/data/Human/genome/hg38.cytoBand.txt.gz",
+    shell:
+        """
+        wget -c https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.chrom.sizes -O {output.chrom_sizes}
+        wget -c https://hgdownload.soe.ucsc.edu/goldenPath/hg38/database/cytoBand.txt.gz -O {output.cytoband}
+        """
+
+rule convert_hg38_chrom_sizes_to_bed:
+    input:
+        chrom_sizes="examples/data/Human/genome/hg38.chrom.sizes",
+    output:
+        bed="examples/data/Human/genome/hg38.chrom.sizes.bed",
+    shell:
+        """
+        awk 'BEGIN{{OFS="\\t"}}{{print $1, 0, $2}}' {input.chrom_sizes} > {output.bed}
         """
