@@ -192,11 +192,11 @@ rule enrichment_betascan_gowinda:
         "../envs/selscape-env.yaml"
     shell:
         """
-        ( sed '1d' {input.outliers} | awk '{{print $1"\\t"$2}}' > {output.outlier_snps} ) 2> {log}
+        sed '1d' {input.outliers} | awk '{{print $1"\\t"$2}}' 2> {log} | sed 's/^\\(chr\\)\\?/chr/' > {output.outlier_snps}
 
         for i in {input.total}; do
             bcftools query -f "%CHROM\\t%POS\\n" $i
-        done > {output.total_snps} 2>> {log}
+        done 2>> {log} | sed 's/^\\(chr\\)\\?/chr/' > {output.total_snps}
 
         java -Xmx{resources.mem_mb}m -jar {input.gowinda} \
             --snp-file {output.total_snps} \
@@ -213,7 +213,6 @@ rule enrichment_betascan_gowinda:
 
         sed -i '1iGO_ID\\tavg_genes_sim\\tgenes_found\\tp_value\\tp_adjusted\\tgenes_uniq\\tgenes_max\\tgenes_total\\tdescription\\tgene_list' {output.enrichment} 2>> {log}
         """
-
 
 rule betascan_enrichment_results_table_html:
     input:
