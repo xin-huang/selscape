@@ -222,7 +222,7 @@ rule enrichment_tajima_d_balancing_gowinda:
         "../envs/selscape-env.yaml"
     shell:
         """
-        sed '1d' {input.outliers} | awk '{{print $1"\\t"$2}}' 2> {log} | sed 's/^\\(chr\\)\\?/chr/' > {output.outlier_snps}
+        sed '1d' {input.outliers} | awk '{{print $1"\\t"$2}}' > {output.outlier_snps} 2> {log}
 
         for i in {input.total}; do
             bcftools query -f "%CHROM\\t%POS\\n" $i
