@@ -68,6 +68,7 @@ if filtered_variants:
     result_df = pd.concat(filtered_variants, ignore_index=True)
     result_df["Chr"] = result_df["Chr"].astype(int)
     result_df = result_df.sort_values(by=["Chr", "Start", "End"])
+    result_df["Chr"] = "chr" + result_df["Chr"].astype(str)
     result_df.to_csv(output_file, sep="\t", index=False)
 
 log_fh.close()
