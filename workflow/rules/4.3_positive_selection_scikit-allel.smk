@@ -137,9 +137,10 @@ rule extract_tajima_d_outlier_variants:
         r"""
         ( sed '1d' {input.scores} | awk '{{print $2"\t"$5"\t"$6}}' > {output.regions} ) 2> {log}
 
+        echo -e "CHR\tBP" > {output.variants}
         for i in {input.vcfs}; do
             bcftools view -H -R {output.regions} $i | awk '{{print $1"\t"$2}}'
-        done | sort -u | sed '1iCHR\tBP' > {output.variants} 2>> {log}
+        done | sort -u >> {output.variants} 2>> {log} || true
         """
 
 
