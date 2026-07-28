@@ -148,7 +148,7 @@ rule plot_selscan_xp:
             "results/positive_selection/selscan/{species}/{dataset}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.scores.png",
             category="Positive Selection",
             subcategory="{method}",
-            labels=selscan_xp_labels,
+            labels=lambda wildcards: {"Dataset": wildcards.dataset, **selscan_xp_labels(wildcards)},
         ),
     params:
         title=add_selscan_title,
@@ -214,7 +214,7 @@ rule selscan_xp_outlier_genes_table_html:
             "results/positive_selection/selscan/{species}/{dataset}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.outlier.genes.html",
             category="Positive Selection",
             subcategory="{method}",
-            labels=lambda wildcards: selscan_xp_labels(wildcards, type="Gene List"),
+            labels=lambda wildcards: {"Dataset": wildcards.dataset, **selscan_xp_labels(wildcards, type="Gene List")},
         ),
     params:
         title=add_selscan_title,
@@ -278,8 +278,7 @@ rule selscan_xp_enrichment_results_table_html:
             "results/positive_selection/selscan/{species}/{dataset}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.gowinda.enrichment.html",
             category="Positive Selection",
             subcategory="{method}",
-            labels=lambda wildcards: selscan_xp_labels(
-                wildcards, type="Enrichment Table"),
+            labels=lambda wildcards: {"Dataset": wildcards.dataset, **selscan_xp_labels(wildcards, type="Enrichment Table")},
         ),
     params:
         title=add_selscan_title,
@@ -299,7 +298,7 @@ rule plot_gowinda_enrichment_selscan_xp:
             "results/positive_selection/selscan/{species}/{dataset}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.gowinda.enrichment.png",
             category="Positive Selection",
             subcategory="{method}",
-            labels=lambda wildcards: selscan_xp_labels(wildcards, type="Enrichment Plot"),
+            labels=lambda wildcards: {"Dataset": wildcards.dataset, **selscan_xp_labels(wildcards, type="Enrichment Plot")},
         ),
     params:
         title=add_selscan_title,

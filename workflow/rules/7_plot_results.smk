@@ -78,6 +78,7 @@ rule make_positive_selection_circos:
             category="Circos Plots",
             subcategory="Positive Selection",
             labels=lambda wildcards: {
+                "Dataset": wildcards.dataset,
                 "Population": wildcards.ppl,
                 "Type": "Circos Plot",
             },
@@ -114,6 +115,7 @@ rule make_balancing_selection_circos:
             category="Circos Plots",
             subcategory="Balancing Selection",
             labels=lambda wildcards: {
+                "Dataset": wildcards.dataset,
                 "Population": wildcards.ppl,
                 "Type": "Circos Plot",
             },

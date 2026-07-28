@@ -89,9 +89,7 @@ rule plot_delta_tajima_d:
             "results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.scores.png",
             category="Positive Selection",
             subcategory="{method}",
-            labels=lambda wildcards: delta_tajima_d_labels(
-                wildcards, type="Manhattan Plot"
-            ),
+            labels=lambda wildcards: {"Dataset": wildcards.dataset, **delta_tajima_d_labels(wildcards, type="Manhattan Plot")},
         ),
         outliers="results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.outliers.scores",
     params:
@@ -187,9 +185,7 @@ rule delta_tajima_d_outlier_genes_table_html:
             "results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.outlier.genes.html",
             category="Positive Selection",
             subcategory="{method}",
-            labels=lambda wildcards: delta_tajima_d_labels(
-                wildcards, type="Gene List"
-            ),
+            labels=lambda wildcards: {"Dataset": wildcards.dataset, **delta_tajima_d_labels(wildcards, type="Gene List")},
         ),
     params:
         title=add_scikit_allel_title,
@@ -256,9 +252,7 @@ rule delta_tajima_d_enrichment_results_table_html:
             "results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.gowinda.enrichment.html",
             category="Positive Selection",
             subcategory="{method}",
-            labels=lambda wildcards: delta_tajima_d_labels(
-                wildcards, type="Enrichment Table"
-            ),
+            labels=lambda wildcards: {"Dataset": wildcards.dataset, **delta_tajima_d_labels(wildcards, type="Enrichment Table")},
         ),
     params:
         title=add_scikit_allel_title,
@@ -278,7 +272,7 @@ rule plot_gowinda_enrichment_delta_tajima_d:
             "results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.gowinda.enrichment.png",
             category="Positive Selection",
             subcategory="{method}",
-            labels=lambda wildcards: delta_tajima_d_labels(wildcards, type="Enrichment Plot"),
+            labels=lambda wildcards: {"Dataset": wildcards.dataset, **delta_tajima_d_labels(wildcards, type="Enrichment Plot")},
         ),
     params:
         title=add_scikit_allel_title,
