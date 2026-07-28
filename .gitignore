@@ -8,3 +8,4 @@ results*
 *__pycache__*
 site*
 examples/data/*
+report.html

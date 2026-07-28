@@ -272,34 +272,34 @@ def get_ref_genome(wildcards):
 def selscan_labels(wildcards, type: str = "Manhattan Plot") -> dict[str, str]:
     """Labels for within-population selscan Manhattan plot."""
     return {
+        "Dataset": wildcards.dataset,
         "Population": wildcards.ppl,
         "Minor Allele Frequency": wildcards.maf,
         "Threshold": _top_pct(wildcards),
         "Type": type,
     }
 
-
 def selscan_xp_labels(wildcards, type: str = "Manhattan Plot") -> dict[str, str]:
     """Labels for cross-population selscan Manhattan plot."""
     return {
+        "Dataset": wildcards.dataset,
         "Populations": _vs_pair(wildcards),
         "Minor Allele Frequency": wildcards.maf,
         "Threshold": _top_pct(wildcards),
         "Type": type,
     }
 
-
 def betascan_labels(wildcards, type: str = "Manhattan Plot") -> dict[str, str]:
     """Labels for betascan plots (Manhattan or Enrichment), includes core frequency."""
     return {
+        "Dataset": wildcards.dataset,
         "Population": wildcards.ppl,
         "Core Frequency": str(wildcards.core_frq),
         "Threshold": _top_pct(wildcards),
         "Type": type,
     }
 
-
-def tajima_d_labels(wildcards, type: str = "Plot") -> dict[str, str]:
+def tajima_d_labels(wildcards, type: str = "Manhattan Plot") -> dict[str, str]:
     """Labels for Tajima's D plots (both windowed and moving)."""
     method_name = (
         "Moving Tajima's D"
@@ -309,6 +309,7 @@ def tajima_d_labels(wildcards, type: str = "Plot") -> dict[str, str]:
     window_unit = " SNPs" if wildcards.method.startswith("moving") else " bp"
     step_size = int(float(wildcards.step) * int(wildcards.window))
     return {
+        "Dataset": wildcards.dataset,
         "Population": wildcards.ppl,
         "Window": f"{wildcards.window}{window_unit}",
         "Step": f"{step_size}{window_unit}",
@@ -316,18 +317,17 @@ def tajima_d_labels(wildcards, type: str = "Plot") -> dict[str, str]:
         "Type": type,
     }
 
-
-def delta_tajima_d_labels(wildcards, type: str = "Plot") -> dict[str, str]:
+def delta_tajima_d_labels(wildcards, type: str = "Manhattan Plot") -> dict[str, str]:
     """Labels for delta Tajima's D plots (cross-population)."""
     step_size = int(float(wildcards.step) * int(wildcards.window))
     return {
+        "Dataset": wildcards.dataset,
         "Populations": _vs_pair(wildcards),
         "Window": f"{wildcards.window} SNPs",
         "Step": f"{step_size} SNPs",
         "Threshold": _top_pct(wildcards),
         "Type": type,
     }
-
 
 def get_betascan_vcf_dir(wildcards):
     """Return polarized_data or processed_data depending on anc_alleles config."""
@@ -356,25 +356,24 @@ def get_polarization_flag(wildcards):
         return "--polarized"
     return ""
 
-
 def fitted_1pop_dm_labels(wildcards, type: str = "Model Fit") -> dict[str, str]:
     """Labels for 1-population demographic model fit plots."""
     return {
+        "Dataset": wildcards.dataset,
         "Population": wildcards.ppl,
         "Demographic Model": wildcards.demog,
         "Type": type,
     }
 
-
 def fitted_dfe_labels(wildcards, type: str = "Model Fit") -> dict[str, str]:
     """Labels for 1-population DFE model fit plots."""
     return {
+        "Dataset": wildcards.dataset,
         "Population": wildcards.ppl,
         "Demographic Model": wildcards.demog,
         "DFE Model": wildcards.dfe,
         "Type": type,
     }
-
 
 def add_selscan_title(wildcards, input):
     """Generate title for selscan plots and tables."""
@@ -540,6 +539,13 @@ datasets_with_circos = [
     if cfg.get("chr_bed") and cfg.get("cytoband")
 ]
 
+def circos_labels(wildcards, type: str = "Circos Plot") -> dict[str, str]:
+    """Labels for circos plots (positive and balancing selection)."""
+    return {
+        "Dataset": wildcards.dataset,
+        "Population": wildcards.ppl,
+        "Type": type,
+    }
 
 def get_chr_bed(wildcards):
     """Get chromosome sizes BED path for the given dataset (empty string if null)."""
