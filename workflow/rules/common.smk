@@ -488,6 +488,43 @@ def get_dadi_param(key, wildcards):
         value = " ".join(value.split()[:-1])
     return value
 
+def get_dfe_bestfit_files(wildcards):
+    """Bestfit files for all populations in wildcards.dataset."""
+    return [
+        f
+        for ds, sp, pop, rg in DATASET_1POP
+        if ds == wildcards.dataset
+        for f in expand(
+            "results/dadi/{species}/{dataset}/dfe/{ppl}/InferDFE/{ppl}.{ref_genome}.{demog}.{dfe}.InferDFE.bestfits",
+            dataset=ds, species=sp, ppl=pop, ref_genome=rg,
+            **DADI_1D_KW, dfe=dadi_config["dfe_1d"],
+        )
+    ]
+
+
+def get_dfe_ci_files(wildcards):
+    """Godambe CI files for all populations in wildcards.dataset."""
+    return [
+        f
+        for ds, sp, pop, rg in DATASET_1POP
+        if ds == wildcards.dataset
+        for f in expand(
+            "results/dadi/{species}/{dataset}/dfe/{ppl}/StatDFE/{ppl}.{ref_genome}.{demog}.{dfe}.godambe.ci",
+            dataset=ds, species=sp, ppl=pop, ref_genome=rg,
+            **DADI_1D_KW, dfe=dadi_config["dfe_1d"],
+        )
+    ]
+
+
+def get_dfe_populations(wildcards):
+    """Population list for wildcards.dataset, in DATASET_1POP order."""
+    return [pop for ds, sp, pop, rg in DATASET_1POP if ds == wildcards.dataset]
+
+
+def get_dfe_datasets(wildcards):
+    """Dataset column values, same length as get_dfe_populations."""
+    return [wildcards.dataset] * len(get_dfe_populations(wildcards))
+
 
 def expand_1pop_circos(pattern, anc_only=False):
     source = DATASET_1POP_ANC if anc_only else DATASET_1POP

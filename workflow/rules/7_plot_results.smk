@@ -20,21 +20,15 @@
 
 rule merge_dfe_confidence_intervals:
     input:
-        bestfit_files=expand_1pop(
-            "results/dadi/{species}/{dataset}/dfe/{ppl}/InferDFE/{ppl}.{ref_genome}.{demog}.{dfe}.InferDFE.bestfits",
-            **DADI_1D_KW, dfe=dadi_config["dfe_1d"],
-        ),
-        ci_files=expand_1pop(
-            "results/dadi/{species}/{dataset}/dfe/{ppl}/StatDFE/{ppl}.{ref_genome}.{demog}.{dfe}.godambe.ci",
-            **DADI_1D_KW, dfe=dadi_config["dfe_1d"],
-        ),
+        bestfit_files=get_dfe_bestfit_files,
+        ci_files=get_dfe_ci_files,
     output:
-        merged="results/plots/dfe/combined.dfe_params.tsv",
+        merged="results/plots/dfe/{dataset}/{dataset}.dfe_params.tsv",
     params:
-        populations=expand_1pop("{ppl}"),
-        datasets=expand_1pop("{dataset}"),
+        populations=get_dfe_populations,
+        datasets=get_dfe_datasets,
     log:
-        "logs/deleterious_dfe/merge_dfe_confidence_intervals.log",
+        "logs/deleterious_dfe/merge_dfe_confidence_intervals.{dataset}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
@@ -46,18 +40,18 @@ rule plot_dfe_confidence_intervals:
         data=rules.merge_dfe_confidence_intervals.output.merged,
     output:
         plot=report(
-            "results/plots/dfe/combined.dfe_params.svg",
+            "results/plots/dfe/{dataset}/{dataset}.dfe_params.svg",
             category="Distribution of Fitness Effects",
             subcategory="DFE Parameters",
-            labels={"Type": "DFE Confidence Intervals"},
+            labels={"Dataset": "{dataset}", "Type": "DFE Confidence Intervals"},
         ),
     params:
-        populations=expand_1pop("{ppl}"),
+        populations=get_dfe_populations,
         population_groups=lambda _: main_config.get("population_groups", {}),
         mu_ylim=None,
         sigma_ylim=None,
     log:
-        "logs/deleterious_dfe/plot_dfe_confidence_intervals.log",
+        "logs/deleterious_dfe/plot_dfe_confidence_intervals.{dataset}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
@@ -86,10 +80,34 @@ rule make_positive_selection_circos:
         population="{ppl}",
         ref_genome=get_ref_genome,
         tracks=[
-            {"name": "iHS",  "file": "ihs_scores",  "score_col": "normalized_ihs", "r_range": [65, 75], "color": "#1f77b4"},
-            {"name": "nSL",  "file": "nsl_scores",  "score_col": "normalized_nsl", "r_range": [50, 60], "color": "#ff7f0e"},
-            {"name": "mtjd", "file": "mtjd_scores", "score_col": "tajima_d",        "r_range": [35, 45], "color": "#2ca02c"},
-            {"name": "wtjd", "file": "wtjd_scores", "score_col": "tajima_d",        "r_range": [20, 30], "color": "#d62728"},
+            {
+                "name": "iHS",
+                "file": "ihs_scores",
+                "score_col": "normalized_ihs",
+                "r_range": [65, 75],
+                "color": "#1f77b4",
+            },
+            {
+                "name": "nSL",
+                "file": "nsl_scores",
+                "score_col": "normalized_nsl",
+                "r_range": [50, 60],
+                "color": "#ff7f0e",
+            },
+            {
+                "name": "mtjd",
+                "file": "mtjd_scores",
+                "score_col": "tajima_d",
+                "r_range": [35, 45],
+                "color": "#2ca02c",
+            },
+            {
+                "name": "wtjd",
+                "file": "wtjd_scores",
+                "score_col": "tajima_d",
+                "r_range": [20, 30],
+                "color": "#d62728",
+            },
         ],
     resources:
         mem_mb=32000,
@@ -122,9 +140,27 @@ rule make_balancing_selection_circos:
         population="{ppl}",
         ref_genome=get_ref_genome,
         tracks=[
-            {"name": "B1",   "file": "b1_scores",       "score_col": "B1",       "r_range": [60, 75], "color": "#1f77b4"},
-            {"name": "mtjd", "file": "mtjd_bal_scores", "score_col": "tajima_d", "r_range": [40, 55], "color": "#2ca02c"},
-            {"name": "wtjd", "file": "wtjd_bal_scores", "score_col": "tajima_d", "r_range": [20, 35], "color": "#d62728"},
+            {
+                "name": "B1",
+                "file": "b1_scores",
+                "score_col": "B1",
+                "r_range": [60, 75],
+                "color": "#1f77b4",
+            },
+            {
+                "name": "mtjd",
+                "file": "mtjd_bal_scores",
+                "score_col": "tajima_d",
+                "r_range": [40, 55],
+                "color": "#2ca02c",
+            },
+            {
+                "name": "wtjd",
+                "file": "wtjd_bal_scores",
+                "score_col": "tajima_d",
+                "r_range": [20, 35],
+                "color": "#d62728",
+            },
         ],
     resources:
         mem_mb=32000,
