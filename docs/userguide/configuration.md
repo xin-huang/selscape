@@ -2,96 +2,120 @@
 
 Selscape uses multiple YAML configuration files to control different aspects of the analysis:
 
-| File | Purpose |
-|------|---------|
-| `config/main.yaml` | Core settings (species, populations, data paths) |
-| `config/selscan.yaml` | selscan parameters |
-| `config/betascan.yaml` | BetaScan parameters |
-| `config/scikit-allel.yaml` | scikit-allel parameters |
-| `config/dadi-cli.yaml` | dadi-cli parameters |
-| `config/slurm/config.yaml` | HPC cluster settings (optional) |
+| File                       | Purpose                                                      |
+|----------------------------|--------------------------------------------------------------|
+| `config/main.yaml`         | Core settings (datasets, methods, population groupings)      |
+| `config/dataset.yaml`      | dataset parameters (population, data path, chromosomes etc.) |
+| `config/selscan.yaml`      | selscan parameters                                           |
+| `config/betascan.yaml`     | BetaScan parameters                                          |
+| `config/scikit-allel.yaml` | scikit-allel parameters                                      |
+| `config/dadi-cli.yaml`     | dadi-cli parameters                                          |
+| `config/slurm/config.yaml` | HPC cluster settings (optional)                              |
+
 
 ## main.yaml
 
 ### Example
 ```yaml
-# Species identification
-species: "Human"
-tax_id: 9606
-ref_genome: "hg38"
-ploidy: 2
+datasets:
+  - config/1kg_high_cov.yaml # dataset 1
+  - config/1kg_low_cov.yaml # dataset 2
+  - config/greatape.yaml # dataset 3
 
-# Populations to analyze
-populations:
-  - YRI
-  - CHS
-
-# VCF file configuration
-data_folder: "examples/data/Human/raw"
-vcf_prefix: "full_chr"
-vcf_suffix: ".vcf.gz"
-# Files should be named: {vcf_prefix}{chromosome}{vcf_suffix}
-# Example: full_chr21.vcf.gz
-
-metadata: "examples/data/Human/metadata/example_metadata.txt"
-
-# Chromosomes to analyze
-chromosomes:
-  - 20
-  - 21
-
-# Ancestral alleles for polarization (optional but recommended)
-anc_alleles:
-  path: "examples/data/Human/ancestral_alleles/homo_sapiens_ancestor_GRCh38"
-  prefix: "homo_sapiens_ancestor_chr"
-  # Files: {prefix}{chromosome}.bed.gz
-
-# Annotation files
-genome_annotation: "examples/data/Human/annotation/Human.gtf.gz"
-gene2go: "examples/data/Human/annotation/gene2go.gz"
-
-# Quality control
-hwe_pvalue: 0.001  # Hardy-Weinberg equilibrium threshold
-
-# Repeat regions (optional)
-rmsk: "examples/data/Human/repeats/hg38.rmsk.autosomes.bed"
-seg_dup: "examples/data/Human/repeats/hg38.seg.dups.autosomes.bed"
-sim_rep: "examples/data/Human/repeats/hg38.simple.repeats.autosomes.bed"
-
-# Method configuration files
 selscan_config: "config/selscan.yaml"
 betascan_config: "config/betascan.yaml"
 dadi_config: "config/dadi-cli.yaml"
 scikit_allel_config: "config/scikit-allel.yaml"
+
+population_groups:
+  AFR:
+    color: "black"
+    populations: [YRI]
+  EAS:
+    color: "gold"
+    populations: [CHS]
+  Pan:
+    color: "#FF7F00"
+    populations: [PPA]
+
+```
+### Parameters 
+| Parameter                          | Type   | Description                                        | Required |
+|------------------------------------|--------|----------------------------------------------------|---------|
+| datasets                           | string | Path to dataset yaml files                         | Y |
+| betascan_config                    | string | Path to BetaScan configuration file                | Y |
+| selscan_config                     | string | Path to selscan configuration file                 | Y |
+| dadi_config                        | string | Path to dadi-cli configuration file                | Y |
+| scikit_allel_config                | string | Path to scikit-allel configuration file            | Y |
+| population_groups.group.color      | string | Color to represent group of population in DFE plot | Y |
+| population_groups.group.population | list   | List of populations belong to a group in DFE plot  | Y |
+
+## dataset.yaml
+
+### Example
+```yaml
+species: "Human"
+tax_id: 9606
+
+dataset: "1kg_high_cov"
+ref_genome: "hg38"
+anc_alleles:
+  path: "examples/data/Human/1kg_high_cov/ancestral_alleles/homo_sapiens_ancestor_GRCh38"
+  prefix: "homo_sapiens_ancestor"
+
+genome_annotation: "examples/data/Human/1kg_high_cov/annotation/Human.hg38.gtf.gz"
+gene2go: "examples/data/Human/gene2go.gz"
+
+hwe_pvalue: 0.001
+
+rmsk: "examples/data/Human/1kg_high_cov/repeats/hg38.rmsk.autosomes.bed"
+seg_dup: "examples/data/Human/1kg_high_cov/repeats/hg38.seg.dups.autosomes.bed"
+sim_rep: "examples/data/Human/1kg_high_cov/repeats/hg38.simple.repeats.autosomes.bed"
+
+ploidy: 2
+
+populations:
+  - YRI
+  - CHS
+
+data_folder: "examples/data/Human/1kg_high_cov"
+vcf_prefix: ""
+vcf_suffix: ".vcf.gz"
+
+metadata: "examples/data/Human/1kg_high_cov/metadata/metadata.txt"
+
+chromosomes:
+  - chr21
+
+chr_bed: "examples/data/Human/genome/hg38.chrom.sizes.bed"
+cytoband: "examples/data/Human/genome/hg38.cytoBand.txt.gz"
 ```
 
 ### Parameters
 
-| Parameter | Type | Description | Required |
-|-----------|------|-------------|---------|
-| species | string | Species name | Y |
-| tax_id | integer | NCBI taxonomy ID | Y |
-| ref_genome | string | Reference genome build | Y |
-| anc_alleles.path | string |Base folder for ancestral allele information |N |
-| anc_alleles.prefix | string |Ancestral allele information filename prefix | N |
-| genome_annotation | string | Path to genome annotation GTF file | Y |
-| gene2go | string | Path to gene2go mapping file | Y |
-| hwe_pvalue | float |Hardy-Weinberg equilibrium p-value threshold | Y |
-| hwe_pvalue | float |Hardy-Weinberg equilibrium p-value threshold | Y |
-| rmsk | string | Path to repeat masker BED file | N |
-| seg_dup | string | Path to segmental duplications BED file | N |
-| sim_rep | string | Path to simple repeats BED file | N |
-| ploidy | integer | Organism ploidy | Y |
-| populations | list | List of population IDs to analyze | Y |
-| data_folder | string |Base folder for input VCF files | Y |
-| vcf_prefix | string | VCF filename prefix |Y |
-| vcf_suffix | string | VCF filename suffix |Y |
-| metadata | string |Path to sample metadata file |Y |
-| chromosomes | list |List of chromosomes to analyze | Y |
-| betascan_config | string | Path to BetaScan configuration file | Y |
-| selscan_config | string | Path to selscan configuration file | Y |
-| dadi_config | string | Path to dadi-cli configuration file | Y |
-| scikit_allel_config | string | Path to scikit-allel configuration file | Y |
+| Parameter          | Type    | Description                                  | Required |
+|--------------------|---------|----------------------------------------------|----------|
+| species            | string  | Species name                                 | Y        |
+| tax_id             | integer | NCBI taxonomy ID                             | Y        |
+| dataset            | string  | Name of dataset                              | Y        |
+| ref_genome         | string  | Reference genome build                       | Y        |
+| anc_alleles.path   | string  | Base folder for ancestral allele information | N        |
+| anc_alleles.prefix | string  | Ancestral allele information filename prefix | N        |
+| genome_annotation  | string  | Path to genome annotation GTF file           | Y        |
+| gene2go            | string  | Path to gene2go mapping file                 | Y        |
+| hwe_pvalue         | float   | Hardy-Weinberg equilibrium p-value threshold | Y        |
+| rmsk               | string  | Path to repeat masker BED file               | N        |
+| seg_dup            | string  | Path to segmental duplications BED file      | N        |
+| sim_rep            | string  | Path to simple repeats BED file              | N        |
+| ploidy             | integer | Organism ploidy                              | Y        |
+| populations        | list    | List of population IDs to analyze            | Y        |
+| data_folder        | string  | Base folder for input VCF files              | Y        |
+| vcf_prefix         | string  | VCF filename prefix                          | Y        |
+| vcf_suffix         | string  | VCF filename suffix                          | Y        |
+| metadata           | string  | Path to sample metadata file                 | Y        |
+| chromosomes        | list    | List of chromosomes to analyze               | Y        |
+| chr_bed            | string  | Path to chrom.sized.bed file                 | N        |
+| cytoband           | string  | Path to cytoBand.txt.gz file                 | N        |
 
 
 
@@ -180,26 +204,27 @@ wp_stats:
   - windowed_tajima_d   
   - moving_tajima_d  
 
-# Windowed approach (base pair windows)
-windowed_window_sizes: [100_000]
-windowed_step_size_ratios: [1]  # 1 = non-overlapping windows
+# Windowed Tajima's D
+wtjd_window_sizes: [100_000]
+wtjd_step_size_ratios: [1]
 
-# Moving approach (SNP windows)
-moving_window_sizes: [100]
-moving_step_size_ratios: [1]
+# Moving Tajima's D
+mtjd_window_sizes: [100]
+mtjd_step_size_ratios: [1]
 
 # Cross-population statistics 
 xp_stats:
   - delta_moving_tajima_d
 
-# XP moving approach (SNP windows)
-delta_moving_window_sizes: [100]
-delta_moving_step_size_ratios: [1]
+# Delta Tajima's D
+dtjd_window_sizes: [100]
+dtjd_step_size_ratios: [1]
 
 # Statistical thresholds
+# Top proportion for outlier identification
 top_proportion: 0.05
 
-# Manhattan plot settings
+# Manhattan plot settings 
 manhattan_plot_width: 640
 manhattan_plot_height: 240
 manhattan_plot_color1: "#56B4E9"
@@ -285,13 +310,13 @@ mask_singletons: false
 
 ## Important Notes
 
-1. **Ancestral Alleles**: If `anc_alleles` is not provided, polarization-dependent analyses (selscan, betascan with unfolded=True, dadi with unfolded=True) will not run.
+1. **Ancestral Alleles**: `anc_alleles` must be provided for **all** datasets to generate all polarisation-dependent analyses and results (selscan, betascan with unfolded=True, dadi with unfolded=True, circos plots). If not all dataset.yaml have `anc_alleles` defined, the workflow will automatically run in no-ancestral mode (anc-only rules disabled for all datasets). 
 
 2. **VCF File Naming**: VCF files must follow the pattern: `{data_folder}/{vcf_prefix}{chromosome}{vcf_suffix}`
 
-    - Example with `vcf_prefix: "full_chr"`: `examples/data/Human/raw/full_chr21.vcf.gz`
-    - Example with `vcf_prefix: "chr"`: `resources/data/chr21.vcf.gz`
-    - Example with `vcf_prefix: ""`: `resources/data/21.vcf.gz`
+    - Example with `vcf_prefix: "full_chr"`: `examples/data/Human/1kg_high_cov/full_chr21.vcf.gz`
+    - Example with `vcf_prefix: "chr"`: `resources/data/{species}/{dataset}/chr21.vcf.gz`
+    - Example with `vcf_prefix: ""`: `resources/data/{species}/{dataset}/21.vcf.gz`
 
 3. **Metadata Format**: Tab-separated file with columns: `Sample` and `Population`
 
