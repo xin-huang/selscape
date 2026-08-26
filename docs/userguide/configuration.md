@@ -40,15 +40,15 @@ population_groups:
 
 ```
 ### Parameters 
-| Parameter                          | Type   | Description                                        | Required |
-|------------------------------------|--------|----------------------------------------------------|---------|
-| datasets                           | string | Path to dataset yaml files                         | Y |
-| betascan_config                    | string | Path to BetaScan configuration file                | Y |
-| selscan_config                     | string | Path to selscan configuration file                 | Y |
-| dadi_config                        | string | Path to dadi-cli configuration file                | Y |
-| scikit_allel_config                | string | Path to scikit-allel configuration file            | Y |
-| population_groups.group.color      | string | Color to represent group of population in DFE plot | Y |
-| population_groups.group.population | list   | List of populations belong to a group in DFE plot  | Y |
+| Parameter                           | Type   | Description                                        | Required |
+|-------------------------------------|--------|----------------------------------------------------|----------|
+| datasets                            | string | Path to dataset yaml files                         | Y        |
+| betascan_config                     | string | Path to BetaScan configuration file                | Y        |
+| selscan_config                      | string | Path to selscan configuration file                 | Y        |
+| dadi_config                         | string | Path to dadi-cli configuration file                | Y        |
+| scikit_allel_config                 | string | Path to scikit-allel configuration file            | Y        |
+| population_groups.group.color       | string | Color to represent group of population in DFE plot | Y        |
+| population_groups.group.populations | list   | List of populations belong to a group in DFE plot  | N        |
 
 ## dataset.yaml
 
@@ -82,7 +82,7 @@ data_folder: "examples/data/Human/1kg_high_cov"
 vcf_prefix: ""
 vcf_suffix: ".vcf.gz"
 
-metadata: "examples/data/Human/1kg_high_cov/metadata/metadata.txt"
+metadata: "examples/data/Human/1kg_high_cov/metadata.txt"
 
 chromosomes:
   - chr21
@@ -241,8 +241,8 @@ manhattan_plot_color2: "#F0E442"
 | wtjd_step_size_ratios | list | Step size as fraction of window in base pair for wtjd statistic| Y |
 | mtjd_window_sizes | list | Window sizes in SNPs for moving tajima's d (mtjd) statistic| Y |
 | mtjd_step_size_ratios | list | Step size as fraction of window in SNPs for mtjd statistic | Y |
-| dtjd_moving_window_sizes | list | Window sizes in SNPs for xp moving delta tajima's d (dtjd) statistic | Y |
-| dtjd_moving_step_size_ratios | list | Step size as fraction of window in SNPs for cross population dtjd statistic| Y |
+| dtjd_window_sizes | list | Window sizes in SNPs for xp moving delta tajima's d (dtjd) statistic | Y |
+| dtjd_step_size_ratios | list | Step size as fraction of window in SNPs for cross population dtjd statistic| Y |
 | top_proportion | float | Top proportion for outlier identification | Y |
 
 ## dadi-cli.yaml
