@@ -18,7 +18,7 @@ snakemake -s examples/get_greatape_data.smk -c 1
 
 This creates the following structure:
 ```
-examples/data/Human/
+examples/data/
 ├── greatape/
 │   ├── metadata_full.txt
 │   ├── metadata.txt
@@ -54,9 +54,11 @@ examples/data/Human/
      │    ├── 21.vcf.gz.tbi
      │    └── metadata.txt 
      ├── gene2go.gz
-     └── genome
-         ├──hg19.cytoBand.txt.gz 
-         └──hg38.cytoBand.txt.gz    
+     └── genome/
+         ├── hg19.chrom.sizes.bed
+         ├── hg19.cytoBand.txt.gz 
+         ├── hg38.chrom.sizes.bed
+         └── hg38.cytoBand.txt.gz    
 ```
 
 ### 2. Run Analysis on Example Data
@@ -87,7 +89,9 @@ The report for the analysis of the example data can be found [here](report.html)
 ## Analyzing Your Own Data
 
 ### 1. Prepare Your Data
-
+#### Download Annovar
+Download [Annovar](https://annovar.openbioinformatics.org/en/latest/user-guide/download/) and place the `annovar` folder into `selscape/resources/tools/`.
+You need to a registration to download it.
 #### VCF Files
 
 Organize your VCF files according to your chosen naming scheme. The configuration will tell Selscape how to find them.
@@ -159,8 +163,14 @@ Edit `config/dataset.yaml` to specify your data to analyze:
 # Species identification
 species: "YourSpecies"
 tax_id: 9606  # Update for your species
+
+# Unique name for this dataset - used as a key and in all output paths
+dataset: "your_dataset"
 ref_genome: "your_ref"
 ploidy: 2
+
+# Hardy-Weinberg equilibrium p-value threshold
+hwe_pvalue: 0.001
 
 # Populations to analyze
 populations:
@@ -182,10 +192,11 @@ chromosomes:
   - 3
   # ... add all chromosomes
 
-# Ancestral alleles (optional)
+# Ancestral alleles (optional, set to null to disable)
 anc_alleles:
   path: "resources/ancestral_alleles"
   prefix: "anc_chr"
+  # chr_prefix: "chr"  # optional, if ancestral allele filenames carry a chromosome prefix
 
 # Annotation files
 genome_annotation: "resources/annotation/genome.gtf.gz"
