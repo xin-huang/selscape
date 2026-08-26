@@ -196,7 +196,6 @@ chromosomes:
 anc_alleles:
   path: "resources/ancestral_alleles"
   prefix: "anc_chr"
-  # chr_prefix: "chr"  # optional, if ancestral allele filenames carry a chromosome prefix
 
 # Annotation files
 genome_annotation: "resources/annotation/genome.gtf.gz"
@@ -212,7 +211,7 @@ chr_bed: "examples/data/Human/genome/chrom.sizes.bed"
 cytoband: "examples/data/Human/genome/cytoBand.txt.gz"
 ```
 
-Edit `config/main.yaml` to adjust which tools to include in your analysis:
+Edit `config/main.yaml` to adjust which tools and datasets to include in your analysis:
 ```yaml
 # Which datasets to analyze
 datasets:
