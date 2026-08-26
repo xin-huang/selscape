@@ -23,12 +23,12 @@ rule merge_dfe_confidence_intervals:
         bestfit_files=get_dfe_bestfit_files,
         ci_files=get_dfe_ci_files,
     output:
-        merged="results/plots/dfe/{dataset}/{dataset}.dfe_params.tsv",
+        merged="results/plots/dfe/{species}/{dataset}/{dataset}.dfe_params.tsv",
     params:
         populations=get_dfe_populations,
         datasets=get_dfe_datasets,
     log:
-        "logs/deleterious_dfe/merge_dfe_confidence_intervals.{dataset}.log",
+        "logs/deleterious_dfe/merge_dfe_confidence_intervals.{species}.{dataset}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
@@ -40,7 +40,7 @@ rule plot_dfe_confidence_intervals:
         data=rules.merge_dfe_confidence_intervals.output.merged,
     output:
         plot=report(
-            "results/plots/dfe/{dataset}/{dataset}.dfe_params.svg",
+            "results/plots/dfe/{species}/{dataset}/{species}.{dataset}.dfe_params.svg",
             category="Distribution of Fitness Effects",
             subcategory="DFE Parameters",
             labels={"Dataset": "{dataset}", "Type": "DFE Confidence Intervals"},
@@ -51,7 +51,7 @@ rule plot_dfe_confidence_intervals:
         mu_ylim=None,
         sigma_ylim=None,
     log:
-        "logs/deleterious_dfe/plot_dfe_confidence_intervals.{dataset}.log",
+        "logs/deleterious_dfe/plot_dfe_confidence_intervals.{species}.{dataset}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
