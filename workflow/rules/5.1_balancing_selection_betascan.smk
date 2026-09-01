@@ -90,7 +90,7 @@ rule plot_betascan:
             "results/balancing_selection/betascan/{species}/{dataset}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.scores.png",
             category="Balancing Selection",
             subcategory="B1",
-            labels=betascan_labels,
+            labels=lambda wildcards: {"Dataset": wildcards.dataset, **betascan_labels(wildcards)},
         ),
     params:
         title=add_betascan_title,
@@ -156,7 +156,7 @@ rule betascan_outlier_genes_table_html:
             "results/balancing_selection/betascan/{species}/{dataset}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.outlier.genes.html",
             category="Balancing Selection",
             subcategory="B1",
-            labels=lambda wildcards: betascan_labels(wildcards, type="Gene List"),
+            labels=lambda wildcards: {"Dataset": wildcards.dataset, **betascan_labels(wildcards, type="Gene List")},
         ),
     params:
         title=add_betascan_title,
@@ -223,9 +223,7 @@ rule betascan_enrichment_results_table_html:
             "results/balancing_selection/betascan/{species}/{dataset}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.gowinda.enrichment.html",
             category="Balancing Selection",
             subcategory="B1",
-            labels=lambda wildcards: betascan_labels(
-                wildcards, type="Enrichment Table"
-            ),
+            labels=lambda wildcards: {"Dataset": wildcards.dataset, **betascan_labels(wildcards, type="Enrichment Table")},
         ),
     params:
         title=add_betascan_title,
@@ -245,7 +243,7 @@ rule plot_gowinda_enrichment_betascan:
             "results/balancing_selection/betascan/{species}/{dataset}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.gowinda.enrichment.png",
             category="Balancing Selection",
             subcategory="B1",
-            labels=lambda wildcards: betascan_labels(wildcards, type="Enrichment Plot"),
+            labels=lambda wildcards: {"Dataset": wildcards.dataset, **betascan_labels(wildcards, type="Enrichment Plot")},
         ),
     params:
         title=add_betascan_title,

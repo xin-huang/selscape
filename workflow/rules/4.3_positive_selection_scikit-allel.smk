@@ -92,7 +92,10 @@ rule plot_tajima_d:
             "results/positive_selection/scikit-allel/{species}/{dataset}/1pop/{ppl}/{method}/{window}_{step}/{ppl}.{method}.top_{cutoff}.scores.png",
             category="Positive Selection",
             subcategory="{method}",
-            labels=lambda wildcards: tajima_d_labels(wildcards, type="Manhattan Plot"),
+            labels=lambda wildcards: {
+                "Dataset": wildcards.dataset,
+                **tajima_d_labels(wildcards, type="Manhattan Plot"),
+            },
         ),
     params:
         title=add_scikit_allel_title,
@@ -188,7 +191,10 @@ rule tajima_d_outlier_genes_table_html:
             "results/positive_selection/scikit-allel/{species}/{dataset}/1pop/{ppl}/{method}/{window}_{step}/{ppl}.{method}.top_{cutoff}.outlier.genes.html",
             category="Positive Selection",
             subcategory="{method}",
-            labels=lambda wildcards: tajima_d_labels(wildcards, type="Gene List"),
+            labels=lambda wildcards: {
+                "Dataset": wildcards.dataset,
+                **tajima_d_labels(wildcards, type="Gene List"),
+            },
         ),
     params:
         title=add_scikit_allel_title,
@@ -255,8 +261,10 @@ rule tajima_d_enrichment_results_table_html:
             "results/positive_selection/scikit-allel/{species}/{dataset}/1pop/{ppl}/{method}/{window}_{step}/{ppl}.{method}.top_{cutoff}.gowinda.enrichment.html",
             category="Positive Selection",
             subcategory="{method}",
-            labels=lambda wildcards: tajima_d_labels(
-                wildcards, type="Enrichment Table"),
+            labels=lambda wildcards: {
+                "Dataset": wildcards.dataset,
+                **tajima_d_labels(wildcards, type="Enrichment Table"),
+            },
         ),
     params:
         title=add_scikit_allel_title,
@@ -276,7 +284,10 @@ rule plot_gowinda_enrichment_tajima_d:
             "results/positive_selection/scikit-allel/{species}/{dataset}/1pop/{ppl}/{method}/{window}_{step}/{ppl}.{method}.top_{cutoff}.gowinda.enrichment.png",
             category="Positive Selection",
             subcategory="{method}",
-            labels=lambda wildcards: tajima_d_labels(wildcards, type="Enrichment Plot"),
+            labels=lambda wildcards: {
+                "Dataset": wildcards.dataset,
+                **tajima_d_labels(wildcards, type="Enrichment Plot"),
+            },
         ),
     params:
         title=add_scikit_allel_title,

@@ -139,9 +139,7 @@ rule convert_1pop_dm_top_10_bestfits_html:
             "results/dadi/{species}/{dataset}/dfe/{ppl}/html/{ppl}.{ref_genome}.{demog}.InferDM.top10.bestfits.html",
             category="Distribution of Fitness Effects",
             subcategory="Single Population",
-            labels=lambda wildcards: fitted_1pop_dm_labels(
-                wildcards, type="Bestfit Table"
-            ),
+            labels=lambda wildcards: {"Dataset": wildcards.dataset, **fitted_1pop_dm_labels(wildcards, type="Bestfit Table")},
         ),
     params:
         title=add_dm_title,
@@ -258,9 +256,7 @@ rule convert_1pop_dfe_top_10_bestfits_html:
             "results/dadi/{species}/{dataset}/dfe/{ppl}/html/{ppl}.{ref_genome}.{demog}.{dfe}.InferDFE.top10.bestfits.html",
             category="Distribution of Fitness Effects",
             subcategory="Single Population",
-            labels=lambda wildcards: fitted_dfe_labels(
-                wildcards, type="Bestfit Table"
-            ),
+            labels=lambda wildcards: {"Dataset": wildcards.dataset, **fitted_dfe_labels(wildcards, type="Bestfit Table")},
         ),
     params:
         title=add_dfe_title,
@@ -349,9 +345,7 @@ rule dfe_godambe_ci_table_html:
             "results/dadi/{species}/{dataset}/dfe/{ppl}/html/{ppl}.{ref_genome}.{demog}.{dfe}.godambe.ci.html",
             category="Distribution of Fitness Effects",
             subcategory="Single Population",
-            labels=lambda wildcards: fitted_dfe_labels(
-                wildcards, type="Estimated 95% Uncerts"
-            ),
+            labels=lambda wildcards: {"Dataset": wildcards.dataset, **fitted_dfe_labels(wildcards, type="Estimated 95% Uncerts")},            
         ),
     params:
         title=add_dfe_title,
@@ -410,9 +404,7 @@ rule plot_mutation_proportions:
             "results/dadi/{species}/{dataset}/dfe/{ppl}/plots/{ppl}.{ref_genome}.{demog}.{dfe}.fitted.mut.prop.png",
             category="Distribution of Fitness Effects",
             subcategory="Single Population",
-            labels=lambda wildcards: fitted_dfe_labels(
-                wildcards, type="Proportion Plot"
-            ),
+            labels=lambda wildcards: {"Dataset": wildcards.dataset, **fitted_dfe_labels(wildcards, type="Proportion Plot")},
         ),
     params:
         title=add_dfe_title,
@@ -432,7 +424,7 @@ rule wrap_fitted_1pop_dm_html:
             "results/dadi/{species}/{dataset}/dfe/{ppl}/html/{ppl}.{ref_genome}.{demog}.dm.fitted.html",
             category="Distribution of Fitness Effects",
             subcategory="Single Population",
-            labels=lambda wildcards: fitted_1pop_dm_labels(wildcards, type="Model Fit Plot"),
+            labels=lambda wildcards: {"Dataset": wildcards.dataset, **fitted_1pop_dm_labels(wildcards, type="Model Fit Plot")},
         ),
     params:
         title=add_dm_title,
@@ -452,7 +444,7 @@ rule wrap_fitted_dfe_html:
             "results/dadi/{species}/{dataset}/dfe/{ppl}/html/{ppl}.{ref_genome}.{demog}.{dfe}.dfe.fitted.html",
             category="Distribution of Fitness Effects",
             subcategory="Single Population",
-            labels=lambda wildcards: fitted_dfe_labels(wildcards, type="Model Fit Plot"),
+            labels=lambda wildcards: {"Dataset": wildcards.dataset, **fitted_dfe_labels(wildcards, type="Model Fit Plot")},
         ),
     params:
         title=add_dfe_title,

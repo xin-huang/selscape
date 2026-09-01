@@ -75,9 +75,10 @@ rule make_positive_selection_circos:
     output:
         plot=report(
             "results/plots/circos/{species}/{dataset}/{ppl}/{ppl}_positive_selection_circos_scores.png",
-            category="Circos Plots",
-            subcategory="Positive Selection",
+            category="Positive Selection",
+            subcategory="Circos Plots",
             labels=lambda wildcards: {
+                "Dataset": wildcards.dataset,
                 "Population": wildcards.ppl,
                 "Type": "Circos Plot",
             },
@@ -111,9 +112,10 @@ rule make_balancing_selection_circos:
     output:
         plot=report(
             "results/plots/circos/{species}/{dataset}/{ppl}/{ppl}_balancing_selection_circos_scores.png",
-            category="Circos Plots",
-            subcategory="Balancing Selection",
+            category="Balancing Selection",
+            subcategory="Circos Plots",
             labels=lambda wildcards: {
+                "Dataset": wildcards.dataset,
                 "Population": wildcards.ppl,
                 "Type": "Circos Plot",
             },
