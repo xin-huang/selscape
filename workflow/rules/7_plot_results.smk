@@ -164,3 +164,197 @@ rule make_balancing_selection_circos:
         "../envs/selscape-env.yaml"
     script:
         "../scripts/visualization/plot_circos_scores.py"
+
+
+rule make_xp_selection_circos:
+    input:
+        unpack(get_xp_circos_inputs),
+        chr_bed=get_chr_bed,
+        cytoband=get_cytoband,
+    output:
+        plot=report(
+            "results/plots/circos/{species}/{dataset}/{pair}/{pair}_xp_selection_circos_scores.png",
+            category="Positive Selection",
+            subcategory="Circos Plots",
+            labels=lambda wildcards: {
+                "Dataset": wildcards.dataset,
+                "Population": wildcards.pair,
+                "Type": "Circos Plot",
+            },
+        ),
+    params:
+        population="{pair}",
+        ref_genome=get_ref_genome,
+        tracks=XP_CIRCOS_TRACKS,
+    resources:
+        mem_mb=32000,
+    log:
+        "logs/circos/make_xp_selection_circos.{species}.{dataset}.{pair}.log",
+    conda:
+        "../envs/selscape-env.yaml"
+    script:
+        "../scripts/visualization/plot_circos_scores.py"
+
+
+rule plot_selscan_xp_upset:
+    input:
+        genes=lambda wc: [
+            f
+            for pair, focal, _reference in get_xp_focal_directions(wc)
+            for f in expand(
+                "results/positive_selection/selscan/{species}/{dataset}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.focal_{focal}.outlier.genes",
+                pair=pair, focal=focal, allow_missing=True,
+            )
+        ],
+    output:
+        plot=report(
+            "results/plots/xp_upset/{species}/{dataset}/{dataset}.{method}.maf_{maf}.top_{cutoff}.upset.svg",
+            category="Cross-Population Overview",
+            subcategory="{method}",
+            labels=lambda wildcards: {
+                "Dataset": wildcards.dataset,
+                "Threshold": _top_pct(wildcards),
+                "Type": "UpSet (shared candidates between groups)",
+            },
+        ),
+        table="results/plots/xp_upset/{species}/{dataset}/{dataset}.{method}.maf_{maf}.top_{cutoff}.upset.tsv",
+    params:
+        focal_pairs=lambda wc: [[focal, reference] for _pair, focal, reference in get_xp_focal_directions(wc)],
+        population_groups=lambda _: main_config.get("population_groups", {}),
+        max_intersections=15,
+        title=lambda wc: (
+            f"{wc.dataset} {selscan_method_names[wc.method]} "
+            f"(MAF={wc.maf}, Top {float(wc.cutoff) * 100:.2f}%)"
+        ),
+    resources:
+        mem_mb=8000,
+    log:
+        "logs/plots/plot_selscan_xp_upset.{species}.{dataset}.{method}.maf_{maf}.top_{cutoff}.log",
+    conda:
+        "../envs/selscape-env.yaml"
+    script:
+        "../scripts/visualization/plot_xp_upset.py"
+
+
+rule plot_delta_tajima_d_upset:
+    input:
+        genes=lambda wc: [
+            f
+            for pair, focal, _reference in get_xp_focal_directions(wc)
+            for f in expand(
+                "results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.focal_{focal}.outlier.genes",
+                pair=pair, focal=focal, allow_missing=True,
+            )
+        ],
+    output:
+        plot=report(
+            "results/plots/xp_upset/{species}/{dataset}/{dataset}.{method}.{window}_{step}.top_{cutoff}.upset.svg",
+            category="Cross-Population Overview",
+            subcategory="{method}",
+            labels=lambda wildcards: {
+                "Dataset": wildcards.dataset,
+                "Window": f"{wildcards.window} SNPs",
+                "Threshold": _top_pct(wildcards),
+                "Type": "UpSet (shared candidates between groups)",
+            },
+        ),
+        table="results/plots/xp_upset/{species}/{dataset}/{dataset}.{method}.{window}_{step}.top_{cutoff}.upset.tsv",
+    params:
+        focal_pairs=lambda wc: [[focal, reference] for _pair, focal, reference in get_xp_focal_directions(wc)],
+        population_groups=lambda _: main_config.get("population_groups", {}),
+        max_intersections=15,
+        title=lambda wc: (
+            f"{wc.dataset} Delta Tajima's D "
+            f"(Window size={wc.window} SNPs, "
+            f"Step size={int(float(wc.step) * int(wc.window))} SNPs, "
+            f"Top {float(wc.cutoff) * 100:.2f}%)"
+        ),
+    resources:
+        mem_mb=8000,
+    log:
+        "logs/plots/plot_delta_tajima_d_upset.{species}.{dataset}.{method}.{window}_{step}.top_{cutoff}.log",
+    conda:
+        "../envs/selscape-env.yaml"
+    script:
+        "../scripts/visualization/plot_xp_upset.py"
+
+
+rule plot_selscan_xp_matrix:
+    input:
+        genes=lambda wc: [
+            f
+            for pair, focal, _reference in get_xp_focal_directions(wc)
+            for f in expand(
+                "results/positive_selection/selscan/{species}/{dataset}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.focal_{focal}.outlier.genes",
+                pair=pair, focal=focal, allow_missing=True,
+            )
+        ],
+    output:
+        plot=report(
+            "results/plots/xp_matrix/{species}/{dataset}/{dataset}.{method}.maf_{maf}.top_{cutoff}.matrix.svg",
+            category="Cross-Population Overview",
+            subcategory="{method}",
+            labels=lambda wildcards: {
+                "Dataset": wildcards.dataset,
+                "Threshold": _top_pct(wildcards),
+                "Type": "Matrix (candidates per direction)",
+            },
+        ),
+        table="results/plots/xp_matrix/{species}/{dataset}/{dataset}.{method}.maf_{maf}.top_{cutoff}.matrix.tsv",
+    params:
+        focal_pairs=lambda wc: [[focal, reference] for _pair, focal, reference in get_xp_focal_directions(wc)],
+        population_groups=lambda _: main_config.get("population_groups", {}),
+        title=lambda wc: (
+            f"{wc.dataset} {selscan_method_names[wc.method]} "
+            f"(MAF={wc.maf}, Top {float(wc.cutoff) * 100:.2f}%)"
+        ),
+    resources:
+        mem_mb=8000,
+    log:
+        "logs/plots/plot_selscan_xp_matrix.{species}.{dataset}.{method}.maf_{maf}.top_{cutoff}.log",
+    conda:
+        "../envs/selscape-env.yaml"
+    script:
+        "../scripts/visualization/plot_xp_matrix.py"
+
+
+rule plot_delta_tajima_d_matrix:
+    input:
+        genes=lambda wc: [
+            f
+            for pair, focal, _reference in get_xp_focal_directions(wc)
+            for f in expand(
+                "results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.focal_{focal}.outlier.genes",
+                pair=pair, focal=focal, allow_missing=True,
+            )
+        ],
+    output:
+        plot=report(
+            "results/plots/xp_matrix/{species}/{dataset}/{dataset}.{method}.{window}_{step}.top_{cutoff}.matrix.svg",
+            category="Cross-Population Overview",
+            subcategory="{method}",
+            labels=lambda wildcards: {
+                "Dataset": wildcards.dataset,
+                "Window": f"{wildcards.window} SNPs",
+                "Threshold": _top_pct(wildcards),
+                "Type": "Matrix (candidates per direction)",
+            },
+        ),
+        table="results/plots/xp_matrix/{species}/{dataset}/{dataset}.{method}.{window}_{step}.top_{cutoff}.matrix.tsv",
+    params:
+        focal_pairs=lambda wc: [[focal, reference] for _pair, focal, reference in get_xp_focal_directions(wc)],
+        population_groups=lambda _: main_config.get("population_groups", {}),
+        title=lambda wc: (
+            f"{wc.dataset} Delta Tajima's D "
+            f"(Window size={wc.window} SNPs, "
+            f"Step size={int(float(wc.step) * int(wc.window))} SNPs, "
+            f"Top {float(wc.cutoff) * 100:.2f}%)"
+        ),
+    resources:
+        mem_mb=8000,
+    log:
+        "logs/plots/plot_delta_tajima_d_matrix.{species}.{dataset}.{method}.{window}_{step}.top_{cutoff}.log",
+    conda:
+        "../envs/selscape-env.yaml"
+    script:
+        "../scripts/visualization/plot_xp_matrix.py"
