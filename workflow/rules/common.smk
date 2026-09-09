@@ -498,6 +498,16 @@ def expand_1pop_circos(pattern, anc_only=False):
         for f in expand(pattern, dataset=ds, species=sp, ppl=pop, ref_genome=rg)
     ]
 
+def expand_2pop_circos(pattern, anc_only=False):
+    source = DATASET_2POP_ANC if anc_only else DATASET_2POP
+    return [
+        f
+        for ds, sp, pair, rg in source
+        if ds in datasets_with_circos
+        for f in expand(pattern, dataset=ds, species=sp, pair=pair, ref_genome=rg)
+    ]
+
+
 datasets_with_circos = [
     ds for ds, cfg in dataset_configs.items()
     if cfg.get("chr_bed") and cfg.get("cytoband")

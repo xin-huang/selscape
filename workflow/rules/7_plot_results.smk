@@ -134,3 +134,39 @@ rule make_balancing_selection_circos:
         "../envs/selscape-env.yaml"
     script:
         "../scripts/visualization/plot_circos_scores.py"
+
+
+rule make_xp_selection_circos:
+    input:
+        xpehh_scores=lambda wc: f"results/positive_selection/selscan/{wc.species}/{wc.dataset}/2pop/{wc.pair}/xpehh_{SELSCAN_XP_KW['maf']}/{wc.pair}.normalized.xpehh.scores",
+        xpnsl_scores=lambda wc: f"results/positive_selection/selscan/{wc.species}/{wc.dataset}/2pop/{wc.pair}/xpnsl_{SELSCAN_XP_KW['maf']}/{wc.pair}.normalized.xpnsl.scores",
+        dtjd_scores=lambda wc: f"results/positive_selection/scikit-allel/{wc.species}/{wc.dataset}/2pop/{wc.pair}/{DELTA_TAJIMAD_KW['method']}/{DELTA_TAJIMAD_KW['window'][0]}_{DELTA_TAJIMAD_KW['step'][0]}/{wc.pair}.{DELTA_TAJIMAD_KW['method']}.merged.scores",
+        chr_bed=get_chr_bed,
+        cytoband=get_cytoband,
+    output:
+        plot=report(
+            "results/plots/circos/{species}/{dataset}/{pair}/{pair}_xp_selection_circos_scores.png",
+            category="Positive Selection",
+            subcategory="Circos Plots",
+            labels=lambda wildcards: {
+                "Dataset": wildcards.dataset,
+                "Population": wildcards.pair,
+                "Type": "Circos Plot",
+            },
+        ),
+    params:
+        population="{pair}",
+        ref_genome=get_ref_genome,
+        tracks=[
+            {"name": "XP-EHH", "file": "xpehh_scores", "score_col": "normalized_xpehh", "r_range": [60, 75], "color": "#1f77b4"},
+            {"name": "XP-nSL", "file": "xpnsl_scores", "score_col": "normalized_xpnsl", "r_range": [40, 55], "color": "#ff7f0e"},
+            {"name": "dtjd",   "file": "dtjd_scores",  "score_col": "delta_tajima_d",   "r_range": [20, 35], "color": "#2ca02c"},
+        ],
+    resources:
+        mem_mb=32000,
+    log:
+        "logs/circos/make_xp_selection_circos.{species}.{dataset}.{pair}.log",
+    conda:
+        "../envs/selscape-env.yaml"
+    script:
+        "../scripts/visualization/plot_circos_scores.py"
