@@ -71,7 +71,7 @@ assert (
 ), f"Population order mismatch: TSV has {list(df['Pop'])}, expected {populations}"
 
 x = list(range(len(populations)))
-x_tick_labels = [f"{dataset}_{pop}" for pop, dataset in zip(df["Pop"], df["Dataset"])]
+x_tick_labels = list(df["Pop"])
 
 fig, axs = plt.subplots(
     nrows=2, ncols=2, constrained_layout=True, figsize=(10, 4), dpi=350

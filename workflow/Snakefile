@@ -136,7 +136,12 @@ rule all:
             **DELTA_TAJIMAD_KW, type=["outlier.genes", "gowinda.enrichment"],
         ),
         # dfe confidence intervals
-        "results/plots/dfe/combined.dfe_params.svg",
+        expand(
+            "results/plots/dfe/{species}/{dataset}/{species}.{dataset}.dfe_params.svg",
+            zip,
+            species=[cfg["species"] for cfg in dataset_configs.values()],
+            dataset=list(dataset_configs.keys()),
+        ),
         # circos plots (only for datasets with chr_bed + cytoband configured)
         expand_1pop_circos(
             "results/plots/circos/{species}/{dataset}/{ppl}/{ppl}_positive_selection_circos_scores.png",
