@@ -125,7 +125,7 @@ rule plot_selscan:
             "results/positive_selection/selscan/{species}/{dataset}/1pop/{ppl}/{method}_{maf}/{ppl}.normalized.{method}.maf_{maf}.top_{cutoff}.scores.png",
             category="Positive Selection",
             subcategory="{method}",
-            labels=selscan_labels,
+            labels=selscan_labels,  
         ),
     params:
         title=add_selscan_title,
@@ -258,8 +258,7 @@ rule selscan_enrichment_results_table_html:
             "results/positive_selection/selscan/{species}/{dataset}/1pop/{ppl}/{method}_{maf}/{ppl}.normalized.{method}.maf_{maf}.top_{cutoff}.gowinda.enrichment.html",
             category="Positive Selection",
             subcategory="{method}",
-            labels=lambda wildcards: selscan_labels(
-                wildcards, type="Enrichment Table"),
+            labels=lambda wildcards: selscan_labels(wildcards, type="Enrichment Table"),
         ),
     params:
         title=add_selscan_title,

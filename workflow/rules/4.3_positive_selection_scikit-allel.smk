@@ -92,7 +92,7 @@ rule plot_tajima_d:
             "results/positive_selection/scikit-allel/{species}/{dataset}/1pop/{ppl}/{method}/{window}_{step}/{ppl}.{method}.top_{cutoff}.scores.png",
             category="Positive Selection",
             subcategory="{method}",
-            labels=lambda wildcards: tajima_d_labels(wildcards, type="Manhattan Plot"),
+            labels=tajima_d_labels,
         ),
     params:
         title=add_scikit_allel_title,
@@ -255,8 +255,7 @@ rule tajima_d_enrichment_results_table_html:
             "results/positive_selection/scikit-allel/{species}/{dataset}/1pop/{ppl}/{method}/{window}_{step}/{ppl}.{method}.top_{cutoff}.gowinda.enrichment.html",
             category="Positive Selection",
             subcategory="{method}",
-            labels=lambda wildcards: tajima_d_labels(
-                wildcards, type="Enrichment Table"),
+            labels=lambda wildcards: tajima_d_labels(wildcards, type="Enrichment Table"),
         ),
     params:
         title=add_scikit_allel_title,

@@ -89,7 +89,7 @@ rule plot_tajima_d_balancing:
             "results/balancing_selection/scikit-allel/{species}/{dataset}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.top_{cutoff}.scores.png",
             category="Balancing Selection",
             subcategory="{method}",
-            labels=lambda wildcards: tajima_d_labels(wildcards, type="Manhattan Plot"),
+            labels=tajima_d_labels,
         ),
         outliers="results/balancing_selection/scikit-allel/{species}/{dataset}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.top_{cutoff}.outliers.scores",
     params:
@@ -186,7 +186,7 @@ rule tajima_d_balancing_outlier_genes_table_html:
             "results/balancing_selection/scikit-allel/{species}/{dataset}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.top_{cutoff}.outlier.genes.html",
             category="Balancing Selection",
             subcategory="{method}",
-            labels=lambda wildcards: tajima_d_labels(wildcards, type="Gene List"),
+            labels=lambda wildcards: tajima_d_labels(wildcards, type="Gene List"), 
         ),
     params:
         title=add_scikit_allel_title,
@@ -253,9 +253,7 @@ rule tajima_d_balancing_enrichment_results_table_html:
             "results/balancing_selection/scikit-allel/{species}/{dataset}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.top_{cutoff}.gowinda.enrichment.html",
             category="Balancing Selection",
             subcategory="{method}",
-            labels=lambda wildcards: tajima_d_labels(
-                wildcards, type="Enrichment Table"
-            ),
+            labels=lambda wildcards: tajima_d_labels(wildcards, type="Enrichment Table"),
         ),
     params:
         title=add_scikit_allel_title,
