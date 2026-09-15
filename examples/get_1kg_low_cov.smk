@@ -78,7 +78,7 @@ rule download_ncbi_annotation_hg19:
         gtf="examples/data/Human/1kg_low_cov/annotation/Human.hg19.gtf.gz",
     shell:
         """
-        wget -c https://ftp.ensembl.org/pub/release-75/gtf/homo_sapiens/Homo_sapiens.GRCh37.75.gtf.gz \
+        wget -c https://ftp.ncbi.nlm.nih.gov/genomes/refseq/vertebrate_mammalian/Homo_sapiens/annotation_releases/GCF_000001405.25-RS_2024_09/GCF_000001405.25_GRCh37.p13_genomic.gtf.gz \
             -O {output.gtf}
         """
 
