@@ -225,7 +225,7 @@ rule enrichment_delta_tajima_d_gowinda:
 
         for i in {input.total}; do
             bcftools query -f "%CHROM\t%POS\n" $i
-        done > {output.total_snps} 2>> {log}
+        done 2>> {log} | sed 's/^\(chr\)\?/chr/' > {output.total_snps}
 
         java -Xmx{resources.mem_mb}m -jar {input.gowinda} \
             --snp-file {output.total_snps} \
