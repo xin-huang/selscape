@@ -1,36 +1,64 @@
 # Usage
 
-`selscape` provides example data to test the workflow, and supports analyzing your own datasets with flexible configuration.
+`selscape` provides example data from 3 datasets to test the workflow, and supports analyzing your own datasets with flexible configuration.
 
 ## Quick Start with Example Data
 
 ### 1. Download Example Data
 
-`selscape` includes a workflow to download example data from the 1000 Genomes Project:
+`selscape` includes a workflow to download example data from the 1000 Genomes Project (human) and curated Great ape data (pan):
 ```bash
-# Download example data (YRI and CHS populations, chromosomes 20-21)
-snakemake -s examples/get_example_data.smk -c 1
+# Download 1000 genome project high coverage data (YRI and CHS populations, chromosomes 21)
+snakemake -s examples/get_1kg_high_cov.smk -c 1
+# Download 1000 genome project low coverage data (YRI and CHS populations, chromosomes 21)
+snakemake -s examples/get_1kg_low_cov.smk -c 1
+# Download great ape example data (PPA population, chromosomes 21)
+snakemake -s examples/get_greatape_data.smk -c 1
 ```
 
 This creates the following structure:
 ```
-examples/data/Human/
-├── raw/
-│   ├── full_chr20.vcf.gz
-│   ├── full_chr20.vcf.gz.tbi
-│   ├── full_chr21.vcf.gz
-│   └── full_chr21.vcf.gz.tbi
-├── ancestral_alleles/
-│   └── homo_sapiens_ancestor_GRCh38/
-├── repeats/
-│   ├── hg38.rmsk.autosomes.bed
-│   ├── hg38.seg.dups.autosomes.bed
-│   └── hg38.simple.repeats.autosomes.bed
-├── annotation/
-│   ├── Human.gtf.gz
-│   └── gene2go.gz
-└── metadata/
-    └── example_metadata.txt
+examples/data/
+├── greatape/
+│   ├── metadata_full.txt
+│   ├── metadata.txt
+│   └── Pan
+│        ├── chr21.filteranno.vcf.gz
+│        └── chr21.filteranno.vcf.gz.tbi
+└── Human/
+     ├── 1kg_high_cov
+     │    ├── ancestral_alleles/
+     │    │    └── homo_sapiens_ancestor_GRCh38/
+     │    ├── repeats/
+     │    │    ├── hg38.rmsk.autosomes.bed
+     │    │    ├── hg38.seg.dups.autosomes.bed
+     │    │    └── hg38.simple.repeats.autosomes.bed
+     │    ├── annotation/
+     │    │     └── Human.hg38.gtf.gz
+     │    ├── chr21.vcf.gz
+     │    ├── chr21.vcf.gz.tbi
+     │    └── metadata.txt
+     │
+     │
+     │
+     ├── 1kg_low_cov
+     │    ├── ancestral_alleles/
+     │    │    └── homo_sapiens_ancestor_GRCh37_e71/
+     │    ├── repeats/
+     │    │    ├── hg19.rmsk.autosomes.bed
+     │    │    ├── hg19.seg.dups.autosomes.bed
+     │    │    └── hg19.simple.repeats.autosomes.bed
+     │    ├── annotation/
+     │    │     └── Human.hg19.gtf.gz
+     │    ├── 21.vcf.gz
+     │    ├── 21.vcf.gz.tbi
+     │    └── metadata.txt 
+     ├── gene2go.gz
+     └── genome/
+         ├── hg19.chrom.sizes.bed
+         ├── hg19.cytoBand.txt.gz 
+         ├── hg38.chrom.sizes.bed
+         └── hg38.cytoBand.txt.gz    
 ```
 
 ### 2. Run Analysis on Example Data
@@ -61,7 +89,9 @@ The report for the analysis of the example data can be found [here](report.html)
 ## Analyzing Your Own Data
 
 ### 1. Prepare Your Data
-
+#### Download Annovar
+Download [Annovar](https://annovar.openbioinformatics.org/en/latest/user-guide/download/) and place the `annovar` folder into `selscape/resources/tools/`.
+You need to a registration to download it.
 #### VCF Files
 
 Organize your VCF files according to your chosen naming scheme. The configuration will tell Selscape how to find them.
@@ -69,14 +99,14 @@ Organize your VCF files according to your chosen naming scheme. The configuratio
 Example structures:
 ```bash
 # Option 1: Chromosome in filename
-resources/data/
+resources/data/{species}/{dataset}/
 ├── chr1.vcf.gz
 ├── chr1.vcf.gz.tbi
 ├── chr2.vcf.gz
 └── chr2.vcf.gz.tbi
 
 # Option 2: Prefix + chromosome
-resources/data/
+resources/data/{species}/{dataset}/
 ├── Sample_chr1.vcf.gz
 ├── Sample_chr1.vcf.gz.tbi
 ├── Sample_chr2.vcf.gz
@@ -112,7 +142,7 @@ HG00421	CHS
 
 If available, ancestral alleles enable polarized analyses (selscan, unfolded BetaScan/dadi):
 ```bash
-ancestral_alleles/
+resources/data/{species}/ancestral_alleles/{ancestral_alleles_folder_name}
 ├── anc_chr1.bed.gz
 ├── anc_chr1.bed.gz.tbi
 ├── anc_chr2.bed.gz
@@ -128,13 +158,19 @@ chr1	2	3	G
 
 ### 2. Configure Analysis
 
-Edit `config/main.yaml`:
+Edit `config/dataset.yaml` to specify your data to analyze:
 ```yaml
 # Species identification
 species: "YourSpecies"
 tax_id: 9606  # Update for your species
+
+# Unique name for this dataset - used as a key and in all output paths
+dataset: "your_dataset"
 ref_genome: "your_ref"
 ploidy: 2
+
+# Hardy-Weinberg equilibrium p-value threshold
+hwe_pvalue: 0.001
 
 # Populations to analyze
 populations:
@@ -156,7 +192,7 @@ chromosomes:
   - 3
   # ... add all chromosomes
 
-# Ancestral alleles (optional)
+# Ancestral alleles (optional, set to null to disable)
 anc_alleles:
   path: "resources/ancestral_alleles"
   prefix: "anc_chr"
@@ -170,11 +206,36 @@ rmsk: "resources/repeats/repeats.bed"
 seg_dup: "resources/repeats/seg_dups.bed"
 sim_rep: "resources/repeats/simple_repeats.bed"
 
+# Files for circos plots (optional)
+chr_bed: "examples/data/Human/genome/chrom.sizes.bed"
+cytoband: "examples/data/Human/genome/cytoBand.txt.gz"
+```
+
+Edit `config/main.yaml` to adjust which tools and datasets to include in your analysis:
+```yaml
+# Which datasets to analyze
+datasets:
+  - config/dataset_1.yaml
+  - config/dataset_2.yaml
+  - config/dataset_3.yaml
+
 # Analysis tool configuration
 selscan_config: "config/selscan.yaml"
 betascan_config: "config/betascan.yaml"
 dadi_config: "config/dadi-cli.yaml"
 scikit_allel_config: "config/scikit-allel.yaml"
+
+# Define population groups for DFE CI plots
+population_groups:
+  AFR:
+    color: "color1"
+    populations: [YRI]
+  EAS:
+    color: "color2"
+    populations: [CHS]
+  Pan:
+    color: "color3"
+    populations: [PPA]
 ```
 
 ### 3. Run Analysis

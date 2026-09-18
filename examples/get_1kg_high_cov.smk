@@ -35,7 +35,7 @@ rule create_examples_high:
             "examples/data/Human/1kg_high_cov/repeats/hg38.{type}.autosomes.bed",
             type=["rmsk", "seg.dups", "simple.repeats"],
         ),
-        "examples/data/Human/1kg_high_cov/metadata/metadata.txt",
+        "examples/data/Human/1kg_high_cov/metadata.txt",
         "examples/data/Human/1kg_high_cov/annotation/Human.hg38.gtf.gz",
         rules.download_gene2go.output.gene2go,
         "examples/data/Human/genome/hg38.chrom.sizes.bed",
@@ -58,7 +58,7 @@ rule create_example_metadata:
     input:
         samples=rules.download_1KG_info.output.samples,
     output:
-        metadata="examples/data/Human/1kg_high_cov/metadata/metadata.txt",
+        metadata="examples/data/Human/1kg_high_cov/metadata.txt",
     params:
         pop1=example_pops_high[0],
         pop2=example_pops_high[1],

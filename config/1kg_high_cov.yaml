@@ -26,7 +26,7 @@ data_folder: "examples/data/Human/1kg_high_cov"
 vcf_prefix: ""
 vcf_suffix: ".vcf.gz"
 
-metadata: "examples/data/Human/1kg_high_cov/metadata/metadata.txt"
+metadata: "examples/data/Human/1kg_high_cov/metadata.txt"
 
 chromosomes:
   - chr21

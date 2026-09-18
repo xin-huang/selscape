@@ -12,7 +12,7 @@
   - bedtools=2.31.1
   - cyvcf2=0.31.0
   - dadi=2.4.3
-  - dadi-cli=0.9.13
+  - dadi-cli=0.9.14
   - matplotlib=3.9.4
   - nlopt=2.10.0
   - numpy=1.26.4
@@ -21,9 +21,9 @@
   - pip=25.0.1
   - plink=1.90b6.21
   - pyliftover=0.4.1
-  - pydantic=2.5.0
   - pysam=0.23.0
   - python=3.11.13
+  - pycirclize=1.7.1
   - r-base=4.4.3
   - r-data.table=1.17.8
   - r-dt=0.33
