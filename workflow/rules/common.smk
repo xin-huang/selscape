@@ -522,3 +522,23 @@ def get_chr_bed(wildcards):
 def get_cytoband(wildcards):
     """Get cytoband annotation path for the given dataset (empty string if null)."""
     return get_dataset_cfg(wildcards).get("cytoband") or ""
+
+
+XP_SIDES = ["pop1", "pop2"]
+
+wildcard_constraints:
+    side="pop1|pop2",
+    cutoff=r"[0-9]+(\.[0-9]+)?([eE][-+]?[0-9]+)?",
+    maf=r"[0-9]+(\.[0-9]+)?",
+    window=r"[0-9_]+",
+    step=r"[0-9.]+",
+ 
+ 
+def expand_dataset(pattern, anc_only=False, **kw):
+    source = DATASET_1POP_ANC if anc_only else DATASET_1POP
+    datasets = {(ds, sp, rg) for ds, sp, _pop, rg in source}
+    return [
+        f
+        for ds, sp, rg in sorted(datasets)
+        for f in expand(pattern, dataset=ds, species=sp, ref_genome=rg, **kw)
+    ]
