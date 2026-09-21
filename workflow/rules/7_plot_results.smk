@@ -170,3 +170,88 @@ rule make_xp_selection_circos:
         "../envs/selscape-env.yaml"
     script:
         "../scripts/visualization/plot_circos_scores.py"
+
+
+rule plot_selscan_xp_upset:
+    input:
+        genes=lambda wc: expand(
+            "results/positive_selection/selscan/{species}/{dataset}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.focal_{side}.outlier.genes",
+            pair=[p for ds, _sp, p, _rg in DATASET_2POP if ds == wc.dataset],
+            side=XP_SIDES,
+            allow_missing=True,
+        ),
+    output:
+        plot=report(
+            "results/plots/xp_upset/{species}/{dataset}/{dataset}.{method}.maf_{maf}.top_{cutoff}.upset.svg",
+            category="Cross-Population Overview",
+            subcategory="{method}",
+            labels=lambda wildcards: {
+                "Dataset": wildcards.dataset,
+                "Threshold": _top_pct(wildcards),
+                "Type": "UpSet (shared candidates between groups)",
+            },
+        ),
+        table="results/plots/xp_upset/{species}/{dataset}/{dataset}.{method}.maf_{maf}.top_{cutoff}.upset.tsv",
+    params:
+        pair_sides=lambda wc: expand(
+            "{pair}:{side}",
+            pair=[p for ds, _sp, p, _rg in DATASET_2POP if ds == wc.dataset],
+            side=XP_SIDES,
+        ),
+        population_groups=lambda _: main_config.get("population_groups", {}),
+        max_intersections=15,
+        title=lambda wc: (
+            f"{wc.dataset} {selscan_method_names[wc.method]} "
+            f"(candidates per population, Top {float(wc.cutoff) * 100:.2f}%)"
+        ),
+    resources:
+        mem_mb=8000,
+    log:
+        "logs/plots/plot_selscan_xp_upset.{species}.{dataset}.{method}.maf_{maf}.top_{cutoff}.log",
+    conda:
+        "../envs/selscape-env.yaml"
+    script:
+        "../scripts/visualization/plot_xp_upset.py"
+
+
+rule plot_delta_tajima_d_upset:
+    input:
+        genes=lambda wc: expand(
+            "results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.focal_{side}.outlier.genes",
+            pair=[p for ds, _sp, p, _rg in DATASET_2POP if ds == wc.dataset],
+            side=XP_SIDES,
+            allow_missing=True,
+        ),
+    output:
+        plot=report(
+            "results/plots/xp_upset/{species}/{dataset}/{dataset}.{method}.{window}_{step}.top_{cutoff}.upset.svg",
+            category="Cross-Population Overview",
+            subcategory="{method}",
+            labels=lambda wildcards: {
+                "Dataset": wildcards.dataset,
+                "Window": f"{wildcards.window} SNPs",
+                "Threshold": _top_pct(wildcards),
+                "Type": "UpSet (shared candidates between groups)",
+            },
+        ),
+        table="results/plots/xp_upset/{species}/{dataset}/{dataset}.{method}.{window}_{step}.top_{cutoff}.upset.tsv",
+    params:
+        pair_sides=lambda wc: expand(
+            "{pair}:{side}",
+            pair=[p for ds, _sp, p, _rg in DATASET_2POP if ds == wc.dataset],
+            side=XP_SIDES,
+        ),
+        population_groups=lambda _: main_config.get("population_groups", {}),
+        max_intersections=15,
+        title=lambda wc: (
+            f"{wc.dataset} Delta Tajima's D "
+            f"(candidates per population, Top {float(wc.cutoff) * 100:.2f}%)"
+        ),
+    resources:
+        mem_mb=8000,
+    log:
+        "logs/plots/plot_delta_tajima_d_upset.{species}.{dataset}.{method}.{window}_{step}.top_{cutoff}.log",
+    conda:
+        "../envs/selscape-env.yaml"
+    script:
+        "../scripts/visualization/plot_xp_upset.py"

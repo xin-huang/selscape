@@ -159,11 +159,11 @@ rule all:
             **DELTA_TAJIMAD_KW, side=XP_SIDES, ext=["html", "png"],
         ),
         # xp upset plot
-#        expand_dataset(
-#            "results/plots/xp_upset/{species}/{dataset}/{dataset}.{method}.maf_{maf}.top_{cutoff}.upset.svg",
-#            anc_only=True, **SELSCAN_XP_KW,
-#        ),
-#        expand_dataset(
-#            "results/plots/xp_upset/{species}/{dataset}/{dataset}.{method}.{window}_{step}.top_{cutoff}.upset.svg",
-#            **DELTA_TAJIMAD_KW,
-#        ),
+        expand_dataset(
+            "results/plots/xp_upset/{species}/{dataset}/{dataset}.{method}.maf_{maf}.top_{cutoff}.upset.svg",
+            anc_only=True, **SELSCAN_XP_KW,
+        ),
+        expand_dataset(
+            "results/plots/xp_upset/{species}/{dataset}/{dataset}.{method}.{window}_{step}.top_{cutoff}.upset.svg",
+            **DELTA_TAJIMAD_KW,
+        ),
