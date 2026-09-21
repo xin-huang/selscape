@@ -39,9 +39,8 @@ assert pop1_sign in ("positive", "negative"), f"pop1_sign must be positive or ne
 
 
 def write_empty(path):
-    with open(path, "w"):
-        pass
-
+    with open(path, "w") as out:
+        out.write(f"SNP\tCHR\tBP\t{score_column}\n")
 
 try:
     outliers = pd.read_csv(input_file, sep="\t")
