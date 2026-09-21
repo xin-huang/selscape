@@ -174,12 +174,16 @@ rule make_xp_selection_circos:
 
 rule plot_selscan_xp_upset:
     input:
-        genes=lambda wc: expand(
-            "results/positive_selection/selscan/{species}/{dataset}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.focal_{side}.outlier.genes",
-            pair=[p for ds, _sp, p, _rg in DATASET_2POP if ds == wc.dataset],
-            side=XP_SIDES,
-            allow_missing=True,
-        ),
+        genes=lambda wc: [
+            f
+            for ds, _sp, pair, _rg in DATASET_2POP
+            if ds == wc.dataset
+            for focal in pair.split("_")
+            for f in expand(
+                "results/positive_selection/selscan/{species}/{dataset}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.focal_{focal}.outlier.genes",
+                pair=pair, focal=focal, allow_missing=True,
+            )
+        ],
     output:
         plot=report(
             "results/plots/xp_upset/{species}/{dataset}/{dataset}.{method}.maf_{maf}.top_{cutoff}.upset.svg",
@@ -193,11 +197,6 @@ rule plot_selscan_xp_upset:
         ),
         table="results/plots/xp_upset/{species}/{dataset}/{dataset}.{method}.maf_{maf}.top_{cutoff}.upset.tsv",
     params:
-        pair_sides=lambda wc: expand(
-            "{pair}:{side}",
-            pair=[p for ds, _sp, p, _rg in DATASET_2POP if ds == wc.dataset],
-            side=XP_SIDES,
-        ),
         population_groups=lambda _: main_config.get("population_groups", {}),
         max_intersections=15,
         title=lambda wc: (
@@ -216,12 +215,16 @@ rule plot_selscan_xp_upset:
 
 rule plot_delta_tajima_d_upset:
     input:
-        genes=lambda wc: expand(
-            "results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.focal_{side}.outlier.genes",
-            pair=[p for ds, _sp, p, _rg in DATASET_2POP if ds == wc.dataset],
-            side=XP_SIDES,
-            allow_missing=True,
-        ),
+        genes=lambda wc: [
+            f
+            for ds, _sp, pair, _rg in DATASET_2POP
+            if ds == wc.dataset
+            for focal in pair.split("_")
+            for f in expand(
+                "results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.focal_{focal}.outlier.genes",
+                pair=pair, focal=focal, allow_missing=True,
+            )
+        ],
     output:
         plot=report(
             "results/plots/xp_upset/{species}/{dataset}/{dataset}.{method}.{window}_{step}.top_{cutoff}.upset.svg",
@@ -236,11 +239,6 @@ rule plot_delta_tajima_d_upset:
         ),
         table="results/plots/xp_upset/{species}/{dataset}/{dataset}.{method}.{window}_{step}.top_{cutoff}.upset.tsv",
     params:
-        pair_sides=lambda wc: expand(
-            "{pair}:{side}",
-            pair=[p for ds, _sp, p, _rg in DATASET_2POP if ds == wc.dataset],
-            side=XP_SIDES,
-        ),
         population_groups=lambda _: main_config.get("population_groups", {}),
         max_intersections=15,
         title=lambda wc: (

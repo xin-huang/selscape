@@ -18,6 +18,7 @@
 #    https://www.gnu.org/licenses/gpl-3.0.en.html
  
 
+import os
 import sys
  
 import matplotlib
@@ -31,15 +32,9 @@ sys.stderr = log_fh
 sys.stdout = log_fh
  
 gene_files = snakemake.input.genes
-pair_sides = snakemake.params.pair_sides
 population_groups = snakemake.params.population_groups or {}
 max_intersections = int(snakemake.params.max_intersections)
 plot_title = snakemake.params.title
- 
-assert len(gene_files) == len(pair_sides), (
-    f"{len(gene_files)} gene files but {len(pair_sides)} pair/side entries; "
-    f"input.genes and params.pair_sides must come from the same expand()"
-)
  
 BAR = "#0072B2"
 FALLBACK_COLORS = ["#E69F00", "#56B4E9", "#009E73", "#0072B2", "#CC79A7", "#D55E00"]
@@ -67,10 +62,8 @@ group_of = {
  
 group_genes = {}
 ungrouped = set()
-for pair_side, path in zip(pair_sides, gene_files):
-    pair, side = pair_side.rsplit(":", 1)
-    pop1, pop2 = pair.split("_", 1)
-    population = pop1 if side == "pop1" else pop2
+for path in gene_files:
+    population = os.path.basename(path).rsplit(".focal_", 1)[1].split(".")[0]
     group = group_of.get(population)
     if group is None:
         ungrouped.add(population)

@@ -524,10 +524,8 @@ def get_cytoband(wildcards):
     return get_dataset_cfg(wildcards).get("cytoband") or ""
 
 
-XP_SIDES = ["pop1", "pop2"]
-
 wildcard_constraints:
-    side="pop1|pop2",
+    focal=r"[^./]+",
     cutoff=r"[0-9]+(\.[0-9]+)?([eE][-+]?[0-9]+)?",
     maf=r"[0-9]+(\.[0-9]+)?",
     window=r"[0-9_]+",
@@ -541,4 +539,15 @@ def expand_dataset(pattern, anc_only=False, **kw):
         f
         for ds, sp, rg in sorted(datasets)
         for f in expand(pattern, dataset=ds, species=sp, ref_genome=rg, **kw)
+    ]
+
+
+def expand_2pop_focal(pattern, anc_only=False, **kw):
+    """Like expand_2pop, but one entry per pair and focal population."""
+    source = DATASET_2POP_ANC if anc_only else DATASET_2POP
+    return [
+        f
+        for ds, sp, pair, rg in source
+        for pop in pair.split("_")
+        for f in expand(pattern, dataset=ds, species=sp, pair=pair, focal=pop, ref_genome=rg, **kw)
     ]

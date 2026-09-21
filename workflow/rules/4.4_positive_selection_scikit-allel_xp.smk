@@ -319,13 +319,12 @@ rule split_delta_tajima_d_outliers_by_sign:
     input:
         outliers=rules.plot_delta_tajima_d.output.outliers,
     output:
-        pop1="results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.focal_pop1.outliers.scores",
-        pop2="results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.focal_pop2.outliers.scores",
+        scores="results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.focal_{focal}.outliers.scores",
     params:
         score_column="delta_tajima_d",
         pop1_sign="negative",
     log:
-        "logs/positive_selection/split_delta_tajima_d_outliers_by_sign.{species}.{dataset}.{pair}.{method}.{window}_{step}.top_{cutoff}.log",
+        "logs/positive_selection/split_delta_tajima_d_outliers_by_sign.{species}.{dataset}.{pair}.{method}.{window}_{step}.top_{cutoff}.focal_{focal}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
@@ -334,7 +333,7 @@ rule split_delta_tajima_d_outliers_by_sign:
 
 rule extract_delta_tajima_d_focal_outlier_variants:
     input:
-        scores="results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.focal_{side}.outliers.scores",
+        scores=rules.split_delta_tajima_d_outliers_by_sign.output.scores,
         vcfs=lambda wc: expand(
             rules.extract_pair_data.output.vcf,
             i=get_chromosomes(wc),
@@ -347,13 +346,13 @@ rule extract_delta_tajima_d_focal_outlier_variants:
         ),
     output:
         regions=temp(
-            "results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.focal_{side}.outliers.bed"
+            "results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.focal_{focal}.outliers.bed"
         ),
         variants=temp(
-            "results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.focal_{side}.outliers.variants"
+            "results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.focal_{focal}.outliers.variants"
         ),
     log:
-        "logs/positive_selection/extract_delta_tajima_d_focal_outlier_variants.{species}.{dataset}.{pair}.{method}.{window}_{step}.top_{cutoff}.focal_{side}.log",
+        "logs/positive_selection/extract_delta_tajima_d_focal_outlier_variants.{species}.{dataset}.{pair}.{method}.{window}_{step}.top_{cutoff}.focal_{focal}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -379,11 +378,11 @@ rule annotate_delta_tajima_d_focal_outliers:
             allow_missing=True,
         ),
     output:
-        annotated_outliers="results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.focal_{side}.annotated.outliers",
+        annotated_outliers="results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.focal_{focal}.annotated.outliers",
     resources:
         mem_mb=32000,
     log:
-        "logs/positive_selection/annotate_delta_tajima_d_focal_outliers.{species}.{dataset}.{pair}.{method}.{window}_{step}.top_{cutoff}.focal_{side}.log",
+        "logs/positive_selection/annotate_delta_tajima_d_focal_outliers.{species}.{dataset}.{pair}.{method}.{window}_{step}.top_{cutoff}.focal_{focal}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
@@ -394,9 +393,9 @@ rule get_delta_tajima_d_focal_outlier_genes:
     input:
         outliers=rules.annotate_delta_tajima_d_focal_outliers.output.annotated_outliers,
     output:
-        genes="results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.focal_{side}.outlier.genes",
+        genes="results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.focal_{focal}.outlier.genes",
     log:
-        "logs/positive_selection/get_delta_tajima_d_focal_outlier_genes.{species}.{dataset}.{pair}.{method}.{window}_{step}.top_{cutoff}.focal_{side}.log",
+        "logs/positive_selection/get_delta_tajima_d_focal_outlier_genes.{species}.{dataset}.{pair}.{method}.{window}_{step}.top_{cutoff}.focal_{focal}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -414,13 +413,13 @@ rule enrichment_delta_tajima_d_focal_gowinda:
         outliers=rules.annotate_delta_tajima_d_focal_outliers.output.annotated_outliers,
         total_snps=rules.extract_delta_tajima_d_pair_total_snps.output.total_snps,
     output:
-        outlier_snps="results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.focal_{side}.outlier.snps.tsv",
-        enrichment="results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.focal_{side}.gowinda.enrichment.tsv",
+        outlier_snps="results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.focal_{focal}.outlier.snps.tsv",
+        enrichment="results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.focal_{focal}.gowinda.enrichment.tsv",
     resources:
         mem_mb=32000,
         cpus=8,
     log:
-        "logs/positive_selection/enrichment_delta_tajima_d_focal_gowinda.{species}.{dataset}.{pair}.{method}.{window}_{step}.top_{cutoff}.focal_{side}.log",
+        "logs/positive_selection/enrichment_delta_tajima_d_focal_gowinda.{species}.{dataset}.{pair}.{method}.{window}_{step}.top_{cutoff}.focal_{focal}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -449,17 +448,17 @@ rule delta_tajima_d_focal_enrichment_results_table_html:
         tsv=rules.enrichment_delta_tajima_d_focal_gowinda.output.enrichment,
     output:
         html=report(
-            "results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.focal_{side}.gowinda.enrichment.html",
+            "results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.focal_{focal}.gowinda.enrichment.html",
             category="Positive Selection",
             subcategory="{method}",
             labels=lambda wildcards: delta_tajima_d_labels(
-                wildcards, type="Enrichment Table (" + wildcards.side + ")"
+                wildcards, type="Enrichment Table (" + wildcards.focal + ")"
             ),
         ),
     params:
         title=add_scikit_allel_title,
     log:
-        "logs/positive_selection/delta_tajima_d_focal_enrichment_results_table_html.{species}.{dataset}.{pair}.{method}.{window}_{step}.top_{cutoff}.focal_{side}.log",
+        "logs/positive_selection/delta_tajima_d_focal_enrichment_results_table_html.{species}.{dataset}.{pair}.{method}.{window}_{step}.top_{cutoff}.focal_{focal}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
@@ -471,11 +470,11 @@ rule plot_gowinda_enrichment_delta_tajima_d_focal:
         enrichment=rules.enrichment_delta_tajima_d_focal_gowinda.output.enrichment,
     output:
         plot=report(
-            "results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.focal_{side}.gowinda.enrichment.png",
+            "results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.focal_{focal}.gowinda.enrichment.png",
             category="Positive Selection",
             subcategory="{method}",
             labels=lambda wildcards: delta_tajima_d_labels(
-                wildcards, type="Enrichment Plot (" + wildcards.side + ")"
+                wildcards, type="Enrichment Plot (" + wildcards.focal + ")"
             ),
         ),
     params:
@@ -483,7 +482,7 @@ rule plot_gowinda_enrichment_delta_tajima_d_focal:
     resources:
         mem_mb=8000,
     log:
-        "logs/positive_selection/plot_gowinda_enrichment_delta_tajima_d_focal.{species}.{dataset}.{pair}.{method}.{window}_{step}.top_{cutoff}.focal_{side}.log",
+        "logs/positive_selection/plot_gowinda_enrichment_delta_tajima_d_focal.{species}.{dataset}.{pair}.{method}.{window}_{step}.top_{cutoff}.focal_{focal}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:

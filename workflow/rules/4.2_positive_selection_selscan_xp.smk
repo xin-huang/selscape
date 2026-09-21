@@ -340,13 +340,12 @@ rule split_selscan_xp_outliers_by_sign:
     input:
         outliers=rules.plot_selscan_xp.output.outliers,
     output:
-        pop1="results/positive_selection/selscan/{species}/{dataset}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.focal_pop1.outliers.scores",
-        pop2="results/positive_selection/selscan/{species}/{dataset}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.focal_pop2.outliers.scores",
+        scores="results/positive_selection/selscan/{species}/{dataset}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.focal_{focal}.outliers.scores",
     params:
         score_column="normalized_{method}",
         pop1_sign="positive",
     log:
-        "logs/positive_selection/split_selscan_xp_outliers_by_sign.{species}.{dataset}.{pair}.{method}.maf_{maf}.top_{cutoff}.log",
+        "logs/positive_selection/split_selscan_xp_outliers_by_sign.{species}.{dataset}.{pair}.{method}.maf_{maf}.top_{cutoff}.focal_{focal}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
@@ -355,7 +354,7 @@ rule split_selscan_xp_outliers_by_sign:
 
 rule annotate_selscan_xp_focal_outliers:
     input:
-        outliers="results/positive_selection/selscan/{species}/{dataset}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.focal_{side}.outliers.scores",
+        outliers=rules.split_selscan_xp_outliers_by_sign.output.scores,
         annotation=lambda wc: expand(
             rules.annotate_biallelic_snps.output.txt,
             i=get_chromosomes(wc),
@@ -363,11 +362,11 @@ rule annotate_selscan_xp_focal_outliers:
             allow_missing=True,
         ),
     output:
-        annotated_outliers="results/positive_selection/selscan/{species}/{dataset}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.focal_{side}.annotated.outliers",
+        annotated_outliers="results/positive_selection/selscan/{species}/{dataset}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.focal_{focal}.annotated.outliers",
     resources:
         mem_mb=32000,
     log:
-        "logs/positive_selection/annotate_selscan_xp_focal_outliers.{species}.{dataset}.{pair}.{method}.maf_{maf}.top_{cutoff}.focal_{side}.log",
+        "logs/positive_selection/annotate_selscan_xp_focal_outliers.{species}.{dataset}.{pair}.{method}.maf_{maf}.top_{cutoff}.focal_{focal}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
@@ -378,9 +377,9 @@ rule get_selscan_xp_focal_outlier_genes:
     input:
         outliers=rules.annotate_selscan_xp_focal_outliers.output.annotated_outliers,
     output:
-        genes="results/positive_selection/selscan/{species}/{dataset}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.focal_{side}.outlier.genes",
+        genes="results/positive_selection/selscan/{species}/{dataset}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.focal_{focal}.outlier.genes",
     log:
-        "logs/positive_selection/get_selscan_xp_focal_outlier_genes.{species}.{dataset}.{pair}.{method}.maf_{maf}.top_{cutoff}.focal_{side}.log",
+        "logs/positive_selection/get_selscan_xp_focal_outlier_genes.{species}.{dataset}.{pair}.{method}.maf_{maf}.top_{cutoff}.focal_{focal}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -398,13 +397,13 @@ rule enrichment_selscan_xp_focal_gowinda:
         outliers=rules.annotate_selscan_xp_focal_outliers.output.annotated_outliers,
         total_snps=rules.extract_selscan_xp_pair_total_snps.output.total_snps,
     output:
-        outlier_snps="results/positive_selection/selscan/{species}/{dataset}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.focal_{side}.outlier.snps.tsv",
-        enrichment="results/positive_selection/selscan/{species}/{dataset}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.focal_{side}.gowinda.enrichment.tsv",
+        outlier_snps="results/positive_selection/selscan/{species}/{dataset}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.focal_{focal}.outlier.snps.tsv",
+        enrichment="results/positive_selection/selscan/{species}/{dataset}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.focal_{focal}.gowinda.enrichment.tsv",
     resources:
         mem_mb=32000,
         cpus=8,
     log:
-        "logs/positive_selection/enrichment_selscan_xp_focal_gowinda.{species}.{dataset}.{pair}.{method}.maf_{maf}.top_{cutoff}.focal_{side}.log",
+        "logs/positive_selection/enrichment_selscan_xp_focal_gowinda.{species}.{dataset}.{pair}.{method}.maf_{maf}.top_{cutoff}.focal_{focal}.log",
     conda:
         "../envs/selscape-env.yaml"
     shell:
@@ -433,17 +432,17 @@ rule selscan_xp_focal_enrichment_results_table_html:
         tsv=rules.enrichment_selscan_xp_focal_gowinda.output.enrichment,
     output:
         html=report(
-            "results/positive_selection/selscan/{species}/{dataset}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.focal_{side}.gowinda.enrichment.html",
+            "results/positive_selection/selscan/{species}/{dataset}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.focal_{focal}.gowinda.enrichment.html",
             category="Positive Selection",
             subcategory="{method}",
             labels=lambda wildcards: selscan_xp_labels(
-                wildcards, type="Enrichment Table (" + wildcards.side + ")"
+                wildcards, type="Enrichment Table (" + wildcards.focal + ")"
             ),
         ),
     params:
         title=add_selscan_title,
     log:
-        "logs/positive_selection/selscan_xp_focal_enrichment_results_table_html.{species}.{dataset}.{pair}.{method}.maf_{maf}.top_{cutoff}.focal_{side}.log",
+        "logs/positive_selection/selscan_xp_focal_enrichment_results_table_html.{species}.{dataset}.{pair}.{method}.maf_{maf}.top_{cutoff}.focal_{focal}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
@@ -455,11 +454,11 @@ rule plot_gowinda_enrichment_selscan_xp_focal:
         enrichment=rules.enrichment_selscan_xp_focal_gowinda.output.enrichment,
     output:
         plot=report(
-            "results/positive_selection/selscan/{species}/{dataset}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.focal_{side}.gowinda.enrichment.png",
+            "results/positive_selection/selscan/{species}/{dataset}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.focal_{focal}.gowinda.enrichment.png",
             category="Positive Selection",
             subcategory="{method}",
             labels=lambda wildcards: selscan_xp_labels(
-                wildcards, type="Enrichment Plot (" + wildcards.side + ")"
+                wildcards, type="Enrichment Plot (" + wildcards.focal + ")"
             ),
         ),
     params:
@@ -467,7 +466,7 @@ rule plot_gowinda_enrichment_selscan_xp_focal:
     resources:
         mem_mb=8000,
     log:
-        "logs/positive_selection/plot_gowinda_enrichment_selscan_xp_focal.{species}.{dataset}.{pair}.{method}.maf_{maf}.top_{cutoff}.focal_{side}.log",
+        "logs/positive_selection/plot_gowinda_enrichment_selscan_xp_focal.{species}.{dataset}.{pair}.{method}.maf_{maf}.top_{cutoff}.focal_{focal}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:

@@ -150,13 +150,13 @@ rule all:
             anc_only=True,
         ),
         # xp pop enrichment analysis
-        expand_2pop(
-            "results/positive_selection/selscan/{species}/{dataset}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.focal_{side}.gowinda.enrichment.{ext}",
-            anc_only=True, **SELSCAN_XP_KW, side=XP_SIDES, ext=["html", "png"],
+        expand_2pop_focal(
+            "results/positive_selection/selscan/{species}/{dataset}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.focal_{focal}.gowinda.enrichment.{ext}",
+            anc_only=True, **SELSCAN_XP_KW, ext=["html", "png"],
         ),
-        expand_2pop(
-            "results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.focal_{side}.gowinda.enrichment.{ext}",
-            **DELTA_TAJIMAD_KW, side=XP_SIDES, ext=["html", "png"],
+        expand_2pop_focal(
+            "results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.focal_{focal}.gowinda.enrichment.{ext}",
+            **DELTA_TAJIMAD_KW, ext=["html", "png"],
         ),
         # xp upset plot
         expand_dataset(
