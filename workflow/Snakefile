@@ -167,3 +167,12 @@ rule all:
             "results/plots/xp_upset/{species}/{dataset}/{dataset}.{method}.{window}_{step}.top_{cutoff}.upset.svg",
             **DELTA_TAJIMAD_KW,
         ),
+        # xp matrix
+        expand_dataset(
+            "results/plots/xp_matrix/{species}/{dataset}/{dataset}.{method}.maf_{maf}.top_{cutoff}.matrix.svg",
+            anc_only=True, **SELSCAN_XP_KW,
+        ),
+        expand_dataset(
+            "results/plots/xp_matrix/{species}/{dataset}/{dataset}.{method}.{window}_{step}.top_{cutoff}.matrix.svg",
+            **DELTA_TAJIMAD_KW,
+        ),

@@ -201,7 +201,7 @@ rule plot_selscan_xp_upset:
         max_intersections=15,
         title=lambda wc: (
             f"{wc.dataset} {selscan_method_names[wc.method]} "
-            f"(candidates per population, Top {float(wc.cutoff) * 100:.2f}%)"
+            f"(MAF={wc.maf}, Top {float(wc.cutoff) * 100:.2f}%)"
         ),
     resources:
         mem_mb=8000,
@@ -243,7 +243,9 @@ rule plot_delta_tajima_d_upset:
         max_intersections=15,
         title=lambda wc: (
             f"{wc.dataset} Delta Tajima's D "
-            f"(candidates per population, Top {float(wc.cutoff) * 100:.2f}%)"
+            f"(Window size={wc.window} SNPs, "
+            f"Step size={int(float(wc.step) * int(wc.window))} SNPs, "
+            f"Top {float(wc.cutoff) * 100:.2f}%)"
         ),
     resources:
         mem_mb=8000,
@@ -253,3 +255,86 @@ rule plot_delta_tajima_d_upset:
         "../envs/selscape-env.yaml"
     script:
         "../scripts/visualization/plot_xp_upset.py"
+
+
+rule plot_selscan_xp_matrix:
+    input:
+        genes=lambda wc: [
+            f
+            for ds, _sp, pair, _rg in DATASET_2POP
+            if ds == wc.dataset
+            for focal in pair.split("_")
+            for f in expand(
+                "results/positive_selection/selscan/{species}/{dataset}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.focal_{focal}.outlier.genes",
+                pair=pair, focal=focal, allow_missing=True,
+            )
+        ],
+    output:
+        plot=report(
+            "results/plots/xp_matrix/{species}/{dataset}/{dataset}.{method}.maf_{maf}.top_{cutoff}.matrix.svg",
+            category="Cross-Population Overview",
+            subcategory="{method}",
+            labels=lambda wildcards: {
+                "Dataset": wildcards.dataset,
+                "Threshold": _top_pct(wildcards),
+                "Type": "Matrix (candidates per direction)",
+            },
+        ),
+        table="results/plots/xp_matrix/{species}/{dataset}/{dataset}.{method}.maf_{maf}.top_{cutoff}.matrix.tsv",
+    params:
+        population_groups=lambda _: main_config.get("population_groups", {}),
+        title=lambda wc: (
+            f"{wc.dataset} {selscan_method_names[wc.method]} "
+            f"(MAF={wc.maf}, Top {float(wc.cutoff) * 100:.2f}%)"
+        ),
+    resources:
+        mem_mb=8000,
+    log:
+        "logs/plots/plot_selscan_xp_matrix.{species}.{dataset}.{method}.maf_{maf}.top_{cutoff}.log",
+    conda:
+        "../envs/selscape-env.yaml"
+    script:
+        "../scripts/visualization/plot_xp_matrix.py"
+
+
+rule plot_delta_tajima_d_matrix:
+    input:
+        genes=lambda wc: [
+            f
+            for ds, _sp, pair, _rg in DATASET_2POP
+            if ds == wc.dataset
+            for focal in pair.split("_")
+            for f in expand(
+                "results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.focal_{focal}.outlier.genes",
+                pair=pair, focal=focal, allow_missing=True,
+            )
+        ],
+    output:
+        plot=report(
+            "results/plots/xp_matrix/{species}/{dataset}/{dataset}.{method}.{window}_{step}.top_{cutoff}.matrix.svg",
+            category="Cross-Population Overview",
+            subcategory="{method}",
+            labels=lambda wildcards: {
+                "Dataset": wildcards.dataset,
+                "Window": f"{wildcards.window} SNPs",
+                "Threshold": _top_pct(wildcards),
+                "Type": "Matrix (candidates per direction)",
+            },
+        ),
+        table="results/plots/xp_matrix/{species}/{dataset}/{dataset}.{method}.{window}_{step}.top_{cutoff}.matrix.tsv",
+    params:
+        population_groups=lambda _: main_config.get("population_groups", {}),
+        title=lambda wc: (
+            f"{wc.dataset} Delta Tajima's D "
+            f"(Window size={wc.window} SNPs, "
+            f"Step size={int(float(wc.step) * int(wc.window))} SNPs, "
+            f"Top {float(wc.cutoff) * 100:.2f}%)"
+        ),
+    resources:
+        mem_mb=8000,
+    log:
+        "logs/plots/plot_delta_tajima_d_matrix.{species}.{dataset}.{method}.{window}_{step}.top_{cutoff}.log",
+    conda:
+        "../envs/selscape-env.yaml"
+    script:
+        "../scripts/visualization/plot_xp_matrix.py"

@@ -20,7 +20,6 @@
 
 import os
 import sys
- 
 import matplotlib
  
 matplotlib.use("Agg")
@@ -77,7 +76,7 @@ if ungrouped:
  
 groups = [group for group in population_groups if group_genes.get(group)]
 if len(groups) < 2:
-    no_results("fewer than two population groups have candidates")
+    no_results("fewer than two population groups have outlier genes")
  
 memberships = from_contents({group: group_genes[group] for group in groups})
 intersections = memberships.index.value_counts()
