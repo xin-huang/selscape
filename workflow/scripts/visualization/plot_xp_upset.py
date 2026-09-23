@@ -102,7 +102,10 @@ for i, group in enumerate(groups):
     upset.style_categories(group, bar_facecolor=color)
  
 fig = plt.figure(figsize=(max(6.0, 0.55 * min(len(intersections), max_intersections) + 3.0), 4.5), dpi=200)
-upset.plot(fig=fig)
+axes = upset.plot(fig=fig)
+axes["intersections"].grid(False)
+axes["totals"].grid(False)
+axes["totals"].set_xlabel("Total genes")
 fig.suptitle(plot_title, fontsize=11, fontweight="bold")
 plt.savefig(snakemake.output.plot, bbox_inches="tight")
 plt.close()
