@@ -105,7 +105,7 @@ fig = plt.figure(figsize=(max(6.0, 0.55 * min(len(intersections), max_intersecti
 axes = upset.plot(fig=fig)
 axes["intersections"].grid(False)
 axes["totals"].grid(False)
-axes["totals"].set_xlabel("Total genes")
+axes["totals"].set_xlabel("Total outlier genes")
 fig.suptitle(plot_title, fontsize=11, fontweight="bold")
 plt.savefig(snakemake.output.plot, bbox_inches="tight")
 plt.close()
