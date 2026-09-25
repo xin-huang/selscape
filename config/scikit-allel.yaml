@@ -23,7 +23,7 @@ dtjd_step_size_ratios: [1]
 
 # Statistical thresholds
 # Top proportion for outlier identification
-top_proportion: 0.05
+top_proportion: 0.0005
 
 # Manhattan plot settings 
 manhattan_plot_width: 640
