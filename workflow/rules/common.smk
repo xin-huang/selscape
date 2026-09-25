@@ -534,6 +534,16 @@ def expand_1pop_circos(pattern, anc_only=False):
         for f in expand(pattern, dataset=ds, species=sp, ppl=pop, ref_genome=rg)
     ]
 
+def expand_2pop_circos(pattern, anc_only=False):
+    source = DATASET_2POP_ANC if anc_only else DATASET_2POP
+    return [
+        f
+        for ds, sp, pair, rg in source
+        if ds in datasets_with_circos
+        for f in expand(pattern, dataset=ds, species=sp, pair=pair, ref_genome=rg)
+    ]
+
+
 datasets_with_circos = [
     ds for ds, cfg in dataset_configs.items()
     if cfg.get("chr_bed") and cfg.get("cytoband")
@@ -555,3 +565,32 @@ def get_chr_bed(wildcards):
 def get_cytoband(wildcards):
     """Get cytoband annotation path for the given dataset (empty string if null)."""
     return get_dataset_cfg(wildcards).get("cytoband") or ""
+
+
+wildcard_constraints:
+    focal=r"[^./]+",
+    cutoff=r"[0-9]+(\.[0-9]+)?([eE][-+]?[0-9]+)?",
+    maf=r"[0-9]+(\.[0-9]+)?",
+    window=r"[0-9_]+",
+    step=r"[0-9.]+",
+ 
+ 
+def expand_dataset(pattern, anc_only=False, **kw):
+    source = DATASET_1POP_ANC if anc_only else DATASET_1POP
+    datasets = {(ds, sp, rg) for ds, sp, _pop, rg in source}
+    return [
+        f
+        for ds, sp, rg in sorted(datasets)
+        for f in expand(pattern, dataset=ds, species=sp, ref_genome=rg, **kw)
+    ]
+
+
+def expand_2pop_focal(pattern, anc_only=False, **kw):
+    """Like expand_2pop, but one entry per pair and focal population."""
+    source = DATASET_2POP_ANC if anc_only else DATASET_2POP
+    return [
+        f
+        for ds, sp, pair, rg in source
+        for pop in pair.split("_")
+        for f in expand(pattern, dataset=ds, species=sp, pair=pair, focal=pop, ref_genome=rg, **kw)
+    ]
