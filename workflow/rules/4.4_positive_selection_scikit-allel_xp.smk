@@ -242,7 +242,8 @@ rule enrichment_delta_tajima_d_gowinda:
                 --threads {resources.cpus} \
                 --output-file {output.enrichment}.tmp \
                 --mode gene \
-                --min-genes 1 >> {log} 2>&1
+                --min-genes 1 >> {log} 2>&1 \
+                || grep -q "FINISHED - Thank you for using Gowinda" {log}
             cat {output.enrichment}.tmp >> {output.enrichment}
             rm {output.enrichment}.tmp
         else
