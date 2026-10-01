@@ -60,25 +60,23 @@ group_of = {
 }
 
 group_genes = {}
-ungrouped = set()
 for path in gene_files:
     name = os.path.basename(path)
     if ".focal_" in name:
         population = name.rsplit(".focal_", 1)[1].split(".")[0]
     else:
         population = name.split(".", 1)[0]
-    group = group_of.get(population)
-    if group is None:
-        ungrouped.add(population)
-        continue
+    group = group_of.get(population, population)
     with open(path) as handle:
         genes = {g for g in (line.strip() for line in handle) if g and g != "Gene"}
     group_genes.setdefault(group, set()).update(genes)
 
+ungrouped = sorted(g for g in group_genes if g not in population_groups)
 if ungrouped:
-    print("ignored, not in population_groups:", ", ".join(sorted(ungrouped)))
+    print("not in population_groups, plotted as own group:", ", ".join(ungrouped))
 
 groups = [group for group in population_groups if group_genes.get(group)]
+groups += [group for group in ungrouped if group_genes[group]]
 if len(groups) < 2:
     no_results("fewer than two population groups have outlier genes")
 
@@ -102,7 +100,7 @@ upset = UpSet(
     element_size=None,
 )
 for i, group in enumerate(groups):
-    color = (population_groups[group] or {}).get("color") or FALLBACK_COLORS[i % len(FALLBACK_COLORS)]
+    color = (population_groups.get(group) or {}).get("color") or FALLBACK_COLORS[i % len(FALLBACK_COLORS)]
     upset.style_categories(group, bar_facecolor=color)
 
 fig = plt.figure(figsize=(max(6.0, 0.55 * min(len(intersections), max_intersections) + 3.0), 4.5), dpi=200)
