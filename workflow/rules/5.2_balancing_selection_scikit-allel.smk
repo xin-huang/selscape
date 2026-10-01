@@ -135,9 +135,11 @@ rule extract_tajima_d_balancing_outlier_variants:
         ( sed '1d' {input.scores} | awk '{{print $2"\t"$5"\t"$6}}' > {output.regions} ) 2> {log}
 
         echo -e "CHR\tBP" > {output.variants}
-        for i in {input.vcfs}; do
-            bcftools view -H -R {output.regions} $i | awk '{{print $1"\t"$2}}'
-        done | sort -u >> {output.variants} 2>> {log} || true
+        if [ -s {output.regions} ]; then
+            for i in {input.vcfs}; do
+                bcftools view -H -R {output.regions} $i | awk '{{print $1"\t"$2}}'
+            done | sort -u >> {output.variants} 2>> {log}
+        fi
         """
 
 
@@ -173,8 +175,8 @@ rule get_tajima_d_balancing_outlier_genes:
         "../envs/selscape-env.yaml"
     shell:
         """
-        ( sed '1d' {input.tajima_d_outliers} | awk '{{print $7}}' | grep -v ";" | sort | uniq > {output.tajima_d_genes} ) 2> {log} || true
-        sed -i '1iGene' {output.tajima_d_genes} 2>> {log}
+        echo Gene > {output.tajima_d_genes}
+        ( awk 'NR > 1 && $7 !~ /;/ {{print $7}}' {input.tajima_d_outliers} | sort -u >> {output.tajima_d_genes} ) 2> {log}
         """
 
 
@@ -228,22 +230,27 @@ rule enrichment_tajima_d_balancing_gowinda:
             bcftools query -f "%CHROM\\t%POS\\n" $i
         done 2>> {log} | sed 's/^\\(chr\\)\\?/chr/' > {output.total_snps}
 
-        java -Xmx{resources.mem_mb}m -jar {input.gowinda} \
-            --snp-file {output.total_snps} \
-            --candidate-snp-file {output.outlier_snps} \
-            --gene-set-file {input.go2gene} \
-            --annotation-file {input.gtf} \
-            --simulations 1000000 \
-            --min-significance 1 \
-            --gene-definition gene \
-            --threads {resources.cpus} \
-            --output-file {output.enrichment} \
-            --mode gene \
-            --min-genes 1 >> {log} 2>&1 || true
-
-        sed -i '1iGO_ID\\tavg_genes_sim\\tgenes_found\\tp_value\\tp_adjusted\\tgenes_uniq\\tgenes_max\\tgenes_total\\tdescription\\tgene_list' {output.enrichment} 2>> {log}
+        echo -e "GO_ID\\tavg_genes_sim\\tgenes_found\\tp_value\\tp_adjusted\\tgenes_uniq\\tgenes_max\\tgenes_total\\tdescription\\tgene_list" > {output.enrichment}
+        if [ -s {output.outlier_snps} ]; then
+            java -Xmx{resources.mem_mb}m -jar {input.gowinda} \
+                --snp-file {output.total_snps} \
+                --candidate-snp-file {output.outlier_snps} \
+                --gene-set-file {input.go2gene} \
+                --annotation-file {input.gtf} \
+                --simulations 1000000 \
+                --min-significance 1 \
+                --gene-definition gene \
+                --threads {resources.cpus} \
+                --output-file {output.enrichment}.tmp \
+                --mode gene \
+                --min-genes 1 >> {log} 2>&1 \
+                || grep -q "FINISHED - Thank you for using Gowinda" {log}
+            cat {output.enrichment}.tmp >> {output.enrichment}
+            rm {output.enrichment}.tmp
+        else
+            echo "No outlier SNPs found; skipping Gowinda." >> {log}
+        fi
         """
-
 
 
 rule tajima_d_balancing_enrichment_results_table_html:
