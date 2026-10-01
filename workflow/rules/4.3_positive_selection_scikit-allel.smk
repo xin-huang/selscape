@@ -178,8 +178,8 @@ rule get_tajima_d_outlier_genes:
         "../envs/selscape-env.yaml"
     shell:
         """
-        ( sed '1d' {input.tajima_d_outliers} | awk '{{print $7}}' | grep -v ";" | sort | uniq > {output.tajima_d_genes} ) 2> {log} || true
-        sed -i '1iGene' {output.tajima_d_genes} 2>> {log}
+        echo Gene > {output.tajima_d_genes}
+        ( awk 'NR > 1 && $7 !~ /;/ {{print $7}}' {input.tajima_d_outliers} | sort -u >> {output.tajima_d_genes} ) 2> {log}
         """
 
 

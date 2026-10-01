@@ -141,6 +141,7 @@ rule extract_delta_tajima_d_outlier_variants:
         fi
         """
 
+
 rule annotate_delta_tajima_d_outliers:
     input:
         outliers=rules.extract_delta_tajima_d_outlier_variants.output.variants,
@@ -173,8 +174,8 @@ rule get_delta_tajima_d_outlier_genes:
         "../envs/selscape-env.yaml"
     shell:
         """
-        ( sed '1d' {input.delta_outliers} | awk '{{print $7}}' | grep -v ";" | sort | uniq > {output.delta_genes} ) 2> {log} || true
-        sed -i '1iGene' {output.delta_genes} 2>> {log}
+        echo Gene > {output.delta_genes}
+        ( awk 'NR > 1 && $7 !~ /;/ {{print $7}}' {input.delta_outliers} | sort -u >> {output.delta_genes} ) 2> {log}
         """
 
 

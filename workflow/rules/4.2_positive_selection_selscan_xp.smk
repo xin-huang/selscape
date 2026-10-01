@@ -201,8 +201,8 @@ rule get_selscan_xp_outlier_genes:
         "../envs/selscape-env.yaml"
     shell:
         """
-        ( sed '1d' {input.selscan_xp_outliers} | awk '{{print $7}}' | grep -v ";" | sort | uniq > {output.selscan_xp_genes} ) 2> {log} || true
-        sed -i '1iGene' {output.selscan_xp_genes} 2>> {log}
+        echo Gene > {output.selscan_xp_genes}
+        ( awk 'NR > 1 && $7 !~ /;/ {{print $7}}' {input.selscan_xp_outliers} | sort -u >> {output.selscan_xp_genes} ) 2> {log}
         """
 
 
