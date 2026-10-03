@@ -71,27 +71,27 @@ rule all:
             **BETASCAN_KW, type=["outlier.genes", "gowinda.enrichment"],
         ),
         # dadi dfe
-        expand_1pop(
-            "results/dadi/{species}/{dataset}/dfe/{ppl}/html/{ppl}.{ref_genome}.{demog}.dm.fitted.html",
-             **DADI_1D_KW,
-        ),
-        expand_1pop(
-            "results/dadi/{species}/{dataset}/dfe/{ppl}/html/{ppl}.{ref_genome}.{demog}.{dfe}.dfe.fitted.html",
-            **DADI_1D_KW, dfe=dadi_config["dfe_1d"],
-        ),
-        expand_1pop(
-            "results/dadi/{species}/{dataset}/dfe/{ppl}/plots/{ppl}.{ref_genome}.{demog}.{dfe}.fitted.mut.prop.png",
-            **DADI_1D_KW, dfe=dadi_config["dfe_1d"],
-        ),
-        expand_1pop(
-            "results/dadi/{species}/{dataset}/dfe/{ppl}/html/{ppl}.{ref_genome}.{demog}.InferDM.top10.bestfits.html",
-            **DADI_1D_KW,
-        ),
-        expand_1pop(
-            "results/dadi/{species}/{dataset}/dfe/{ppl}/html/{ppl}.{ref_genome}.{demog}.{dfe}.{type}.html",
-            **DADI_1D_KW, dfe=dadi_config["dfe_1d"],
-            type=["godambe.ci", "InferDFE.top10.bestfits"],
-        ),
+#        expand_1pop(
+#            "results/dadi/{species}/{dataset}/dfe/{ppl}/html/{ppl}.{ref_genome}.{demog}.dm.fitted.html",
+#             **DADI_1D_KW,
+#        ),
+#        expand_1pop(
+#            "results/dadi/{species}/{dataset}/dfe/{ppl}/html/{ppl}.{ref_genome}.{demog}.{dfe}.dfe.fitted.html",
+#            **DADI_1D_KW, dfe=dadi_config["dfe_1d"],
+#        ),
+#        expand_1pop(
+#            "results/dadi/{species}/{dataset}/dfe/{ppl}/plots/{ppl}.{ref_genome}.{demog}.{dfe}.fitted.mut.prop.png",
+#            **DADI_1D_KW, dfe=dadi_config["dfe_1d"],
+#        ),
+#        expand_1pop(
+#            "results/dadi/{species}/{dataset}/dfe/{ppl}/html/{ppl}.{ref_genome}.{demog}.InferDM.top10.bestfits.html",
+#            **DADI_1D_KW,
+#        ),
+#        expand_1pop(
+#            "results/dadi/{species}/{dataset}/dfe/{ppl}/html/{ppl}.{ref_genome}.{demog}.{dfe}.{type}.html",
+#            **DADI_1D_KW, dfe=dadi_config["dfe_1d"],
+#            type=["godambe.ci", "InferDFE.top10.bestfits"],
+#        ),
         # moving tajima d
         expand_1pop(
             "results/positive_selection/scikit-allel/{species}/{dataset}/1pop/{ppl}/{method}/{window}_{step}/{ppl}.{method}.top_{cutoff}.{type}.png",
@@ -149,4 +149,54 @@ rule all:
         ),
         expand_1pop_circos(
             "results/plots/circos/{species}/{dataset}/{ppl}/{ppl}_balancing_selection_circos_scores.png",
+        ),
+        # within-population upset plots
+        expand_dataset(
+            "results/plots/wp_upset/{species}/{dataset}/positive_selection/{dataset}.{method}.maf_{maf}.top_{cutoff}.upset.svg",
+            anc_only=True, **SELSCAN_KW,
+        ),
+        expand_dataset(
+            "results/plots/wp_upset/{species}/{dataset}/positive_selection/{dataset}.{method}.{window}_{step}.top_{cutoff}.upset.svg",
+            **TAJIMAD_MOVING_KW,
+        ),
+        expand_dataset(
+            "results/plots/wp_upset/{species}/{dataset}/positive_selection/{dataset}.{method}.{window}_{step}.top_{cutoff}.upset.svg",
+            **TAJIMAD_WINDOWED_KW,
+        ),
+        expand_dataset(
+            "results/plots/wp_upset/{species}/{dataset}/balancing_selection/{dataset}.m_{core_frq}.b1.top_{cutoff}.upset.svg",
+            **BETASCAN_KW,
+        ),
+        expand_dataset(
+            "results/plots/wp_upset/{species}/{dataset}/balancing_selection/{dataset}.{method}.{window}_{step}.top_{cutoff}.upset.svg",
+            **TAJIMAD_MOVING_KW,
+        ),
+        expand_dataset(
+            "results/plots/wp_upset/{species}/{dataset}/balancing_selection/{dataset}.{method}.{window}_{step}.top_{cutoff}.upset.svg",
+            **TAJIMAD_WINDOWED_KW,
+        ),
+        # within-population matrix plots
+        expand_dataset(
+            "results/plots/wp_matrix/{species}/{dataset}/positive_selection/{dataset}.{method}.maf_{maf}.top_{cutoff}.matrix.svg",
+            anc_only=True, **SELSCAN_KW,
+        ),
+        expand_dataset(
+            "results/plots/wp_matrix/{species}/{dataset}/positive_selection/{dataset}.{method}.{window}_{step}.top_{cutoff}.matrix.svg",
+            **TAJIMAD_MOVING_KW,
+        ),
+        expand_dataset(
+            "results/plots/wp_matrix/{species}/{dataset}/positive_selection/{dataset}.{method}.{window}_{step}.top_{cutoff}.matrix.svg",
+            **TAJIMAD_WINDOWED_KW,
+        ),
+        expand_dataset(
+            "results/plots/wp_matrix/{species}/{dataset}/balancing_selection/{dataset}.m_{core_frq}.b1.top_{cutoff}.matrix.svg",
+            **BETASCAN_KW,
+        ),
+        expand_dataset(
+            "results/plots/wp_matrix/{species}/{dataset}/balancing_selection/{dataset}.{method}.{window}_{step}.top_{cutoff}.matrix.svg",
+            **TAJIMAD_MOVING_KW,
+        ),
+        expand_dataset(
+            "results/plots/wp_matrix/{species}/{dataset}/balancing_selection/{dataset}.{method}.{window}_{step}.top_{cutoff}.matrix.svg",
+            **TAJIMAD_WINDOWED_KW,
         ),
