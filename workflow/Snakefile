@@ -150,3 +150,34 @@ rule all:
         expand_1pop_circos(
             "results/plots/circos/{species}/{dataset}/{ppl}/{ppl}_balancing_selection_circos_scores.png",
         ),
+        expand_2pop_circos(
+            "results/plots/circos/{species}/{dataset}/{pair}/{pair}_xp_selection_circos_scores.png",
+            anc_only=True,
+        ),
+        # xp pop enrichment analysis
+        expand_2pop_focal(
+            "results/positive_selection/selscan/{species}/{dataset}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.focal_{focal}.gowinda.enrichment.{ext}",
+            anc_only=True, **SELSCAN_XP_KW, ext=["html", "png"],
+        ),
+        expand_2pop_focal(
+            "results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/{pair}.{method}.top_{cutoff}.focal_{focal}.gowinda.enrichment.{ext}",
+            **DELTA_TAJIMAD_KW, ext=["html", "png"],
+        ),
+        # xp upset plot
+        expand_dataset(
+            "results/plots/xp_upset/{species}/{dataset}/{dataset}.{method}.maf_{maf}.top_{cutoff}.upset.svg",
+            anc_only=True, **SELSCAN_XP_KW,
+        ),
+        expand_dataset(
+            "results/plots/xp_upset/{species}/{dataset}/{dataset}.{method}.{window}_{step}.top_{cutoff}.upset.svg",
+            **DELTA_TAJIMAD_KW,
+        ),
+        # xp matrix
+        expand_dataset(
+            "results/plots/xp_matrix/{species}/{dataset}/{dataset}.{method}.maf_{maf}.top_{cutoff}.matrix.svg",
+            anc_only=True, **SELSCAN_XP_KW,
+        ),
+        expand_dataset(
+            "results/plots/xp_matrix/{species}/{dataset}/{dataset}.{method}.{window}_{step}.top_{cutoff}.matrix.svg",
+            **DELTA_TAJIMAD_KW,
+        ),
