@@ -363,7 +363,7 @@ rule extract_delta_tajima_d_focal_outlier_variants:
         if [ -s {output.regions} ]; then
             for i in {input.vcfs}; do
                 bcftools view -H -R {output.regions} $i | awk '{{print $1"\t"$2}}'
-            done | sort -u >> {output.variants} 2>> {log} || true
+            done | sort -u >> {output.variants} 2>> {log}
         fi
         """
 
@@ -400,8 +400,8 @@ rule get_delta_tajima_d_focal_outlier_genes:
         "../envs/selscape-env.yaml"
     shell:
         r"""
-        ( sed '1d' {input.outliers} | awk '{{print $7}}' | grep -v ";" | sort | uniq > {output.genes} ) 2> {log} || true
-        sed -i '1iGene' {output.genes} 2>> {log}
+        echo Gene > {output.genes}
+        ( awk 'NR > 1 && $7 !~ /;/ {{print $7}}' {input.outliers} | sort -u >> {output.genes} ) 2> {log}
         """
 
 

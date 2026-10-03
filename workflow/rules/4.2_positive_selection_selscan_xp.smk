@@ -384,10 +384,9 @@ rule get_selscan_xp_focal_outlier_genes:
         "../envs/selscape-env.yaml"
     shell:
         r"""
-        ( sed '1d' {input.outliers} | awk '{{print $7}}' | grep -v ";" | sort | uniq > {output.genes} ) 2> {log} || true
-        sed -i '1iGene' {output.genes} 2>> {log}
+        echo Gene > {output.genes}
+        ( awk 'NR > 1 && $7 !~ /;/ {{print $7}}' {input.outliers} | sort -u >> {output.genes} ) 2> {log}
         """
-
 
 rule enrichment_selscan_xp_focal_gowinda:
     input:
