@@ -153,7 +153,7 @@ else:
                     gene_sets[(dataset_a, population)], gene_sets[(dataset_b, population)]
                 )
     table.to_csv(snakemake.output.population_table, sep="\t")
-    plot_heatmap(table, f"{plot_title}: populations", snakemake.output.population_plot)
+    plot_heatmap(table.T, f"{plot_title}: populations", snakemake.output.population_plot)
     print(f"population level: {len(populations)} populations x {len(pairs)} dataset pairs")
  
 log_fh.close()
