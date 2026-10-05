@@ -150,3 +150,28 @@ rule all:
         expand_1pop_circos(
             "results/plots/circos/{species}/{dataset}/{ppl}/{ppl}_balancing_selection_circos_scores.png",
         ),
+        # cross-dataset jaccard heatmaps, only with at least two datasets
+        expand(
+            "results/plots/jaccard/positive_selection/{method}.maf_{maf}.top_{cutoff}.{level}.jaccard.svg",
+            level=["datasets", "populations"], **SELSCAN_KW,
+        ) if len({ds for ds, _sp, _pop, _rg in DATASET_1POP_ANC}) >= 2 else [],
+        expand(
+            "results/plots/jaccard/positive_selection/{method}.{window}_{step}.top_{cutoff}.{level}.jaccard.svg",
+            level=["datasets", "populations"], **TAJIMAD_MOVING_KW,
+        ) if len({ds for ds, _sp, _pop, _rg in DATASET_1POP}) >= 2 else [],
+        expand(
+            "results/plots/jaccard/positive_selection/{method}.{window}_{step}.top_{cutoff}.{level}.jaccard.svg",
+            level=["datasets", "populations"], **TAJIMAD_WINDOWED_KW,
+        ) if len({ds for ds, _sp, _pop, _rg in DATASET_1POP}) >= 2 else [],
+        expand(
+            "results/plots/jaccard/balancing_selection/m_{core_frq}.b1.top_{cutoff}.{level}.jaccard.svg",
+            level=["datasets", "populations"], **BETASCAN_KW,
+        ) if len({ds for ds, _sp, _pop, _rg in DATASET_1POP}) >= 2 else [],
+        expand(
+            "results/plots/jaccard/balancing_selection/{method}.{window}_{step}.top_{cutoff}.{level}.jaccard.svg",
+            level=["datasets", "populations"], **TAJIMAD_MOVING_KW,
+        ) if len({ds for ds, _sp, _pop, _rg in DATASET_1POP}) >= 2 else [],
+        expand(
+            "results/plots/jaccard/balancing_selection/{method}.{window}_{step}.top_{cutoff}.{level}.jaccard.svg",
+            level=["datasets", "populations"], **TAJIMAD_WINDOWED_KW,
+        ) if len({ds for ds, _sp, _pop, _rg in DATASET_1POP}) >= 2 else [],
