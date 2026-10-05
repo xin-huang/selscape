@@ -164,3 +164,210 @@ rule make_balancing_selection_circos:
         "../envs/selscape-env.yaml"
     script:
         "../scripts/visualization/plot_circos_scores.py"
+
+
+rule plot_selscan_jaccard:
+    input:
+        genes=lambda wc: [
+            f
+            for ds, sp, pop, _rg in DATASET_1POP_ANC
+            for f in expand(
+                "results/positive_selection/selscan/{species}/{dataset}/1pop/{ppl}/{method}_{maf}/{ppl}.normalized.{method}.maf_{maf}.top_{cutoff}.outlier.genes",
+                species=sp, dataset=ds, ppl=pop, allow_missing=True,
+            )
+        ],
+    output:
+        dataset_plot=report(
+            "results/plots/jaccard/positive_selection/{method}.maf_{maf}.top_{cutoff}.datasets.jaccard.svg",
+            category="Cross-Dataset Overview",
+            subcategory="{method}",
+            labels=lambda wildcards: {
+                "Selection": "Positive",
+                "Threshold": _top_pct(wildcards),
+                "Type": "Jaccard (datasets)",
+            },
+        ),
+        dataset_table="results/plots/jaccard/positive_selection/{method}.maf_{maf}.top_{cutoff}.datasets.jaccard.tsv",
+        population_plot=report(
+            "results/plots/jaccard/positive_selection/{method}.maf_{maf}.top_{cutoff}.populations.jaccard.svg",
+            category="Cross-Dataset Overview",
+            subcategory="{method}",
+            labels=lambda wildcards: {
+                "Selection": "Positive",
+                "Threshold": _top_pct(wildcards),
+                "Type": "Jaccard (populations)",
+            },
+        ),
+        population_table="results/plots/jaccard/positive_selection/{method}.maf_{maf}.top_{cutoff}.populations.jaccard.tsv",
+    params:
+        labels=[f"{sp}:{ds}:{pop}" for ds, sp, pop, _rg in DATASET_1POP_ANC],
+        population_groups=lambda _: main_config.get("population_groups", {}),
+        title=lambda wc: (
+            f"{selscan_method_names[wc.method]} "
+            f"(MAF={wc.maf}, Top {float(wc.cutoff) * 100:.2f}%)"
+        ),
+    resources:
+        mem_mb=8000,
+    log:
+        "logs/plots/plot_selscan_jaccard.{method}.maf_{maf}.top_{cutoff}.log",
+    conda:
+        "../envs/selscape-env.yaml"
+    script:
+        "../scripts/visualization/plot_jaccard_heatmap.py"
+
+
+rule plot_tajima_d_jaccard:
+    input:
+        genes=lambda wc: [
+            f
+            for ds, sp, pop, _rg in DATASET_1POP
+            for f in expand(
+                "results/positive_selection/scikit-allel/{species}/{dataset}/1pop/{ppl}/{method}/{window}_{step}/{ppl}.{method}.top_{cutoff}.outlier.genes",
+                species=sp, dataset=ds, ppl=pop, allow_missing=True,
+            )
+        ],
+    output:
+        dataset_plot=report(
+            "results/plots/jaccard/positive_selection/{method}.{window}_{step}.top_{cutoff}.datasets.jaccard.svg",
+            category="Cross-Dataset Overview",
+            subcategory="{method}",
+            labels=lambda wildcards: {
+                "Selection": "Positive",
+                "Window": f"{wildcards.window} {'SNPs' if wildcards.method == 'moving_tajima_d' else 'bp'}",
+                "Threshold": _top_pct(wildcards),
+                "Type": "Jaccard (datasets)",
+            },
+        ),
+        dataset_table="results/plots/jaccard/positive_selection/{method}.{window}_{step}.top_{cutoff}.datasets.jaccard.tsv",
+        population_plot=report(
+            "results/plots/jaccard/positive_selection/{method}.{window}_{step}.top_{cutoff}.populations.jaccard.svg",
+            category="Cross-Dataset Overview",
+            subcategory="{method}",
+            labels=lambda wildcards: {
+                "Selection": "Positive",
+                "Window": f"{wildcards.window} {'SNPs' if wildcards.method == 'moving_tajima_d' else 'bp'}",
+                "Threshold": _top_pct(wildcards),
+                "Type": "Jaccard (populations)",
+            },
+        ),
+        population_table="results/plots/jaccard/positive_selection/{method}.{window}_{step}.top_{cutoff}.populations.jaccard.tsv",
+    params:
+        labels=[f"{sp}:{ds}:{pop}" for ds, sp, pop, _rg in DATASET_1POP],
+        population_groups=lambda _: main_config.get("population_groups", {}),
+        title=lambda wc: (
+            f"{format_method_name(wc.method)}, positive selection "
+            f"(Window size={wc.window} {'SNPs' if wc.method == 'moving_tajima_d' else 'bp'}, "
+            f"Top {float(wc.cutoff) * 100:.2f}%)"
+        ),
+    resources:
+        mem_mb=8000,
+    log:
+        "logs/plots/plot_tajima_d_jaccard.{method}.{window}_{step}.top_{cutoff}.log",
+    conda:
+        "../envs/selscape-env.yaml"
+    script:
+        "../scripts/visualization/plot_jaccard_heatmap.py"
+
+
+rule plot_betascan_jaccard:
+    input:
+        genes=lambda wc: [
+            f
+            for ds, sp, pop, rg in DATASET_1POP
+            for f in expand(
+                "results/balancing_selection/betascan/{species}/{dataset}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.outlier.genes",
+                species=sp, dataset=ds, ppl=pop, ref_genome=rg, allow_missing=True,
+            )
+        ],
+    output:
+        dataset_plot=report(
+            "results/plots/jaccard/balancing_selection/m_{core_frq}.b1.top_{cutoff}.datasets.jaccard.svg",
+            category="Cross-Dataset Overview",
+            subcategory="B1",
+            labels=lambda wildcards: {
+                "Selection": "Balancing",
+                "Core Frequency": wildcards.core_frq,
+                "Threshold": _top_pct(wildcards),
+                "Type": "Jaccard (datasets)",
+            },
+        ),
+        dataset_table="results/plots/jaccard/balancing_selection/m_{core_frq}.b1.top_{cutoff}.datasets.jaccard.tsv",
+        population_plot=report(
+            "results/plots/jaccard/balancing_selection/m_{core_frq}.b1.top_{cutoff}.populations.jaccard.svg",
+            category="Cross-Dataset Overview",
+            subcategory="B1",
+            labels=lambda wildcards: {
+                "Selection": "Balancing",
+                "Core Frequency": wildcards.core_frq,
+                "Threshold": _top_pct(wildcards),
+                "Type": "Jaccard (populations)",
+            },
+        ),
+        population_table="results/plots/jaccard/balancing_selection/m_{core_frq}.b1.top_{cutoff}.populations.jaccard.tsv",
+    params:
+        labels=[f"{sp}:{ds}:{pop}" for ds, sp, pop, _rg in DATASET_1POP],
+        population_groups=lambda _: main_config.get("population_groups", {}),
+        title=lambda wc: (
+            f"B1 (Core Freq={wc.core_frq}, Top {float(wc.cutoff) * 100:.2f}%)"
+        ),
+    resources:
+        mem_mb=8000,
+    log:
+        "logs/plots/plot_betascan_jaccard.m_{core_frq}.b1.top_{cutoff}.log",
+    conda:
+        "../envs/selscape-env.yaml"
+    script:
+        "../scripts/visualization/plot_jaccard_heatmap.py"
+
+
+rule plot_tajima_d_balancing_jaccard:
+    input:
+        genes=lambda wc: [
+            f
+            for ds, sp, pop, _rg in DATASET_1POP
+            for f in expand(
+                "results/balancing_selection/scikit-allel/{species}/{dataset}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.top_{cutoff}.outlier.genes",
+                species=sp, dataset=ds, ppl=pop, allow_missing=True,
+            )
+        ],
+    output:
+        dataset_plot=report(
+            "results/plots/jaccard/balancing_selection/{method}.{window}_{step}.top_{cutoff}.datasets.jaccard.svg",
+            category="Cross-Dataset Overview",
+            subcategory="{method}",
+            labels=lambda wildcards: {
+                "Selection": "Balancing",
+                "Window": f"{wildcards.window} {'SNPs' if wildcards.method == 'moving_tajima_d' else 'bp'}",
+                "Threshold": _top_pct(wildcards),
+                "Type": "Jaccard (datasets)",
+            },
+        ),
+        dataset_table="results/plots/jaccard/balancing_selection/{method}.{window}_{step}.top_{cutoff}.datasets.jaccard.tsv",
+        population_plot=report(
+            "results/plots/jaccard/balancing_selection/{method}.{window}_{step}.top_{cutoff}.populations.jaccard.svg",
+            category="Cross-Dataset Overview",
+            subcategory="{method}",
+            labels=lambda wildcards: {
+                "Selection": "Balancing",
+                "Window": f"{wildcards.window} {'SNPs' if wildcards.method == 'moving_tajima_d' else 'bp'}",
+                "Threshold": _top_pct(wildcards),
+                "Type": "Jaccard (populations)",
+            },
+        ),
+        population_table="results/plots/jaccard/balancing_selection/{method}.{window}_{step}.top_{cutoff}.populations.jaccard.tsv",
+    params:
+        labels=[f"{sp}:{ds}:{pop}" for ds, sp, pop, _rg in DATASET_1POP],
+        population_groups=lambda _: main_config.get("population_groups", {}),
+        title=lambda wc: (
+            f"{format_method_name(wc.method)}, balancing selection "
+            f"(Window size={wc.window} {'SNPs' if wc.method == 'moving_tajima_d' else 'bp'}, "
+            f"Top {float(wc.cutoff) * 100:.2f}%)"
+        ),
+    resources:
+        mem_mb=8000,
+    log:
+        "logs/plots/plot_tajima_d_balancing_jaccard.{method}.{window}_{step}.top_{cutoff}.log",
+    conda:
+        "../envs/selscape-env.yaml"
+    script:
+        "../scripts/visualization/plot_jaccard_heatmap.py"
