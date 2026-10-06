@@ -164,3 +164,175 @@ rule make_balancing_selection_circos:
         "../envs/selscape-env.yaml"
     script:
         "../scripts/visualization/plot_circos_scores.py"
+
+
+rule extract_significant_go_terms:
+    input:
+        enrichment="{prefix}.gowinda.enrichment.tsv",
+    output:
+        go_terms="{prefix}.gowinda.significant_go.txt",
+    params:
+        fdr=0.05,
+    log:
+        "logs/gene_enrichment/extract_significant_go_terms/{prefix}.log",
+    shell:
+        """
+        awk -F'\\t' -v fdr={params.fdr} 'BEGIN {{ print "GO_ID" }} $1 != "GO_ID" && $5 != "" && $5 + 0 < fdr {{ print $1 }}' \\
+            {input.enrichment} > {output.go_terms} 2> {log}
+        """
+
+
+rule plot_selscan_go_matrix:
+    input:
+        go_terms=lambda wc: expand(
+            "results/positive_selection/selscan/{species}/{dataset}/1pop/{ppl}/{method}_{maf}/{ppl}.normalized.{method}.maf_{maf}.top_{cutoff}.gowinda.significant_go.txt",
+            ppl=get_dataset_cfg(wc)["populations"],
+            allow_missing=True,
+        ),
+    output:
+        plot=report(
+            "results/plots/wp_go_matrix/{species}/{dataset}/positive_selection/{dataset}.{method}.maf_{maf}.top_{cutoff}.go_matrix.svg",
+            category="Within-Population Overview",
+            subcategory="{method}",
+            labels=lambda wildcards: {
+                "Dataset": wildcards.dataset,
+                "Selection": "Positive",
+                "Threshold": _top_pct(wildcards),
+                "Type": "Matrix (shared GO terms)",
+            },
+        ),
+        table="results/plots/wp_go_matrix/{species}/{dataset}/positive_selection/{dataset}.{method}.maf_{maf}.top_{cutoff}.go_matrix.tsv",
+    params:
+        population_groups=lambda _: main_config.get("population_groups", {}),
+        unit="GO terms",
+        title=lambda wc: (
+            f"{wc.dataset} {selscan_method_names[wc.method]} GO terms "
+            f"(MAF={wc.maf}, Top {float(wc.cutoff) * 100:.2f}%)"
+        ),
+    resources:
+        mem_mb=8000,
+    log:
+        "logs/plots/plot_selscan_go_matrix.{species}.{dataset}.{method}.maf_{maf}.top_{cutoff}.log",
+    conda:
+        "../envs/selscape-env.yaml"
+    script:
+        "../scripts/visualization/plot_wp_matrix.py"
+
+
+rule plot_tajima_d_go_matrix:
+    input:
+        go_terms=lambda wc: expand(
+            "results/positive_selection/scikit-allel/{species}/{dataset}/1pop/{ppl}/{method}/{window}_{step}/{ppl}.{method}.top_{cutoff}.gowinda.significant_go.txt",
+            ppl=get_dataset_cfg(wc)["populations"],
+            allow_missing=True,
+        ),
+    output:
+        plot=report(
+            "results/plots/wp_go_matrix/{species}/{dataset}/positive_selection/{dataset}.{method}.{window}_{step}.top_{cutoff}.go_matrix.svg",
+            category="Within-Population Overview",
+            subcategory="{method}",
+            labels=lambda wildcards: {
+                "Dataset": wildcards.dataset,
+                "Selection": "Positive",
+                "Window": f"{wildcards.window} {'SNPs' if wildcards.method == 'moving_tajima_d' else 'bp'}",
+                "Threshold": _top_pct(wildcards),
+                "Type": "Matrix (shared GO terms)",
+            },
+        ),
+        table="results/plots/wp_go_matrix/{species}/{dataset}/positive_selection/{dataset}.{method}.{window}_{step}.top_{cutoff}.go_matrix.tsv",
+    params:
+        population_groups=lambda _: main_config.get("population_groups", {}),
+        unit="GO terms",
+        title=lambda wc: (
+            f"{wc.dataset} {format_method_name(wc.method)} GO terms, positive selection "
+            f"(Window size={wc.window} {'SNPs' if wc.method == 'moving_tajima_d' else 'bp'}, "
+            f"Step size={int(float(wc.step) * int(wc.window))} {'SNPs' if wc.method == 'moving_tajima_d' else 'bp'}, "
+            f"Top {float(wc.cutoff) * 100:.2f}%)"
+        ),
+    resources:
+        mem_mb=8000,
+    log:
+        "logs/plots/plot_tajima_d_go_matrix.{species}.{dataset}.{method}.{window}_{step}.top_{cutoff}.log",
+    conda:
+        "../envs/selscape-env.yaml"
+    script:
+        "../scripts/visualization/plot_wp_matrix.py"
+
+
+rule plot_betascan_go_matrix:
+    input:
+        go_terms=lambda wc: expand(
+            "results/balancing_selection/betascan/{species}/{dataset}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.gowinda.significant_go.txt",
+            ppl=get_dataset_cfg(wc)["populations"],
+            ref_genome=get_ref_genome(wc),
+            allow_missing=True,
+        ),
+    output:
+        plot=report(
+            "results/plots/wp_go_matrix/{species}/{dataset}/balancing_selection/{dataset}.m_{core_frq}.b1.top_{cutoff}.go_matrix.svg",
+            category="Within-Population Overview",
+            subcategory="B1",
+            labels=lambda wildcards: {
+                "Dataset": wildcards.dataset,
+                "Selection": "Balancing",
+                "Core Frequency": wildcards.core_frq,
+                "Threshold": _top_pct(wildcards),
+                "Type": "Matrix (shared GO terms)",
+            },
+        ),
+        table="results/plots/wp_go_matrix/{species}/{dataset}/balancing_selection/{dataset}.m_{core_frq}.b1.top_{cutoff}.go_matrix.tsv",
+    params:
+        population_groups=lambda _: main_config.get("population_groups", {}),
+        unit="GO terms",
+        title=lambda wc: (
+            f"{wc.dataset} B1 GO terms "
+            f"(Core Freq={wc.core_frq}, Top {float(wc.cutoff) * 100:.2f}%)"
+        ),
+    resources:
+        mem_mb=8000,
+    log:
+        "logs/plots/plot_betascan_go_matrix.{species}.{dataset}.m_{core_frq}.b1.top_{cutoff}.log",
+    conda:
+        "../envs/selscape-env.yaml"
+    script:
+        "../scripts/visualization/plot_wp_matrix.py"
+
+
+rule plot_tajima_d_balancing_go_matrix:
+    input:
+        go_terms=lambda wc: expand(
+            "results/balancing_selection/scikit-allel/{species}/{dataset}/{method}/{ppl}/{window}_{step}/{ppl}.{method}.top_{cutoff}.gowinda.significant_go.txt",
+            ppl=get_dataset_cfg(wc)["populations"],
+            allow_missing=True,
+        ),
+    output:
+        plot=report(
+            "results/plots/wp_go_matrix/{species}/{dataset}/balancing_selection/{dataset}.{method}.{window}_{step}.top_{cutoff}.go_matrix.svg",
+            category="Within-Population Overview",
+            subcategory="{method}",
+            labels=lambda wildcards: {
+                "Dataset": wildcards.dataset,
+                "Selection": "Balancing",
+                "Window": f"{wildcards.window} {'SNPs' if wildcards.method == 'moving_tajima_d' else 'bp'}",
+                "Threshold": _top_pct(wildcards),
+                "Type": "Matrix (shared GO terms)",
+            },
+        ),
+        table="results/plots/wp_go_matrix/{species}/{dataset}/balancing_selection/{dataset}.{method}.{window}_{step}.top_{cutoff}.go_matrix.tsv",
+    params:
+        population_groups=lambda _: main_config.get("population_groups", {}),
+        unit="GO terms",
+        title=lambda wc: (
+            f"{wc.dataset} {format_method_name(wc.method)} GO terms, balancing selection "
+            f"(Window size={wc.window} {'SNPs' if wc.method == 'moving_tajima_d' else 'bp'}, "
+            f"Step size={int(float(wc.step) * int(wc.window))} {'SNPs' if wc.method == 'moving_tajima_d' else 'bp'}, "
+            f"Top {float(wc.cutoff) * 100:.2f}%)"
+        ),
+    resources:
+        mem_mb=8000,
+    log:
+        "logs/plots/plot_tajima_d_balancing_go_matrix.{species}.{dataset}.{method}.{window}_{step}.top_{cutoff}.log",
+    conda:
+        "../envs/selscape-env.yaml"
+    script:
+        "../scripts/visualization/plot_wp_matrix.py"

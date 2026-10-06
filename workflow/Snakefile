@@ -150,3 +150,28 @@ rule all:
         expand_1pop_circos(
             "results/plots/circos/{species}/{dataset}/{ppl}/{ppl}_balancing_selection_circos_scores.png",
         ),
+        # wp GO term matrix plots
+        expand_dataset(
+            "results/plots/wp_go_matrix/{species}/{dataset}/positive_selection/{dataset}.{method}.maf_{maf}.top_{cutoff}.go_matrix.svg",
+            anc_only=True, **SELSCAN_KW,
+        ),
+        expand_dataset(
+            "results/plots/wp_go_matrix/{species}/{dataset}/positive_selection/{dataset}.{method}.{window}_{step}.top_{cutoff}.go_matrix.svg",
+            **TAJIMAD_MOVING_KW,
+        ),
+        expand_dataset(
+            "results/plots/wp_go_matrix/{species}/{dataset}/positive_selection/{dataset}.{method}.{window}_{step}.top_{cutoff}.go_matrix.svg",
+            **TAJIMAD_WINDOWED_KW,
+        ),
+        expand_dataset(
+            "results/plots/wp_go_matrix/{species}/{dataset}/balancing_selection/{dataset}.m_{core_frq}.b1.top_{cutoff}.go_matrix.svg",
+            **BETASCAN_KW,
+        ),
+        expand_dataset(
+            "results/plots/wp_go_matrix/{species}/{dataset}/balancing_selection/{dataset}.{method}.{window}_{step}.top_{cutoff}.go_matrix.svg",
+            **TAJIMAD_MOVING_KW,
+        ),
+        expand_dataset(
+            "results/plots/wp_go_matrix/{species}/{dataset}/balancing_selection/{dataset}.{method}.{window}_{step}.top_{cutoff}.go_matrix.svg",
+            **TAJIMAD_WINDOWED_KW,
+        ),
