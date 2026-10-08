@@ -271,6 +271,17 @@ rule plot_betascan_upset:
         title=lambda wc: (
             f"{wc.dataset} B1 "
             f"(Core Freq={wc.core_frq}, Top {float(wc.cutoff) * 100:.2f}%)"
+        ),
+    resources:
+        mem_mb=8000,
+    log:
+        "logs/plots/plot_betascan_upset.{species}.{dataset}.m_{core_frq}.b1.top_{cutoff}.log",
+    conda:
+        "../envs/selscape-env.yaml"
+    script:
+        "../scripts/visualization/plot_upset.py"
+
+
 rule make_xp_selection_circos:
     input:
         unpack(get_xp_circos_inputs),
@@ -334,7 +345,7 @@ rule plot_selscan_xp_upset:
     resources:
         mem_mb=8000,
     log:
-        "logs/plots/plot_betascan_upset.{species}.{dataset}.m_{core_frq}.b1.top_{cutoff}.log",
+        "logs/plots/plot_selscan_xp_upset.{species}.{dataset}.{method}.maf_{maf}.top_{cutoff}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
@@ -369,11 +380,16 @@ rule plot_tajima_d_balancing_upset:
             f"{wc.dataset} {format_method_name(wc.method)}, balancing selection "
             f"(Window size={wc.window} {'SNPs' if wc.method == 'moving_tajima_d' else 'bp'}, "
             f"Step size={int(float(wc.step) * int(wc.window))} {'SNPs' if wc.method == 'moving_tajima_d' else 'bp'}, "
-        "logs/plots/plot_selscan_xp_upset.{species}.{dataset}.{method}.maf_{maf}.top_{cutoff}.log",
+            f"Top {float(wc.cutoff) * 100:.2f}%)"
+        ),
+    resources:
+        mem_mb=8000,
+    log:
+        "logs/plots/plot_tajima_d_balancing_upset.{species}.{dataset}.{method}.{window}_{step}.top_{cutoff}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
-        "../scripts/visualization/plot_xp_upset.py"
+        "../scripts/visualization/plot_upset.py"
 
 
 rule plot_delta_tajima_d_upset:
@@ -412,7 +428,7 @@ rule plot_delta_tajima_d_upset:
     resources:
         mem_mb=8000,
     log:
-        "logs/plots/plot_tajima_d_balancing_upset.{species}.{dataset}.{method}.{window}_{step}.top_{cutoff}.log",
+        "logs/plots/plot_delta_tajima_d_upset.{species}.{dataset}.{method}.{window}_{step}.top_{cutoff}.log"
     conda:
         "../envs/selscape-env.yaml"
     script:
@@ -440,11 +456,19 @@ rule plot_selscan_wp_matrix:
         ),
         table="results/plots/wp_matrix/{species}/{dataset}/positive_selection/{dataset}.{method}.maf_{maf}.top_{cutoff}.matrix.tsv",
     params:
-        "logs/plots/plot_delta_tajima_d_upset.{species}.{dataset}.{method}.{window}_{step}.top_{cutoff}.log",
+        population_groups=lambda _: main_config.get("population_groups", {}),
+        title=lambda wc: (
+            f"{wc.dataset} {selscan_method_names[wc.method]} "
+            f"(MAF={wc.maf}, Top {float(wc.cutoff) * 100:.2f}%)"
+        ),
+    resources:
+        mem_mb=8000,
+    log:
+        "logs/plots/plot_selscan_wp_matrix.{species}.{dataset}.{method}.maf_{maf}.top_{cutoff}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
-        "../scripts/visualization/plot_xp_upset.py"
+        "../scripts/visualization/plot_wp_matrix.py"
 
 
 rule plot_selscan_xp_matrix:
@@ -479,11 +503,11 @@ rule plot_selscan_xp_matrix:
     resources:
         mem_mb=8000,
     log:
-        "logs/plots/plot_selscan_wp_matrix.{species}.{dataset}.{method}.maf_{maf}.top_{cutoff}.log",
+        "logs/plots/plot_selscan_xp_matrix.{species}.{dataset}.{method}.maf_{maf}.top_{cutoff}.log"
     conda:
         "../envs/selscape-env.yaml"
     script:
-        "../scripts/visualization/plot_wp_matrix.py"
+        "../scripts/visualization/plot_xp_matrix.py"
 
 
 rule plot_tajima_d_wp_matrix:
@@ -590,11 +614,16 @@ rule plot_tajima_d_balancing_wp_matrix:
             f"{wc.dataset} {format_method_name(wc.method)}, balancing selection "
             f"(Window size={wc.window} {'SNPs' if wc.method == 'moving_tajima_d' else 'bp'}, "
             f"Step size={int(float(wc.step) * int(wc.window))} {'SNPs' if wc.method == 'moving_tajima_d' else 'bp'}, "
-        "logs/plots/plot_selscan_xp_matrix.{species}.{dataset}.{method}.maf_{maf}.top_{cutoff}.log",
+            f"Top {float(wc.cutoff) * 100:.2f}%)"
+        ),
+    resources:
+        mem_mb=8000,
+    log:
+        "logs/plots/plot_tajima_d_balancing_wp_matrix.{species}.{dataset}.{method}.{window}_{step}.top_{cutoff}.log",
     conda:
         "../envs/selscape-env.yaml"
     script:
-        "../scripts/visualization/plot_xp_matrix.py"
+        "../scripts/visualization/plot_wp_matrix.py"
 
 
 rule plot_delta_tajima_d_matrix:
@@ -632,11 +661,6 @@ rule plot_delta_tajima_d_matrix:
     resources:
         mem_mb=8000,
     log:
-        "logs/plots/plot_tajima_d_balancing_wp_matrix.{species}.{dataset}.{method}.{window}_{step}.top_{cutoff}.log",
-    conda:
-        "../envs/selscape-env.yaml"
-    script:
-        "../scripts/visualization/plot_wp_matrix.py"
         "logs/plots/plot_delta_tajima_d_matrix.{species}.{dataset}.{method}.{window}_{step}.top_{cutoff}.log",
     conda:
         "../envs/selscape-env.yaml"
