@@ -201,8 +201,8 @@ rule get_selscan_xp_outlier_genes:
         "../envs/selscape-env.yaml"
     shell:
         """
-        ( sed '1d' {input.selscan_xp_outliers} | awk '{{print $7}}' | grep -v ";" | sort | uniq > {output.selscan_xp_genes} ) 2> {log} || true
-        sed -i '1iGene' {output.selscan_xp_genes} 2>> {log}
+        echo Gene > {output.selscan_xp_genes}
+        ( awk 'NR > 1 && $7 !~ /;/ {{print $7}}' {input.selscan_xp_outliers} | sort -u >> {output.selscan_xp_genes} ) 2> {log}
         """
 
 
@@ -256,20 +256,26 @@ rule enrichment_selscan_xp_gowinda:
             bcftools query -f "%CHROM\\t%POS\\n" $i
         done 2>> {log} | sed 's/^\\(chr\\)\\?/chr/' > {output.total_snps}
 
-        java -Xmx{resources.mem_mb}m -jar {input.gowinda} \
-            --snp-file {output.total_snps} \
-            --candidate-snp-file {output.outlier_snps} \
-            --gene-set-file {input.go2gene} \
-            --annotation-file {input.gtf} \
-            --simulations 1000000 \
-            --min-significance 1 \
-            --gene-definition gene \
-            --threads {resources.cpus} \
-            --output-file {output.enrichment} \
-            --mode gene \
-            --min-genes 1 >> {log} 2>&1 || true
-
-        sed -i '1iGO_ID\\tavg_genes_sim\\tgenes_found\\tp_value\\tp_adjusted\\tgenes_uniq\\tgenes_max\\tgenes_total\\tdescription\\tgene_list' {output.enrichment} 2>> {log}
+        echo -e "GO_ID\\tavg_genes_sim\\tgenes_found\\tp_value\\tp_adjusted\\tgenes_uniq\\tgenes_max\\tgenes_total\\tdescription\\tgene_list" > {output.enrichment}
+        if [ -s {output.outlier_snps} ]; then
+            java -Xmx{resources.mem_mb}m -jar {input.gowinda} \
+                --snp-file {output.total_snps} \
+                --candidate-snp-file {output.outlier_snps} \
+                --gene-set-file {input.go2gene} \
+                --annotation-file {input.gtf} \
+                --simulations 1000000 \
+                --min-significance 1 \
+                --gene-definition gene \
+                --threads {resources.cpus} \
+                --output-file {output.enrichment}.tmp \
+                --mode gene \
+                --min-genes 1 >> {log} 2>&1 \
+                || grep -q "FINISHED - Thank you for using Gowinda" {log}
+            cat {output.enrichment}.tmp >> {output.enrichment}
+            rm {output.enrichment}.tmp
+        else
+            echo "No outlier SNPs found; skipping Gowinda." >> {log}
+        fi
         """
 
 
