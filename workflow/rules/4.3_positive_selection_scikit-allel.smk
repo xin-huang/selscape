@@ -135,7 +135,7 @@ rule extract_tajima_d_outlier_variants:
         "../envs/selscape-env.yaml"
     shell:
         r"""
-        ( sed '1d' {input.scores} | awk '{{print $2"\t"$5"\t"$6}}' > {output.regions} ) 2> {log}
+        ( sed '1d' {input.scores} | awk '{{print $2"\t"($5-1)"\t"$6}}' > {output.regions} ) 2> {log}
 
         echo -e "CHR\tBP" > {output.variants}
         for i in {input.vcfs}; do
