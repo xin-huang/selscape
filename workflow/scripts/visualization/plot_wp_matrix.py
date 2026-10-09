@@ -141,17 +141,21 @@ for group, start, end in spans:
 ax.set_xlim(-edge - 0.05, n - 0.5)
 ax.set_ylim(n - 0.5, -edge - 0.95)
 ax.set_xlabel("Population", fontsize=9)
-ax.set_ylabel("Population", fontsize=9)
-ax.legend(
-    handles=[Patch(facecolor=group_color[g], edgecolor="none", label=g) for g in groups],
-    loc="upper center", bbox_to_anchor=(0.5, -0.09), ncol=min(len(groups), 6),
-    frameon=False, fontsize=label_size, handlelength=1.1, handleheight=0.9, columnspacing=1.4,
-)
+data_fraction = n / (n + edge + 0.45)
+ax.set_ylabel("Population", fontsize=9, y=data_fraction / 2)
+
+if groups:
+    ax.legend(
+        handles=[Patch(facecolor=group_color[g], edgecolor="none", label=g) for g in groups],
+        loc="upper center", bbox_to_anchor=(0.5, -0.09), ncol=min(len(groups), 6),
+        frameon=False, fontsize=label_size, handlelength=1.1, handleheight=0.9, columnspacing=1.4,
+    )
+
 ax.tick_params(length=0)
 for spine in ax.spines.values():
     spine.set_visible(False)
- 
-bar = fig.colorbar(image, ax=ax, fraction=0.035, pad=0.02)
+
+bar = fig.colorbar(image, cax=ax.inset_axes([1.03, 0.0, 0.03, data_fraction]))
 bar.set_label("Outlier genes", fontsize=9)
 bar.ax.yaxis.set_major_locator(matplotlib.ticker.MaxNLocator(integer=True))
 bar.ax.tick_params(labelsize=8)
