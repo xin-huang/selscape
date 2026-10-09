@@ -161,6 +161,71 @@ DELTA_TAJIMAD_KW = dict(
     cutoff=scikit_allel_config["top_proportion"],
 )
 
+WP_SELSCAN_STATS = selscan_config.get("wp_stats") or []
+_MTJD_ON = bool(TAJIMAD_MOVING_KW["window"] and TAJIMAD_MOVING_KW["step"])
+_WTJD_ON = bool(TAJIMAD_WINDOWED_KW["window"] and TAJIMAD_WINDOWED_KW["step"])
+
+_POS_CIRCOS_ALL_TRACKS = [
+    {"stat": "ihs", "enabled": "ihs" in WP_SELSCAN_STATS,
+     "name": "iHS", "file": "ihs_scores", "score_col": "normalized_ihs", "color": "#1f77b4"},
+    {"stat": "nsl", "enabled": "nsl" in WP_SELSCAN_STATS,
+     "name": "nSL", "file": "nsl_scores", "score_col": "normalized_nsl", "color": "#ff7f0e"},
+    {"stat": "mtjd", "enabled": _MTJD_ON,
+     "name": "mtjd", "file": "mtjd_scores", "score_col": "tajima_d", "color": "#2ca02c"},
+    {"stat": "wtjd", "enabled": _WTJD_ON,
+     "name": "wtjd", "file": "wtjd_scores", "score_col": "tajima_d", "color": "#d62728"},
+]
+_POS_CIRCOS_SLOTS = [[65, 75], [50, 60], [35, 45], [20, 30]]
+
+POS_CIRCOS_TRACKS = [
+    {k: v for k, v in t.items() if k not in ("stat", "enabled")} | {"r_range": slot}
+    for t, slot in zip([t for t in _POS_CIRCOS_ALL_TRACKS if t["enabled"]], _POS_CIRCOS_SLOTS)
+]
+
+
+_BAL_CIRCOS_ALL_TRACKS = [
+    {"stat": "b1", "enabled": True,
+     "name": "B1", "file": "b1_scores", "score_col": "B1", "color": "#1f77b4"},
+    {"stat": "mtjd", "enabled": _MTJD_ON,
+     "name": "mtjd", "file": "mtjd_bal_scores", "score_col": "tajima_d", "color": "#2ca02c"},
+    {"stat": "wtjd", "enabled": _WTJD_ON,
+     "name": "wtjd", "file": "wtjd_bal_scores", "score_col": "tajima_d", "color": "#d62728"},
+]
+_BAL_CIRCOS_SLOTS = [[60, 75], [40, 55], [20, 35]]
+
+BAL_CIRCOS_TRACKS = [
+    {k: v for k, v in t.items() if k not in ("stat", "enabled")} | {"r_range": slot}
+    for t, slot in zip([t for t in _BAL_CIRCOS_ALL_TRACKS if t["enabled"]], _BAL_CIRCOS_SLOTS)
+]
+
+
+def get_pos_circos_inputs(wc):
+    base = "results/positive_selection"
+    enabled = {t["file"] for t in POS_CIRCOS_TRACKS}
+    inputs = {}
+    if "ihs_scores" in enabled:
+        inputs["ihs_scores"] = f"{base}/selscan/{wc.species}/{wc.dataset}/1pop/{wc.ppl}/ihs_{SELSCAN_KW['maf']}/{wc.ppl}.normalized.ihs.scores"
+    if "nsl_scores" in enabled:
+        inputs["nsl_scores"] = f"{base}/selscan/{wc.species}/{wc.dataset}/1pop/{wc.ppl}/nsl_{SELSCAN_KW['maf']}/{wc.ppl}.normalized.nsl.scores"
+    if "mtjd_scores" in enabled:
+        inputs["mtjd_scores"] = f"{base}/scikit-allel/{wc.species}/{wc.dataset}/1pop/{wc.ppl}/{TAJIMAD_MOVING_KW['method']}/{TAJIMAD_MOVING_KW['window'][0]}_{TAJIMAD_MOVING_KW['step'][0]}/{wc.ppl}.{TAJIMAD_MOVING_KW['method']}.scores"
+    if "wtjd_scores" in enabled:
+        inputs["wtjd_scores"] = f"{base}/scikit-allel/{wc.species}/{wc.dataset}/1pop/{wc.ppl}/{TAJIMAD_WINDOWED_KW['method']}/{TAJIMAD_WINDOWED_KW['window'][0]}_{TAJIMAD_WINDOWED_KW['step'][0]}/{wc.ppl}.{TAJIMAD_WINDOWED_KW['method']}.scores"
+    return inputs
+
+
+def get_bal_circos_inputs(wc):
+    base = "results/balancing_selection"
+    enabled = {t["file"] for t in BAL_CIRCOS_TRACKS}
+    inputs = {}
+    if "b1_scores" in enabled:
+        inputs["b1_scores"] = f"{base}/betascan/{wc.species}/{wc.dataset}/{wc.ppl}/m_{BETASCAN_KW['core_frq']}/{wc.ppl}.{get_ref_genome(wc)}.m_{BETASCAN_KW['core_frq']}.b1.scores"
+    if "mtjd_bal_scores" in enabled:
+        inputs["mtjd_bal_scores"] = f"{base}/scikit-allel/{wc.species}/{wc.dataset}/{TAJIMAD_MOVING_KW['method']}/{wc.ppl}/{TAJIMAD_MOVING_KW['window'][0]}_{TAJIMAD_MOVING_KW['step'][0]}/{wc.ppl}.{TAJIMAD_MOVING_KW['method']}.merged.scores"
+    if "wtjd_bal_scores" in enabled:
+        inputs["wtjd_bal_scores"] = f"{base}/scikit-allel/{wc.species}/{wc.dataset}/{TAJIMAD_WINDOWED_KW['method']}/{wc.ppl}/{TAJIMAD_WINDOWED_KW['window'][0]}_{TAJIMAD_WINDOWED_KW['step'][0]}/{wc.ppl}.{TAJIMAD_WINDOWED_KW['method']}.merged.scores"
+    return inputs
+
 
 XP_SELSCAN_STATS = selscan_config.get("xp_stats") or []
 XP_ALLEL_STATS = scikit_allel_config.get("xp_stats") or []

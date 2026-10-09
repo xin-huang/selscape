@@ -16,29 +16,29 @@
 # along with this program. If not, please see
 #
 #    https://www.gnu.org/licenses/gpl-3.0.en.html
- 
+
 
 import os
 import sys
 import matplotlib
- 
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from upsetplot import UpSet, from_contents
- 
+
 log_fh = open(snakemake.log[0], "w")
 sys.stderr = log_fh
 sys.stdout = log_fh
- 
+
 gene_files = snakemake.input.genes
 population_groups = snakemake.params.population_groups or {}
 max_intersections = int(snakemake.params.max_intersections)
 plot_title = snakemake.params.title
- 
+
 BAR = "#0072B2"
 FALLBACK_COLORS = ["#E69F00", "#56B4E9", "#009E73", "#0072B2", "#CC79A7", "#D55E00"]
- 
- 
+
+
 def no_results(message):
     with open(snakemake.output.table, "w") as out:
         out.write("groups\tdegree\tn_genes\n")
@@ -51,44 +51,44 @@ def no_results(message):
     print(f"no results: {message}")
     log_fh.close()
     sys.exit(0)
- 
- 
+
+
 group_of = {
     population: group
     for group, cfg in population_groups.items()
     for population in (cfg or {}).get("populations", [])
 }
- 
-focal_pairs = snakemake.params.focal_pairs
 
 group_genes = {}
-ungrouped = set()
-for path, (population, _reference) in zip(gene_files, focal_pairs):
-    group = group_of.get(population)
-    if group is None:
-        group = population
-        ungrouped.add(population)
+for path in gene_files:
+    name = os.path.basename(path)
+    if ".focal_" in name:
+        population = name.rsplit(".focal_", 1)[1].split(".")[0]
+    else:
+        population = name.split(".", 1)[0]
+    group = group_of.get(population, population)
     with open(path) as handle:
         genes = {g for g in (line.strip() for line in handle) if g and g != "Gene"}
     group_genes.setdefault(group, set()).update(genes)
- 
+
+ungrouped = sorted(g for g in group_genes if g not in population_groups)
 if ungrouped:
-    print("not in population_groups, shown as own category:", ", ".join(sorted(ungrouped)))
+    print("not in population_groups, plotted as own group:", ", ".join(ungrouped))
 
 groups = [group for group in population_groups if group_genes.get(group)]
-groups += [population for population in sorted(ungrouped) if group_genes.get(population)]
+groups += [group for group in ungrouped if group_genes[group]]
 if len(groups) < 2:
-    no_results("fewer than two categories have outlier genes")
- 
+    no_results("fewer than two population groups have outlier genes")
+
 memberships = from_contents({group: group_genes[group] for group in groups})
 intersections = memberships.index.value_counts()
- 
+
 with open(snakemake.output.table, "w") as out:
     out.write("groups\tdegree\tn_genes\n")
     for pattern, count in intersections.items():
         members = [group for group, present in zip(groups, pattern) if present]
         out.write(f"{'&'.join(members)}\t{len(members)}\t{count}\n")
- 
+
 upset = UpSet(
     memberships,
     subset_size="count",
@@ -102,7 +102,7 @@ upset = UpSet(
 for i, group in enumerate(groups):
     color = (population_groups.get(group) or {}).get("color") or FALLBACK_COLORS[i % len(FALLBACK_COLORS)]
     upset.style_categories(group, bar_facecolor=color)
- 
+
 fig = plt.figure(figsize=(max(6.0, 0.55 * min(len(intersections), max_intersections) + 3.0), 4.5), dpi=200)
 axes = upset.plot(fig=fig)
 axes["intersections"].grid(False)
@@ -111,6 +111,6 @@ axes["totals"].set_xlabel("Total outlier genes")
 fig.suptitle(plot_title, fontsize=11, fontweight="bold")
 plt.savefig(snakemake.output.plot, bbox_inches="tight")
 plt.close()
- 
+
 print(f"{len(intersections)} intersections, showing at most {max_intersections}")
 log_fh.close()
