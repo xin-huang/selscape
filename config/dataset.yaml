@@ -1,0 +1,50 @@
+# Species identification
+species: "YourSpecies"
+tax_id: 9606  # Update for your species
+
+# Unique name for this dataset - used as a key and in all output paths
+dataset: "your_dataset"
+ref_genome: "your_ref"
+ploidy: 2
+
+# Hardy-Weinberg equilibrium p-value threshold
+hwe_pvalue: 0.001
+
+# Populations to analyze
+populations:
+  - Pop1
+  - Pop2
+
+# VCF file configuration - ADJUST TO YOUR NAMING SCHEME
+data_folder: "resources/data"
+vcf_prefix: "chr"  # or "Sample_chr", "full_chr", etc.
+vcf_suffix: ".vcf.gz"
+
+# Sample metadata
+metadata: "resources/metadata/samples.txt"
+
+# Chromosomes to analyze
+chromosomes:
+  - 1
+  - 2
+  - 3
+  # ... add all chromosomes
+
+# Ancestral alleles (optional, set to null to disable)
+anc_alleles:
+  path: "resources/ancestral_alleles"
+  prefix: "anc_chr"
+  # chr_prefix: "chr"  # optional, if ancestral allele filenames carry a chromosome prefix
+
+# Annotation files
+genome_annotation: "resources/annotation/genome.gtf.gz"
+gene2go: "resources/annotation/gene2go.gz"
+
+# Repeat regions (optional but recommended)
+rmsk: "resources/repeats/repeats.bed"
+seg_dup: "resources/repeats/seg_dups.bed"
+sim_rep: "resources/repeats/simple_repeats.bed"
+
+# Files for circos plots (optional)
+chr_bed: "examples/data/Human/genome/chrom.sizes.bed"
+cytoband: "examples/data/Human/genome/cytoBand.txt.gz"
