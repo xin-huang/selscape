@@ -142,14 +142,14 @@ rule all:
 #            species=[cfg["species"] for cfg in dataset_configs.values()],
 #            dataset=list(dataset_configs.keys()),
 #        ),
-        # circos plots (only for datasets with chr_bed + cytoband configured)
+        # within-population circos plots (only for datasets with chr_bed + cytoband configured)
         expand_1pop_circos(
             "results/plots/circos/{species}/{dataset}/{ppl}/{ppl}_positive_selection_circos_scores.png",
             anc_only=True,
-        ),
+        ) if POS_CIRCOS_TRACKS else [],
         expand_1pop_circos(
             "results/plots/circos/{species}/{dataset}/{ppl}/{ppl}_balancing_selection_circos_scores.png",
-        ),
+        ) if BAL_CIRCOS_TRACKS else [],
         # within-population upset plots
         expand_dataset(
             "results/plots/wp_upset/{species}/{dataset}/positive_selection/{dataset}.{method}.maf_{maf}.top_{cutoff}.upset.svg",
@@ -200,6 +200,7 @@ rule all:
             "results/plots/wp_matrix/{species}/{dataset}/balancing_selection/{dataset}.{method}.{window}_{step}.top_{cutoff}.matrix.svg",
             **TAJIMAD_WINDOWED_KW,
         ),
+        # xp circos plots (only for datasets with chr_bed + cytoband configured)
         expand_2pop_circos(
             "results/plots/circos/{species}/{dataset}/{pair}/{pair}_xp_selection_circos_scores.png",
             anc_only=True,
