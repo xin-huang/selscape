@@ -131,6 +131,7 @@ rule plot_selscan_upset:
         ),
         table="results/plots/wp_upset/{species}/{dataset}/positive_selection/{dataset}.{method}.maf_{maf}.top_{cutoff}.upset.tsv",
     params:
+        populations=lambda wc: get_dataset_cfg(wc)["populations"],
         population_groups=lambda _: main_config.get("population_groups", {}),
         max_intersections=15,
         title=lambda wc: (
@@ -169,6 +170,7 @@ rule plot_tajima_d_upset:
         ),
         table="results/plots/wp_upset/{species}/{dataset}/positive_selection/{dataset}.{method}.{window}_{step}.top_{cutoff}.upset.tsv",
     params:
+        populations=lambda wc: get_dataset_cfg(wc)["populations"],
         population_groups=lambda _: main_config.get("population_groups", {}),
         max_intersections=15,
         title=lambda wc: (
@@ -210,6 +212,7 @@ rule plot_betascan_upset:
         ),
         table="results/plots/wp_upset/{species}/{dataset}/balancing_selection/{dataset}.m_{core_frq}.b1.top_{cutoff}.upset.tsv",
     params:
+        populations=lambda wc: get_dataset_cfg(wc)["populations"],
         population_groups=lambda _: main_config.get("population_groups", {}),
         max_intersections=15,
         title=lambda wc: (
@@ -318,6 +321,7 @@ rule plot_tajima_d_balancing_upset:
         ),
         table="results/plots/wp_upset/{species}/{dataset}/balancing_selection/{dataset}.{method}.{window}_{step}.top_{cutoff}.upset.tsv",
     params:
+        populations=lambda wc: get_dataset_cfg(wc)["populations"],
         population_groups=lambda _: main_config.get("population_groups", {}),
         max_intersections=15,
         title=lambda wc: (
@@ -400,6 +404,7 @@ rule plot_selscan_wp_matrix:
         ),
         table="results/plots/wp_matrix/{species}/{dataset}/positive_selection/{dataset}.{method}.maf_{maf}.top_{cutoff}.matrix.tsv",
     params:
+        populations=lambda wc: get_dataset_cfg(wc)["populations"],
         population_groups=lambda _: main_config.get("population_groups", {}),
         title=lambda wc: (
             f"{wc.dataset} {selscan_method_names[wc.method]} "
@@ -476,6 +481,7 @@ rule plot_tajima_d_wp_matrix:
         ),
         table="results/plots/wp_matrix/{species}/{dataset}/positive_selection/{dataset}.{method}.{window}_{step}.top_{cutoff}.matrix.tsv",
     params:
+        populations=lambda wc: get_dataset_cfg(wc)["populations"],
         population_groups=lambda _: main_config.get("population_groups", {}),
         title=lambda wc: (
             f"{wc.dataset} {format_method_name(wc.method)}, positive selection "
@@ -516,6 +522,7 @@ rule plot_betascan_wp_matrix:
         ),
         table="results/plots/wp_matrix/{species}/{dataset}/balancing_selection/{dataset}.m_{core_frq}.b1.top_{cutoff}.matrix.tsv",
     params:
+        populations=lambda wc: get_dataset_cfg(wc)["populations"],
         population_groups=lambda _: main_config.get("population_groups", {}),
         title=lambda wc: (
             f"{wc.dataset} B1 "
@@ -553,6 +560,7 @@ rule plot_tajima_d_balancing_wp_matrix:
         ),
         table="results/plots/wp_matrix/{species}/{dataset}/balancing_selection/{dataset}.{method}.{window}_{step}.top_{cutoff}.matrix.tsv",
     params:
+        populations=lambda wc: get_dataset_cfg(wc)["populations"],
         population_groups=lambda _: main_config.get("population_groups", {}),
         title=lambda wc: (
             f"{wc.dataset} {format_method_name(wc.method)}, balancing selection "

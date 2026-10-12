@@ -18,7 +18,6 @@
 #    https://www.gnu.org/licenses/gpl-3.0.en.html
 
 
-import os
 import sys
 import matplotlib
  
@@ -52,9 +51,13 @@ def no_results(message):
     sys.exit(0)
  
  
+# population IDs come from the config, not from file names
+input_populations = snakemake.params.populations
+if len(gene_files) != len(input_populations):
+    raise ValueError("number of gene files and population IDs differ")
+
 genes_of = {}
-for path in gene_files:
-    population = os.path.basename(path).split(".", 1)[0]
+for path, population in zip(gene_files, input_populations):
     with open(path) as handle:
         genes_of[population] = {g for g in (line.strip() for line in handle) if g and g != "Gene"}
  
@@ -101,6 +104,7 @@ side = max(5.0, 0.34 * n + 2.6)
 fig, ax = plt.subplots(figsize=(side + 1.2, side), dpi=200)
 image = ax.imshow(matrix, cmap=cmap, vmin=0, vmax=max(vmax, 1), aspect="equal")
  
+# white gaps between group blocks
 for i in range(1, n):
     if group_of.get(populations[i]) != group_of.get(populations[i - 1]):
         ax.axhline(i - 0.5, color="#FFFFFF", linewidth=2.5)

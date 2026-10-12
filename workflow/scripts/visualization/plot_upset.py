@@ -18,7 +18,6 @@
 #    https://www.gnu.org/licenses/gpl-3.0.en.html
 
 
-import os
 import sys
 import matplotlib
 
@@ -53,6 +52,15 @@ def no_results(message):
     sys.exit(0)
 
 
+# population IDs come from the config, not from file names
+focal_pairs = getattr(snakemake.params, "focal_pairs", None)
+if focal_pairs is not None:
+    input_populations = [focal for focal, _reference in focal_pairs]
+else:
+    input_populations = snakemake.params.populations
+if len(gene_files) != len(input_populations):
+    raise ValueError("number of gene files and population IDs differ")
+
 group_of = {
     population: group
     for group, cfg in population_groups.items()
@@ -60,12 +68,7 @@ group_of = {
 }
 
 group_genes = {}
-for path in gene_files:
-    name = os.path.basename(path)
-    if ".focal_" in name:
-        population = name.rsplit(".focal_", 1)[1].split(".")[0]
-    else:
-        population = name.split(".", 1)[0]
+for path, population in zip(gene_files, input_populations):
     group = group_of.get(population, population)
     with open(path) as handle:
         genes = {g for g in (line.strip() for line in handle) if g and g != "Gene"}
