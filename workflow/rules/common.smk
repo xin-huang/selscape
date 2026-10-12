@@ -161,6 +161,39 @@ DELTA_TAJIMAD_KW = dict(
     cutoff=scikit_allel_config["top_proportion"],
 )
 
+
+XP_SELSCAN_STATS = selscan_config.get("xp_stats") or []
+XP_ALLEL_STATS = scikit_allel_config.get("xp_stats") or []
+
+_XP_CIRCOS_ALL_TRACKS = [
+    {"stat": "xpehh", "enabled": "xpehh" in XP_SELSCAN_STATS,
+     "name": "XP-EHH", "file": "xpehh_scores", "score_col": "normalized_xpehh", "color": "#1f77b4"},
+    {"stat": "xpnsl", "enabled": "xpnsl" in XP_SELSCAN_STATS,
+     "name": "XP-nSL", "file": "xpnsl_scores", "score_col": "normalized_xpnsl", "color": "#ff7f0e"},
+    {"stat": "dtjd", "enabled": bool(XP_ALLEL_STATS and DELTA_TAJIMAD_KW["window"] and DELTA_TAJIMAD_KW["step"]),
+     "name": "dtjd", "file": "dtjd_scores", "score_col": "delta_tajima_d", "color": "#2ca02c"},
+]
+_XP_CIRCOS_SLOTS = [[60, 75], [40, 55], [20, 35]]
+
+XP_CIRCOS_TRACKS = [
+    {k: v for k, v in t.items() if k not in ("stat", "enabled")} | {"r_range": slot}
+    for t, slot in zip([t for t in _XP_CIRCOS_ALL_TRACKS if t["enabled"]], _XP_CIRCOS_SLOTS)
+]
+
+
+def get_xp_circos_inputs(wc):
+    base = "results/positive_selection"
+    enabled = {t["file"] for t in XP_CIRCOS_TRACKS}
+    inputs = {}
+    if "xpehh_scores" in enabled:
+        inputs["xpehh_scores"] = f"{base}/selscan/{wc.species}/{wc.dataset}/2pop/{wc.pair}/xpehh_{SELSCAN_XP_KW['maf']}/{wc.pair}.normalized.xpehh.scores"
+    if "xpnsl_scores" in enabled:
+        inputs["xpnsl_scores"] = f"{base}/selscan/{wc.species}/{wc.dataset}/2pop/{wc.pair}/xpnsl_{SELSCAN_XP_KW['maf']}/{wc.pair}.normalized.xpnsl.scores"
+    if "dtjd_scores" in enabled:
+        inputs["dtjd_scores"] = f"{base}/scikit-allel/{wc.species}/{wc.dataset}/2pop/{wc.pair}/{DELTA_TAJIMAD_KW['method']}/{DELTA_TAJIMAD_KW['window'][0]}_{DELTA_TAJIMAD_KW['step'][0]}/{wc.pair}.{DELTA_TAJIMAD_KW['method']}.merged.scores"
+    return inputs
+
+
 selscan_method_names = {
     "ihs": "iHS",
     "nsl": "nSL",
@@ -534,6 +567,16 @@ def expand_1pop_circos(pattern, anc_only=False):
         for f in expand(pattern, dataset=ds, species=sp, ppl=pop, ref_genome=rg)
     ]
 
+def expand_2pop_circos(pattern, anc_only=False):
+    source = DATASET_2POP_ANC if anc_only else DATASET_2POP
+    return [
+        f
+        for ds, sp, pair, rg in source
+        if ds in datasets_with_circos
+        for f in expand(pattern, dataset=ds, species=sp, pair=pair, ref_genome=rg)
+    ]
+
+
 datasets_with_circos = [
     ds for ds, cfg in dataset_configs.items()
     if cfg.get("chr_bed") and cfg.get("cytoband")
@@ -555,3 +598,41 @@ def get_chr_bed(wildcards):
 def get_cytoband(wildcards):
     """Get cytoband annotation path for the given dataset (empty string if null)."""
     return get_dataset_cfg(wildcards).get("cytoband") or ""
+
+
+wildcard_constraints:
+    cutoff=r"[0-9]+(\.[0-9]+)?([eE][-+]?[0-9]+)?",
+    maf=r"[0-9]+(\.[0-9]+)?([eE][-+]?[0-9]+)?",
+    window=r"[0-9_]+",
+    step=r"[0-9]+(\.[0-9]+)?([eE][-+]?[0-9]+)?",
+ 
+ 
+def expand_dataset(pattern, anc_only=False, **kw):
+    source = DATASET_1POP_ANC if anc_only else DATASET_1POP
+    datasets = {(ds, sp, rg) for ds, sp, _pop, rg in source}
+    return [
+        f
+        for ds, sp, rg in sorted(datasets)
+        for f in expand(pattern, dataset=ds, species=sp, ref_genome=rg, **kw)
+    ]
+
+
+def expand_2pop_focal(pattern, anc_only=False, **kw):
+    """Like expand_2pop, but one entry per pair and focal population."""
+    source = DATASET_2POP_ANC if anc_only else DATASET_2POP
+    return [
+        f
+        for ds, sp, pair, rg in source
+        for pop in pair.split("_")
+        for f in expand(pattern, dataset=ds, species=sp, pair=pair, focal=pop, ref_genome=rg, **kw)
+    ]
+
+
+def get_xp_focal_directions(wildcards):
+    """(pair, focal, reference) for both directions of every population pair in a dataset."""
+    populations = dataset_configs[wildcards.dataset]["populations"]
+    return [
+        ("_".join((pop1, pop2)), focal, reference)
+        for pop1, pop2 in combinations(populations, 2)
+        for focal, reference in ((pop1, pop2), (pop2, pop1))
+    ]
