@@ -1,0 +1,67 @@
+Bootstrap: docker
+From: condaforge/miniforge3:latest
+
+%labels
+    Author Xin Huang and Simon Chen
+    Description selscape: Snakemake workflow for investigating genomic landscapes of natural selection
+
+%help
+    Container for the selscape workflow. The software environment is built from
+    workflow/envs/selscape-env.yaml, so rules run without --use-conda.
+
+    Run the bundled workflow from a directory that contains your config/:
+        apptainer run selscape.sif -c 4 --configfile config/main.yaml
+
+    Copy the example configs into the current directory:
+        apptainer exec selscape.sif cp -r /opt/selscape/config .
+
+    Use the container only as software environment for a local checkout:
+        apptainer exec selscape.sif snakemake -s workflow/Snakefile -c 4 --configfile config/main.yaml
+
+%files
+    workflow    /opt/selscape/workflow
+    config      /opt/selscape/config
+    README.md   /opt/selscape/README.md
+    LICENSE     /opt/selscape/LICENSE
+
+%post
+    set -e
+
+    # Solve the workflow env together with snakemake in one step.
+    # pulp<2.8 is required by snakemake 7 (newer pulp removed list_solvers).
+    # git and wget are used by the download rules for selscan, BetaScan and Gowinda.
+    cp /opt/selscape/workflow/envs/selscape-env.yaml /tmp/selscape-env.yaml
+    cat >> /tmp/selscape-env.yaml <<'EOF'
+  - snakemake-minimal=7.32.4
+  - pulp<2.8
+  - git
+  - wget
+EOF
+    mamba env create -f /tmp/selscape-env.yaml
+    mamba clean -afy
+    rm -f /tmp/selscape-env.yaml
+
+%environment
+    . /opt/conda/etc/profile.d/conda.sh
+    conda activate selscape
+    export PATH=/opt/conda/envs/selscape/bin:$PATH
+
+%runscript
+    exec snakemake --snakefile /opt/selscape/workflow/Snakefile "$@"
+
+%test
+    . /opt/conda/etc/profile.d/conda.sh
+    conda activate selscape
+
+    snakemake --version
+    bcftools --version | head -1
+    tabix --version | head -1
+    bedtools --version
+    plink --version
+    dadi-cli -h > /dev/null && echo "dadi-cli OK"
+    java -version
+    git --version
+    wget --version | head -1
+
+    python -c "import numpy, pandas, scipy, allel, cyvcf2, pysam, dadi, matplotlib, pycirclize, upsetplot, pyliftover; print('Python deps OK')"
+    Rscript -e 'suppressMessages({library(data.table); library(ggplot2); library(qqman); library(readr); library(DT); library(htmlwidgets)}); cat(R.version.string, "- R deps OK\n")'
