@@ -23,7 +23,14 @@ results/
 │
 └── plots/
     ├── circos/{species}/{dataset}/{ppl}/     # Selection analysis circos plots
-    ├── dfe/{species}/{dataset} # DFE CI plots
+    ├── dfe/{species}/{dataset}/              # DFE CI plots
+    ├── jaccard/{selection_type}/             # jaccard heatmap plots
+    ├── wp_go_matrix/{selection_type}/        # single population statistics go term matrix
+    ├── wp_matrix/{species}/{dataset}/{selection_type}/     # single population statistics matrix
+    ├── wp_upset/{species}/{dataset}/{selection_type}/      # single population statistics upset plot
+    ├── xp_go_matrix/{species}/{dataset}/      # cross population statistics go term matrix
+    ├── xp_matrix/{species}/{dataset}/         # cross population statistics matrix 
+    ├── xp_upset/{species}/{dataset}/          # cross population statistics upset plot
 ```
 
 ### Understanding File Paths
@@ -37,6 +44,7 @@ Throughout this documentation, file paths use the following wildcards:
 - `{maf}`: Minor allele frequency (e.g., "0.05")
 - `{core_frq}`: Core allele frequency (e.g., "0.15")
 - `{cutoff}`: Top proportion threshold (e.g., "0.0005")
+- `{selection_type}`: Selection type of a within-population statistic, either "positive_selection" (iHS, nSL, negative Tajima's D) or "balancing_selection" (B1, positive Tajima's D)
 - `{window}_{step}`: Window and step sizes
 - `{ref_genome}`: Reference genome build (e.g., "hg38")
 - `{demog}`: Demographic model (e.g., "two_epoch")
@@ -447,6 +455,58 @@ GO:0004077  0.030           1               0.0297130000    1.0000000000    1   
 The enrichment plot shows top 20 GO terms, sorted by their significance (FDR adjusted p-value) and then by the number of genes found. Bars are colored based on significance: red for highly significant enrichment (< 0.001), purple for significant enrichment (< 0.01), blue for moderately significant enrichment (< 0.05), and gray for non-significant results (≥ 0.05).
 
 More information: [Gowinda Tutorial](https://sourceforge.net/p/gowinda/wiki/Tutorial).
+
+## Jaccard Plots
+
+
+## Upset Plots
+Upset plots display the number of outlier genes within and between different population groups.
+The outlier genes of all populations in a group defined in `config/main.yaml` are pooled, and populations without a group are shown as their own category.
+Multiple upset plots of different methods share the same selection type folder.
+
+
+### Within-Population Statistics
+
+File path (Betascan as example): `results/plots/wp_upset/{species}/{dataset}/{selection_type}/{dataset}.m_{core_frq}.b1.top_{cutoff}.upset.svg`
+
+![Betascan Upset Plot](../images/betascan_upset_plot.svg)
+
+### Cross-Population Statistics
+
+File path (Delta Tajima's D as example): `results/plots/xp_upset/{species}/{dataset}/{dataset}.{method}.{window}_{step}.top_{cutoff}.upset.svg`
+
+![Tajima D Upset Plot](../images/delta_tajima_d_upset_plot.svg)
+
+Since cross-population statistics are directional, the outliers of each population pair are first split by the sign of their score and assigned to the population with the selection signal (the focal population).
+The outlier genes of each focal population are then pooled by group.
+
+## Matrix Plots
+Matrix plots display the number of outlier genes for every pair of populations as a heatmap.
+Populations are ordered and colored by the population groups defined in `config/main.yaml`.
+
+### Within-Population Statistics
+
+File path (Betascan as example): `results/plots/wp_matrix/{species}/{dataset}/{selection_type}/{dataset}.m_{core_frq}.b1.top_{cutoff}.matrix.svg`
+
+Example: `results/plots/wp_matrix/Human/1kg_high_cov/balancing_selection/1kg_high_cov.m_0.15.b1.top_0.0005.matrix.svg`
+
+![Betascan Matrix Plot](../images/betascan_matrix_plot.svg)
+
+Each cell shows the number of outlier genes shared by two populations, i.e. the overlap of their outlier gene lists.
+The matrix is therefore symmetric (cell YRI/CHS equals cell CHS/YRI), and the diagonal shows the total number of outlier genes in each population.
+
+### Cross-Population Statistics
+
+File path (Delta Tajima's D as example): `results/plots/xp_matrix/{species}/{dataset}/{dataset}.{method}.{window}_{step}.top_{cutoff}.matrix.svg`
+
+
+![Delta Tajima's D Matrix Plot](../images/delta_tajima_d_matrix_plot.svg)
+
+Each cell shows the number of outlier genes with a selection signal in the focal population (row) compared to the reference population (column).
+Because cross-population statistics are directional, the outliers of each population pair are split by the sign of their score.
+The matrix is therefore asymmetric: cell YRI/CHS counts genes under selection in YRI relative to CHS, whereas cell CHS/YRI counts genes under selection in CHS relative to YRI.
+The diagonal is empty, since a population is not compared to itself.
+
 
 ## Interactive HTML Reports
 

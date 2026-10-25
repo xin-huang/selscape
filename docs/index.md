@@ -34,6 +34,7 @@
   - scikit-allel=1.3.7
   - scipy=1.13.1
   - snakemake=7.32.4
+  - upsetplot=0.9.0
 
 
 ## Installation
