@@ -2,35 +2,49 @@
 
 ## Overview
 
-`selscape` organizes results by analysis type and population:
+`selscape` organizes results by analysis type, species, dataset and population:
 ```
 results/
 ├── positive_selection/
 │   ├── selscan/
-│   │   ├── {species}/1pop/{ppl}/{method}_{maf}/     # Within-population (iHS, nSL)
-│   │   └── {species}/2pop/{pair}/{method}_{maf}/    # Cross-population (XP-EHH, XP-nSL)
+│   │   ├── {species}/{dataset}/1pop/{ppl}/{method}_{maf}/     # Within-population (iHS, nSL)
+│   │   └── {species}/{dataset}/2pop/{pair}/{method}_{maf}/    # Cross-population (XP-EHH, XP-nSL)
 │   └── scikit-allel/
-│       ├── {species}/1pop/{ppl}/{method}/{window}_{step}/   # Negative Tajima's D
-│       └── {species}/2pop/{pair}/{method}/{window}_{step}/  # Delta Tajima's D
+│       ├── {species}/{dataset}/1pop/{ppl}/{method}/{window}_{step}/   # Negative Tajima's D
+│       └── {species}/{dataset}/2pop/{pair}/{method}/{window}_{step}/  # Delta Tajima's D
 ├── balancing_selection/
-│   ├── betascan/{species}/{ppl}/m_{core_frq}/
-│   └── scikit-allel/{species}/{method}/{ppl}/{window}_{step}/  # Positive Tajima's D
-├── dadi/{species}/dfe/{ppl}/
+│   ├── betascan/{species}/{dataset}/{ppl}/m_{core_frq}/
+│   └── scikit-allel/{species}/{dataset}/{method}/{ppl}/{window}_{step}/  # Positive Tajima's D
+├── dadi/{species}/{dataset}/dfe/{ppl}/
 │   ├── InferDM/        # Demographic models
 │   ├── InferDFE/       # DFE inference
 │   ├── StatDFE/        # Confidence intervals
 │   └── plots/          # Fitted model visualizations
+│
+└── plots/
+    ├── circos/{species}/{dataset}/{ppl}/     # Selection analysis circos plots
+    ├── dfe/{species}/{dataset}/              # DFE CI plots
+    ├── jaccard/{selection_type}/             # jaccard heatmap plots
+    ├── wp_go_matrix/{selection_type}/        # single population statistics go term matrix
+    ├── wp_matrix/{species}/{dataset}/{selection_type}/     # single population statistics matrix
+    ├── wp_upset/{species}/{dataset}/{selection_type}/      # single population statistics upset plot
+    ├── xp_go_matrix/{species}/{dataset}/      # cross population statistics go term matrix
+    ├── xp_matrix/{species}/{dataset}/         # cross population statistics matrix 
+    ├── xp_upset/{species}/{dataset}/          # cross population statistics upset plot
 ```
 
 ### Understanding File Paths
 Throughout this documentation, file paths use the following wildcards:
 
 - `{species}`: Species name (e.g., "Human")
+- `{dataset}`: Dataset name, i.e. the `dataset` value in the dataset config (e.g., "1kg_high_cov")
 - `{ppl}`: Population code (e.g., "YRI")
 - `{pair}`: Population pair (e.g., "YRI_CHS")
 - `{method}`: Selection statistic (e.g., "ihs", "windowed_tajima_d")
 - `{maf}`: Minor allele frequency (e.g., "0.05")
+- `{core_frq}`: Core allele frequency (e.g., "0.15")
 - `{cutoff}`: Top proportion threshold (e.g., "0.0005")
+- `{selection_type}`: Selection type of a within-population statistic, either "positive_selection" (iHS, nSL, negative Tajima's D) or "balancing_selection" (B1, positive Tajima's D)
 - `{window}_{step}`: Window and step sizes
 - `{ref_genome}`: Reference genome build (e.g., "hg38")
 - `{demog}`: Demographic model (e.g., "two_epoch")
@@ -44,7 +58,7 @@ Throughout this documentation, file paths use the following wildcards:
 
 **File path:**
 ```
-results/positive_selection/selscan/{species}/1pop/{ppl}/{method}_{maf}/{ppl}.normalized.{method}.maf_{maf}.top_{cutoff}.outliers.scores
+results/positive_selection/selscan/{species}/{dataset}/1pop/{ppl}/{method}_{maf}/{ppl}.normalized.{method}.maf_{maf}.top_{cutoff}.outliers.scores
 ```
 
 **Example output:**
@@ -71,7 +85,7 @@ Positive values indicate unusually long haplotypes around the derived allele, wh
 
 **File path:**
 ```
-results/positive_selection/selscan/{species}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.outliers.scores
+results/positive_selection/selscan/{species}/{dataset}/2pop/{pair}/{method}_{maf}/{pair}.normalized.{method}.maf_{maf}.top_{cutoff}.outliers.scores
 ```
 
 Same format as within-population statistics.
@@ -86,7 +100,7 @@ More information: [selscan](https://github.com/szpiech/selscan).
 
 **File path:**
 ```
-results/positive_selection/scikit-allel/{species}/1pop/{ppl}/windowed_tajima/{window}_{step}/{ppl}.windowed_tajima..top_{cutoff}.outliers.scores
+results/positive_selection/scikit-allel/{species}/{dataset}/1pop/{ppl}/windowed_tajima_d/{window}_{step}/{ppl}.windowed_tajima_d.top_{cutoff}.outliers.scores
 ```
 **Example output:**
 ```
@@ -115,7 +129,7 @@ For all Tajima's D methods, each data point in the Manhattan plot represents the
 
 **File path:**
 ```
-results/positive_selection/scikit-allel/{species}/1pop/{ppl}/moving_tajima_d/{window}_{step}/{ppl}.moving_tajima_d.top_{cutoff}.outliers.scores
+results/positive_selection/scikit-allel/{species}/{dataset}/1pop/{ppl}/moving_tajima_d/{window}_{step}/{ppl}.moving_tajima_d.top_{cutoff}.outliers.scores
 ```
 
 Similar format to windowed approach, but windows are defined by a fixed number of SNPs rather than base pairs.
@@ -137,7 +151,7 @@ Similar format to windowed approach, but windows are defined by a fixed number o
 
 **File path:**
 ```
-results/positive_selection/scikit-allel/{species}/2pop/{pair}/delta_moving_tajima_d/{window}_{step}/{pair}.delta_moving_tajima_d.top_{cutoff}.outliers.scores
+results/positive_selection/scikit-allel/{species}/{dataset}/2pop/{pair}/delta_moving_tajima_d/{window}_{step}/{pair}.delta_moving_tajima_d.top_{cutoff}.outliers.scores
 ```
 
 **Example output:**
@@ -171,7 +185,7 @@ More information: [scikit-allel](https://scikit-allel.readthedocs.io/en/stable/i
 
 **File path:**
 ```
-results/balancing_selection/betascan/{species}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.outliers.scores
+results/balancing_selection/betascan/{species}/{dataset}/{ppl}/m_{core_frq}/{ppl}.{ref_genome}.m_{core_frq}.b1.top_{cutoff}.outliers.scores
 ```
 
 **Example output:**
@@ -201,7 +215,7 @@ More information: [BetaScan](https://github.com/ksiewert/BetaScan/wiki).
 
 **File path:**
 ```
-results/balancing_selection/scikit-allel/{species}/windowed_tajima_d/{ppl}/{window}_{step}/{ppl}.windowed_tajima_d.top_{cutoff}.outliers.scores
+results/balancing_selection/scikit-allel/{species}/{dataset}/windowed_tajima_d/{ppl}/{window}_{step}/{ppl}.windowed_tajima_d.top_{cutoff}.outliers.scores
 ```
 **Example output:**
 ```
@@ -228,7 +242,7 @@ Positive values indicates an excess of intermediate-frequency variants; it can b
 
 **File path:**  
 ```
-results/balancing_selection/scikit-allel/{species}/moving_tajima_d/{window}_{step}/{ppl}.moving_tajima_d.top_{cutoff}.outliers.scores
+results/balancing_selection/scikit-allel/{species}/{dataset}/moving_tajima_d/{ppl}/{window}_{step}/{ppl}.moving_tajima_d.top_{cutoff}.outliers.scores
 ```
 
 Similar format to windowed approach, but windows are defined by a fixed number of SNPs rather than base pairs.
@@ -245,13 +259,27 @@ Similar format to windowed approach, but windows are defined by a fixed number o
 
 ![Moving Tajima's D Balancing Selection Manhattan Plot](../images/moving_tajima_d_balancing_selection_manhattan_plot.png)
 
+## Circos Plot
+Circos plots are used to visualize genome-wide selection signals across all analyzed chromosomes. Each track represents one selection statistic (method) from the workflow, and spikes within a track indicate a strong selection signal, allowing different methods to be compared directly.
+
+
+**File path:** `results/plots/circos/{species}/{dataset}/{ppl}/{ppl}_positive_selection_circos_scores.png`
+
+![Positive Selection Circos Plot](../images/CHS_positive_selection_circos_scores.png)
+
+**File path:** `results/plots/circos/{species}/{dataset}/{ppl}/{ppl}_balancing_selection_circos_scores.png`
+
+![Balancing Selection Circos Plot](../images/CHS_balancing_selection_circos_scores.png)
+
+More information: [pyCirclize](https://moshi4.github.io/pyCirclize/).
+
 ## Distribution of Fitness Effects
  
 ### dadi/dadi-cli
 
 #### Demographic Model Inference
 
-**File path:** `results/dadi/{species}/dfe/{ppl}/InferDM/{ppl}.{ref_genome}.{demog}.InferDM.bestfits`
+**File path:** `results/dadi/{species}/{dataset}/dfe/{ppl}/InferDM/{ppl}.{ref_genome}.{demog}.InferDM.bestfits`
 
 **Example output:**
 ```
@@ -271,7 +299,7 @@ Similar format to windowed approach, but windows are defined by a fixed number o
 
 #### Demographic Model Fit
 
-**File path:** `results/dadi/{species}/dfe/{ppl}/plots/{ppl}.{ref_genome}.{demog}.fitted.png`
+**File path:** `results/dadi/{species}/{dataset}/dfe/{ppl}/plots/{ppl}.{ref_genome}.{demog}.fitted.png`
 
 ![Demographic Model Fit](../images/two_epoch.png)
 
@@ -279,7 +307,7 @@ The plot shows the observed frequency spectrum (data) compared to the model-pred
 
 #### Distribution of Fitness Effects
 
-**File path:** `results/dadi/{species}/dfe/{ppl}/InferDFE/{ppl}.{ref_genome}.{demog}.{dfe}.InferDFE.bestfits`
+**File path:** `results/dadi/{species}/{dataset}/dfe/{ppl}/InferDFE/{ppl}.{ref_genome}.{demog}.{dfe}.InferDFE.bestfits`
 
 **Example output:**
 ```
@@ -300,7 +328,7 @@ The plot shows the observed frequency spectrum (data) compared to the model-pred
 
 #### DFE Model Fit Plot
 
-**File path:** `results/dadi/{species}/dfe/{ppl}/plots/{ppl}.{ref_genome}.{demog}.{dfe}.fitted.png`
+**File path:** `results/dadi/{species}/{dataset}/dfe/{ppl}/plots/{ppl}.{ref_genome}.{demog}.{dfe}.fitted.png`
 
 ![DFE Model Fit](../images/two_epoch.lognormal.png)
 
@@ -308,7 +336,7 @@ The plot shows the observed vs. model-predicted frequency spectrum for nonsynony
 
 #### Mutation Proportion Plot
 
-**File path:** `results/dadi/{species}/dfe/{ppl}/plots/{ppl}.{ref_genome}.{demog}.{dfe}.fitted.mut.prop.png`
+**File path:** `results/dadi/{species}/{dataset}/dfe/{ppl}/plots/{ppl}.{ref_genome}.{demog}.{dfe}.fitted.mut.prop.png`
 
 ![Mutation Proportions](../images/two_epoch.lognormal.mut.prop.png)
 
@@ -316,7 +344,7 @@ The mutation proportion plot shows the proportions of deleterious mutations grou
 
 #### Confidence Intervals
 
-**File path:**  `results/dadi/{species}/dfe/{ppl}/StatDFE/{ppl}.{ref_genome}.{demog}.{dfe}.godambe.ci`
+**File path:**  `results/dadi/{species}/{dataset}/dfe/{ppl}/StatDFE/{ppl}.{ref_genome}.{demog}.{dfe}.godambe.ci`
 
 **Example output:**
 ```
@@ -334,6 +362,11 @@ Upper bounds of 95% confidence interval : [3.99729681 4.98007091 0.21626994]
 ```
 
 Godambe-based 95% confidence intervals for all DFE parameters.
+
+#### Confidence Intervals Plot
+File path: `results/plots/dfe/{species}/{dataset}/{species}.{dataset}.dfe_params.svg`
+
+![DFE Plot](../images/dfe_plot.png)
 
 More information: [dadi](https://dadi.readthedocs.io/en/latest/) and [dadi-cli](https://dadi-cli.readthedocs.io/en/latest/).
 
@@ -423,6 +456,58 @@ The enrichment plot shows top 20 GO terms, sorted by their significance (FDR adj
 
 More information: [Gowinda Tutorial](https://sourceforge.net/p/gowinda/wiki/Tutorial).
 
+## Jaccard Plots
+
+
+## Upset Plots
+Upset plots display the number of outlier genes within and between different population groups.
+The outlier genes of all populations in a group defined in `config/main.yaml` are pooled, and populations without a group are shown as their own category.
+Multiple upset plots of different methods share the same selection type folder.
+
+
+### Within-Population Statistics
+
+File path (Betascan as example): `results/plots/wp_upset/{species}/{dataset}/{selection_type}/{dataset}.m_{core_frq}.b1.top_{cutoff}.upset.svg`
+
+![Betascan Upset Plot](../images/betascan_upset_plot.svg)
+
+### Cross-Population Statistics
+
+File path (Delta Tajima's D as example): `results/plots/xp_upset/{species}/{dataset}/{dataset}.{method}.{window}_{step}.top_{cutoff}.upset.svg`
+
+![Tajima D Upset Plot](../images/delta_tajima_d_upset_plot.svg)
+
+Since cross-population statistics are directional, the outliers of each population pair are first split by the sign of their score and assigned to the population with the selection signal (the focal population).
+The outlier genes of each focal population are then pooled by group.
+
+## Matrix Plots
+Matrix plots display the number of outlier genes for every pair of populations as a heatmap.
+Populations are ordered and colored by the population groups defined in `config/main.yaml`.
+
+### Within-Population Statistics
+
+File path (Betascan as example): `results/plots/wp_matrix/{species}/{dataset}/{selection_type}/{dataset}.m_{core_frq}.b1.top_{cutoff}.matrix.svg`
+
+Example: `results/plots/wp_matrix/Human/1kg_high_cov/balancing_selection/1kg_high_cov.m_0.15.b1.top_0.0005.matrix.svg`
+
+![Betascan Matrix Plot](../images/betascan_matrix_plot.svg)
+
+Each cell shows the number of outlier genes shared by two populations, i.e. the overlap of their outlier gene lists.
+The matrix is therefore symmetric (cell YRI/CHS equals cell CHS/YRI), and the diagonal shows the total number of outlier genes in each population.
+
+### Cross-Population Statistics
+
+File path (Delta Tajima's D as example): `results/plots/xp_matrix/{species}/{dataset}/{dataset}.{method}.{window}_{step}.top_{cutoff}.matrix.svg`
+
+
+![Delta Tajima's D Matrix Plot](../images/delta_tajima_d_matrix_plot.svg)
+
+Each cell shows the number of outlier genes with a selection signal in the focal population (row) compared to the reference population (column).
+Because cross-population statistics are directional, the outliers of each population pair are split by the sign of their score.
+The matrix is therefore asymmetric: cell YRI/CHS counts genes under selection in YRI relative to CHS, whereas cell CHS/YRI counts genes under selection in CHS relative to YRI.
+The diagonal is empty, since a population is not compared to itself.
+
+
 ## Interactive HTML Reports
 
 All methods generate interactive HTML tables with search, sort, and export functionality:
@@ -431,6 +516,6 @@ All methods generate interactive HTML tables with search, sort, and export funct
 - **Enrichment results**: `{analysis_path}/{file_prefix}.gowinda.enrichment.html`
 - **Best-fit parameters**:
 
-  - `results/dadi/{species}/dfe/{ppl}/html/{ppl}.{ref_genome}.{demog}.InferDM.top10.bestfits.html`
-  - `results/dadi/{species}/dfe/{ppl}/html/{ppl}.{ref_genome}.{demog}.{dfe}.InferDFE.top10.bestfits.html`
-  - `results/dadi/{species}/dfe/{ppl}/html/{ppl}.{ref_genome}.{demog}.{dfe}.godambe.ci.html`
+  - `results/dadi/{species}/{dataset}/dfe/{ppl}/html/{ppl}.{ref_genome}.{demog}.InferDM.top10.bestfits.html`
+  - `results/dadi/{species}/{dataset}/dfe/{ppl}/html/{ppl}.{ref_genome}.{demog}.{dfe}.InferDFE.top10.bestfits.html`
+  - `results/dadi/{species}/{dataset}/dfe/{ppl}/html/{ppl}.{ref_genome}.{demog}.{dfe}.godambe.ci.html`
